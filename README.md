@@ -113,16 +113,17 @@ Do not publicly include:
 
 - Based on the original H1Emu Launcher created by [Noctiamor](https://github.com/Noctiamor) and [Relish](https://github.com/aarongarnerm).
 - Original launcher concept art by LegendsNeveerrDie.
-- Original H1Emu logos created by ZamZam.
 - Modified and adapted for JSEmu.eu by the JSEmu.eu development team.
 
-## Related Project
+## Privacy Policy
 
-### h1z1-server
+Information about data handling and network connections is available in our [Privacy Policy](PRIVACY.md).
 
-[![npm version](https://img.shields.io/npm/v/h1z1-server.svg?style=flat)](https://npmjs.org/package/h1z1-server)
+## Code signing policy
 
-The server emulator used by Just Survive community projects is available through the `h1z1-server` package.
+Free code signing provided by [SignPath.io](https://signpath.io), certificate by [SignPath Foundation](https://signpath.org).
+
+Privacy policy: [PRIVACY.md](PRIVACY.md)
 
 ## Disclaimer
 
