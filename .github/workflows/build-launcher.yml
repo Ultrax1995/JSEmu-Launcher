@@ -1,18 +1,20 @@
-name: Build JSEmu Launcher
+name: Build and Release JSEmu Launcher
 
 on:
+  # Sprawdza kompilację po każdej zmianie na main
   push:
     branches:
       - main
 
-  pull_request:
-    branches:
-      - main
+    # Tworzy Release po wysłaniu tagu, np. v3.5.1
+    tags:
+      - "v*"
 
+  # Pozwala uruchomić sam build ręcznie
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -31,7 +33,7 @@ jobs:
       - name: Display .NET information
         run: dotnet --info
 
-      - name: Publish launcher
+      - name: Publish launcher as single EXE
         shell: pwsh
         run: |
           dotnet publish "JSEmu Launcher/H1Emu Launcher.csproj" `
@@ -39,21 +41,33 @@ jobs:
             --runtime win-x64 `
             --self-contained true `
             --output "publish/JSEmu-Launcher-win-x64" `
-            -p:PublishSingleFile=false `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true `
             -p:DebugType=None `
             -p:DebugSymbols=false
 
-      - name: Display compiled files
+      - name: Verify compiled EXE
         shell: pwsh
         run: |
-          Get-ChildItem "publish/JSEmu-Launcher-win-x64" -Recurse |
-          Select-Object FullName, Length
+          $exe = "publish/JSEmu-Launcher-win-x64/JSEmu Launcher.exe"
 
-      - name: Upload compiled launcher
-        uses: actions/upload-artifact@v4
-        with:
-          name: JSEmu-Launcher-win-x64
-          path: publish/JSEmu-Launcher-win-x64/
-          if-no-files-found: error
-          retention-days: 30
-          compression-level: 6
+          if (!(Test-Path $exe)) {
+            Write-Host "Files found in publish directory:"
+            Get-ChildItem "publish/JSEmu-Launcher-win-x64" -Recurse
+            throw "JSEmu Launcher.exe was not created."
+          }
+
+          Get-Item $exe | Format-List FullName, Length
+
+      - name: Create GitHub Release and upload EXE
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" `
+            "publish/JSEmu-Launcher-win-x64/JSEmu Launcher.exe" `
+            --verify-tag `
+            --title "JSEmu Launcher ${{ github.ref_name }}" `
+            --generate-notes
