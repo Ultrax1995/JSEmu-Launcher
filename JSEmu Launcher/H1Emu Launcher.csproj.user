@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_LastSelectedProfileId>D:\Programming\H1Emu-Launcher\H1EMU-Redux\H1EMU-Redux\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ApplicationDefinition Update="App.xaml">
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="SettingsPages\About.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="SettingsPages\AccountKey.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="SettingsPages\AssetPacks.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="SettingsPages\GameFiles.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="SettingsPages\Options.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="SettingsPages\BugReports.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Windows\DisclaimerWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="SteamFramePages\2FA.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Windows\AddItemWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="SteamFramePages\DownloadComplete.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Windows\LauncherWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="SteamFramePages\Login.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Windows\MessageBoxWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Windows\SettingsWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Windows\InstallServerInline.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Windows\SplashWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Update="Language\StringResources.en-EN.xaml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Resource Update="Language\StringResources.se-SE.xaml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Resource Update="Language\StringResources.fr-FR.xaml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Resource Update="Language\StringResources.hr-HR.xaml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Page Update="SettingsPages\About.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="SettingsPages\AccountKey.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="SettingsPages\GameFiles.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="SettingsPages\Options.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="SettingsPages\BugReports.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Windows\DisclaimerWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Resource Update="Language\StringResources.zh-CN.xaml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Resource Update="Language\StringResources.tr-TR.xaml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Resource Update="Language\StringResources.ru-RU.xaml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Resource Update="Language\StringResources.pl-PL.xaml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Resource Update="Language\StringResources.bg-BG.xaml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Resource Update="Language\StringResources.de-DE.xaml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Resource Update="Language\StringResources.nl-NL.xaml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Resource Update="Language\StringResources.pt-PT.xaml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Resource Update="Language\StringResources.es-ES.xaml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Page Update="SteamFramePages\2FA.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Windows\AddItemWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="SteamFramePages\DownloadComplete.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="SteamFramePages\DownloadStatus.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Windows\LauncherWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="SteamFramePages\Login.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Windows\UpdateWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Windows\MessageBoxWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Windows\SettingsWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Windows\SplashWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+</Project>

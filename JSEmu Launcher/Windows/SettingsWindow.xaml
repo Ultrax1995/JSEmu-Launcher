@@ -1,0 +1,161 @@
+﻿<Window x:Class="H1Emu_Launcher.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        UseLayoutRounding="True"
+        Title="{DynamicResource item206}"
+        x:Name="Settings"
+        MinWidth="735"
+        MaxWidth="735"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        Background="Transparent"
+        FontFamily="Bahnschrift Light"
+        FontSize="16"
+        Foreground="FloralWhite"
+        Loaded="SettingsLoaded"
+        ContentRendered="SettingsWindowContentRendered"
+        Closing="SettingsWindowClosing">
+
+    <!-- Keep window animations -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="1" CaptionHeight="0" NonClientFrameEdges="Bottom, Left, Right"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <ResourceDictionary>
+
+            <!-- Load dictionary into xaml resources just so we can see on the designer -->
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="..\Language\StringResources.en-EN.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <!-- Window grid -->
+    <Grid Background="{DynamicResource LighterColour}">
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Grainy texture -->
+            <Grid.Background>
+                <ImageBrush ImageSource="..\Resources\Grain.png" Opacity="0.5" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/>
+            </Grid.Background>
+
+            <!-- Grid for logo and exit button -->
+            <Grid MouseLeftButtonDown="MoveSettingsWindow"
+                  Background="Transparent">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Logo -->
+<TextBlock FontFamily="Bahnschrift"
+           FontSize="34"
+           FontWeight="Bold"
+           Margin="20"
+           VerticalAlignment="Top"
+           HorizontalAlignment="Left"
+           TextAlignment="Center">
+
+    <TextBlock.Effect>
+        <DropShadowEffect BlurRadius="15"
+                          Direction="-90"
+                          RenderingBias="Quality"
+                          ShadowDepth="0"
+                          Opacity="0.35"/>
+    </TextBlock.Effect>
+
+    <TextBlock.Inlines><Run Text="JSE" Foreground="#FFED1C24"/><Run Text="mu.eu" Foreground="White"/></TextBlock.Inlines>
+</TextBlock>
+
+                <!-- Exit button -->
+                <Button x:Name="ExitButton"
+                        Grid.Column="2"
+                        Click="CloseSettingsWindow"
+                        Background="{DynamicResource RedAccent}"
+                        Width="50"
+                        Height="30"
+                        Margin="20"
+                        VerticalAlignment="Top"
+                        Style="{StaticResource ToolBarButtonStyle}">
+
+                    <Button.Content>
+                        <Path Data="{DynamicResource XIcon}"
+                              Stretch="Uniform"
+                              Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}}"
+                              Width="10"
+                              Height="10"/>
+
+                    </Button.Content>
+                </Button>
+            </Grid>
+
+            <TabControl x:Name="settingsTabControl"
+                        Grid.Row="1"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Margin="20,0,20,20"
+                        Padding="2,0,2,2"
+                        SelectionChanged="SettingsTabControlSelectionChanged">
+
+                <!-- Game Files -->
+                <TabItem Header="{DynamicResource item195}"
+                         Style="{StaticResource TabItemStyleFirst}">
+
+                    <Frame Source="..\SettingsPages\GameFiles.xaml"/>
+                </TabItem>
+
+                <!-- Asset Packs -->
+                <TabItem Header="{DynamicResource item224}"
+                         Style="{StaticResource TabItemStyleFirst}">
+
+                    <Frame Source="..\SettingsPages\AssetPacks.xaml"/>
+                </TabItem>
+
+                <!-- Account Key -->
+                <TabItem Header="{DynamicResource item196}"
+                         Style="{StaticResource TabItemStyleMiddle}">
+
+                    <Frame Source="..\SettingsPages\AccountKey.xaml"/>
+                </TabItem>
+
+                <!-- Options -->
+                <TabItem Header="{DynamicResource item197}"
+                         Style="{StaticResource TabItemStyleMiddle}">
+
+                    <Frame Source="..\SettingsPages\Options.xaml"/>
+                </TabItem>
+
+
+                <!-- About -->
+                <TabItem Header="{DynamicResource item199}"
+                         Style="{StaticResource TabItemStyleLast}">
+
+                    <Frame Source="..\SettingsPages\About.xaml"/>
+                </TabItem>
+
+                <TabControl.Effect>
+
+                    <!-- Drop shadow effect -->
+                    <DropShadowEffect BlurRadius="15"
+                                      Direction="-90"
+                                      RenderingBias="Quality"
+                                      ShadowDepth="1"/>
+
+                </TabControl.Effect>
+            </TabControl>
+        </Grid>
+    </Grid>
+</Window>

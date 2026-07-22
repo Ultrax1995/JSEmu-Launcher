@@ -1,0 +1,301 @@
+﻿<Window x:Class="H1Emu_Launcher.MessageBoxWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        UseLayoutRounding="True"
+        Title="{DynamicResource item209}"
+        MinWidth="350"
+        MaxWidth="700"
+        MinHeight="200"
+        MaxHeight="700"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        FontFamily="Bahnschrift Light"
+        FontSize="16"
+        Foreground="FloralWhite"
+        Loaded="MessageBoxWindowLoaded"
+        Closing="MessageBoxWindowClosing"
+        KeyDown="MessageBoxWindowKeyDown">
+
+    <!-- Keep window animations -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="1" CaptionHeight="0" NonClientFrameEdges="Bottom, Left, Right"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <ResourceDictionary>
+
+            <!-- Load dictionary into xaml resources just so we can see on the designer -->
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="..\Language\StringResources.en-EN.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <!-- Window grid -->
+    <Grid Background="{DynamicResource LighterColour}">
+        
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Grainy texture -->
+            <Grid.Background>
+                <ImageBrush ImageSource="..\Resources\Grain.png" Opacity="0.5" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/>
+            </Grid.Background>
+
+            <!-- Grid for logo and exit button -->
+            <Grid MouseLeftButtonDown="MoveMessageBoxWindow"
+                  Background="Transparent">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Logo -->
+                <Image Source="..\Resources\H1EmuIcon.png"
+                       Stretch="Uniform"
+                       Height="30"
+                       Margin="15"
+                       VerticalAlignment="Top"
+                       HorizontalAlignment="Left">
+
+                    <Image.Effect>
+                        <DropShadowEffect BlurRadius="15"
+                                              Direction="-90"
+                                              RenderingBias="Quality"
+                                              ShadowDepth="0"
+                                              Opacity="0.3"/>
+                    </Image.Effect>
+                </Image>
+
+                <!-- Exit button -->
+                <Button x:Name="CloseButton"
+                        Grid.Column="2"
+                        Click="CloseMessageBoxWindow"
+                        Background="{DynamicResource RedAccent}"
+                        Width="40"
+                        Height="25"
+                        Margin="15"
+                        VerticalAlignment="Top"
+                        Style="{StaticResource ToolBarButtonStyle}">
+
+                    <Button.Content>
+                        <Path Data="{DynamicResource XIcon}"
+                              Stretch="Uniform"
+                              Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}}"
+                              Width="10"
+                              Height="10"/>
+
+                    </Button.Content>
+                </Button>
+            </Grid>
+
+            <!-- Main content in darkened area -->
+            <Border Grid.Row="1"
+                    Margin="15,0,15,15"
+                    Background="{DynamicResource DarkerColour}"
+                    UseLayoutRounding="True"
+                    CornerRadius="5">
+
+                <!-- Drop shadow effect -->
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="8"
+                                      Direction="-90"
+                                      RenderingBias="Quality"
+                                      ShadowDepth="1"/>
+
+                </Border.Effect>
+
+                <!-- Border for grainy texture -->
+                <Border CornerRadius="5">
+
+                    <!-- Grainy texture -->
+                    <Border.Background>
+                        <ImageBrush ImageSource="..\Resources\Grain.png" Opacity="0.5" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/>
+                    </Border.Background>
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Main message box text -->
+                        <TextBlock x:Name="text"
+                                   Grid.Row="1"
+                                   Margin="20"
+                                   Background="Transparent"
+                                   TextWrapping="Wrap"
+                                   TextAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   Style="{DynamicResource TextBlockStyle}"/>
+
+                        <!-- Hyperlink to user authentication key website -->
+                        <TextBlock x:Name="discordInviteLink"
+                                   Grid.Row="2"
+                                   Margin="20,0,20,20"
+                                   HorizontalAlignment="Center"
+                                   Visibility="Collapsed"
+                                   Style="{DynamicResource TextBlockStyle}">
+
+                            <Hyperlink Click="DiscordInviteLinkClick"
+                                       FontWeight="Bold"
+                                       Style="{DynamicResource HyperLinkStyle}">
+    
+                                <TextBlock Text="https://discord.com/invite/h1emu"/>
+    
+                            </Hyperlink>
+
+                            <!-- Context menu to copy link -->
+                            <TextBlock.ContextMenu>
+                                <ContextMenu Style="{DynamicResource ContextMenuStyle}">
+                                    <MenuItem Click="DiscordInviteLinkCopy"
+                                              Header="{DynamicResource item193}"
+                                              Style="{DynamicResource CustomMenuItem}">
+                
+                                        <MenuItem.Icon>
+                                            <Path Data="{DynamicResource CopyIcon}"
+                                                  Fill="{Binding RelativeSource={RelativeSource Mode=Self}, Path=(TextElement.Foreground)}"
+                                                  Stretch="Uniform"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </TextBlock.ContextMenu>
+                        </TextBlock>
+
+                        <!-- Divider -->
+                        <Rectangle Grid.Row="3"
+                                   Margin="20,0,20,0"
+                                   Height="1"
+                                   Fill="{DynamicResource LighterColour}">
+
+                            <Rectangle.Effect>
+                                <DropShadowEffect BlurRadius="8"
+                                                  Direction="-90"
+                                                  RenderingBias="Quality"
+                                                  ShadowDepth="1"
+                                                  Opacity="0.3"/>
+                            </Rectangle.Effect>
+                        </Rectangle>
+
+                        <!-- Using a UniformGrid here to keep both buttons centered when the collapsed element is set to visible -->
+                        <Grid Grid.Row="4"
+                              HorizontalAlignment="Center">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Kill H1Z1 process button -->
+                            <Button x:Name="killH1Z1Button"
+                                    Click="CloseH1Z1Click"
+                                    Margin="20"
+                                    Padding="25,7,25,7"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Center"
+                                    Visibility="Collapsed"
+                                    Content="{DynamicResource item189}"
+                                    Style="{DynamicResource PrimaryButton}">
+
+                                <Button.Effect>
+
+                                    <!-- Drop shadow effect -->
+                                    <DropShadowEffect BlurRadius="15"
+                                                      Direction="-90"
+                                                      RenderingBias="Quality"
+                                                      ShadowDepth="1"
+                                                      Opacity="0.3"/>
+                                </Button.Effect>
+                            </Button>
+
+                            <!-- Confirm yes button -->
+                            <Button x:Name="confirmYesButton"
+                                    Grid.Column="1"
+                                    Click="ConfirmYesButtonClick"
+                                    Margin="20"
+                                    Padding="25,7,25,7"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Center"
+                                    Visibility="Collapsed"
+                                    Content="{DynamicResource item133}"
+                                    Style="{DynamicResource PrimaryButton}">
+
+                                <Button.Effect>
+                                    
+                                    <!-- Drop shadow effect -->
+                                    <DropShadowEffect BlurRadius="15"
+                                                      Direction="-90"
+                                                      RenderingBias="Quality"
+                                                      ShadowDepth="1"
+                                                      Opacity="0.3"/>
+                                </Button.Effect>
+                            </Button>
+
+                            <!-- Confirm no button -->
+                            <Button x:Name="confirmNoButton"
+                                    Grid.Column="2"
+                                    Click="ConfirmNoButtonClick"
+                                    Margin="20"
+                                    Padding="25,7,25,7"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Center"
+                                    Visibility="Collapsed"
+                                    Content="{DynamicResource item134}"
+                                    Style="{DynamicResource PrimaryButton}">
+
+                                <Button.Effect>
+
+                                    <!-- Drop shadow effect -->
+                                    <DropShadowEffect BlurRadius="15"
+                                                      Direction="-90"
+                                                      RenderingBias="Quality"
+                                                      ShadowDepth="1"
+                                                      Opacity="0.3"/>
+                                </Button.Effect>
+                            </Button>
+
+                            <!-- OK close messagebox window button -->
+                            <Button x:Name="okButton"
+                                    Grid.Column="3"
+                                    Click="CloseMessageBoxWindow"
+                                    Margin="20"
+                                    Padding="25,7,25,7"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Center"
+                                    Content="{DynamicResource item92}"
+                                    Style="{DynamicResource PrimaryButton}">
+
+                                <Button.Effect>
+
+                                    <!-- Drop shadow effect -->
+                                    <DropShadowEffect BlurRadius="15"
+                                                      Direction="-90"
+                                                      RenderingBias="Quality"
+                                                      ShadowDepth="1"
+                                                      Opacity="0.3"/>
+                                </Button.Effect>
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

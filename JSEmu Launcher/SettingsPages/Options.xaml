@@ -1,0 +1,424 @@
+﻿<Page x:Class="H1Emu_Launcher.SettingsPages.Options"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:H1Emu_Launcher.SettingsPages"
+      mc:Ignorable="d"
+      UseLayoutRounding="True"
+      d:DesignWidth="735"
+      Title="Options"
+      FontFamily="Bahnschrift Light"
+      FontSize="16"
+      Foreground="FloralWhite"
+      Loaded="OptionsLoaded">
+
+    <Page.Resources>
+        <ResourceDictionary>
+
+            <!-- Load dictionary into xaml resources just so we can see on the designer -->
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="..\Language\StringResources.en-EN.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
+
+    <Border Background="{DynamicResource DarkerColour}"
+            UseLayoutRounding="True"
+            CornerRadius="0,5,5,5">
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+            </Grid.RowDefinitions>
+
+            <!-- Grainy texture -->
+            <Grid.Background>
+                <ImageBrush ImageSource="..\Resources\Grain.png" Opacity="0.5" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/>
+            </Grid.Background>
+
+            <!-- Selected language option -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock VerticalAlignment="Center"
+                           Margin="20"
+                           Foreground="FloralWhite"
+                           TextWrapping="Wrap"
+                           Text="{DynamicResource item200}"
+                           Style="{DynamicResource TextBlockStyle}"/>
+
+                <Grid Grid.Column="2">
+
+                    <ComboBox x:Name="languageBox"
+                              Height="30"
+                              Margin="20"
+                              Padding="32,2,10,0"
+                              VerticalAlignment="Top"
+                              VerticalContentAlignment="Center"
+                              BorderThickness="2"
+                              Foreground="White"
+                              FontSize="15"
+                              FontWeight="Light"
+                              SelectedIndex="0"
+                              SelectionChanged="LanguageSelectionChanged"
+                              Style="{DynamicResource ComboBoxStyle}">
+
+                        <ComboBox.Effect>
+                            <DropShadowEffect BlurRadius="15"
+                                              Direction="-90"
+                                              RenderingBias="Quality"
+                                              ShadowDepth="0"
+                                              Opacity="0.3"/>
+                        </ComboBox.Effect>
+
+                        <ComboBoxItem Content="English" Style="{DynamicResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="简体中文" Style="{DynamicResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="Hrvatski" Style="{DynamicResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="Français" Style="{DynamicResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="Türkçe" Style="{DynamicResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="Polski" Style="{DynamicResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="Русский" Style="{DynamicResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="Nederlands" Style="{DynamicResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="български" Style="{DynamicResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="Deutsch" Style="{DynamicResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="Português" Style="{DynamicResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="Español" Style="{DynamicResource ComboBoxItemStyle}"/>
+                        <ComboBoxItem Content="Svenska" Style="{DynamicResource ComboBoxItemStyle}"/>
+                    </ComboBox>
+
+                    <Viewbox Width="18"
+                             Height="18"
+                             Stretch="Uniform"
+                             VerticalAlignment="Center"
+                             HorizontalAlignment="Left"
+                             Margin="28,0,0,3">
+
+                        <Path Data="{DynamicResource LanguageIcon}"
+                                   Fill="FloralWhite"
+                                   IsHitTestVisible="False"/>
+                    </Viewbox>
+
+                </Grid>
+            </Grid>
+
+            <!-- Divider -->
+            <Rectangle Grid.Row="2"
+                       Margin="20,0,20,0"
+                       Height="1"
+                       Fill="{DynamicResource LighterColour}">
+
+                <Rectangle.Effect>
+                    <DropShadowEffect BlurRadius="8"
+                                      Direction="-90"
+                                      RenderingBias="Quality"
+                                      ShadowDepth="1"
+                                      Opacity="0.3"/>
+                </Rectangle.Effect>
+            </Rectangle>
+
+            <!-- Display image carousel option -->
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock VerticalAlignment="Center"
+                           Margin="20"
+                           Foreground="FloralWhite"
+                           TextWrapping="Wrap"
+                           Text="{DynamicResource item201}"
+                           Style="{DynamicResource TextBlockStyle}"/>
+
+                <ToggleButton x:Name="imageCarouselVisibilityToggleButton"
+                              Grid.Column="2"
+                              Margin="20"
+                              HorizontalAlignment="Right"
+                              Click="ImageCarouselVisibilityToggleButtonClick"
+                              Style="{StaticResource ToggleButtonStyle}">
+
+                    <ToggleButton.Effect>
+
+                        <!-- Drop shadow effect -->
+                        <DropShadowEffect BlurRadius="15"
+                                          Direction="-90"
+                                          RenderingBias="Quality"
+                                          ShadowDepth="1"
+                                          Opacity="0.3"/>
+                    </ToggleButton.Effect>
+                </ToggleButton>
+            </Grid>
+
+            <!-- Divider -->
+            <Rectangle Grid.Row="4"
+                       Margin="20,0,20,0"
+                       Height="1"
+                       Fill="{DynamicResource LighterColour}">
+
+                <Rectangle.Effect>
+                    <DropShadowEffect BlurRadius="8"
+                                      Direction="-90"
+                                      RenderingBias="Quality"
+                                      ShadowDepth="1"
+                                      Opacity="0.3"/>
+                </Rectangle.Effect>
+            </Rectangle>
+
+            <!-- Automatically minimise launcher to system tray option -->
+            <Grid Grid.Row="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock VerticalAlignment="Center"
+                           Margin="20"
+                           Foreground="FloralWhite"
+                           TextWrapping="Wrap"
+                           Text="{DynamicResource item202}"
+                           Style="{DynamicResource TextBlockStyle}"/>
+
+                <ToggleButton x:Name="autoMinimiseToggleButton"
+                              Grid.Column="2"
+                              Height="20"
+                              Margin="20"
+                              HorizontalAlignment="Right"
+                              Click="AutoMinimiseToggleButtonClick"
+                              Style="{StaticResource ToggleButtonStyle}">
+
+                    <ToggleButton.Effect>
+
+                        <!-- Drop shadow effect -->
+                        <DropShadowEffect BlurRadius="15"
+                                          Direction="-90"
+                                          RenderingBias="Quality"
+                                          ShadowDepth="1"
+                                          Opacity="0.3"/>
+                    </ToggleButton.Effect>
+                </ToggleButton>
+            </Grid>
+
+            <!-- Divider -->
+            <Rectangle Grid.Row="6"
+                       Margin="20,0,20,0"
+                       Height="1"
+                       Fill="{DynamicResource LighterColour}">
+
+                <Rectangle.Effect>
+                    <DropShadowEffect BlurRadius="8"
+                                      Direction="-90"
+                                      RenderingBias="Quality"
+                                      ShadowDepth="1"
+                                      Opacity="0.3"/>
+                </Rectangle.Effect>
+            </Rectangle>
+
+            <!-- Steam enabled option -->
+            <Grid Grid.Row="7">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock VerticalAlignment="Center"
+                           Margin="20"
+                           Foreground="FloralWhite"
+                           TextWrapping="Wrap"
+                           Text="{DynamicResource item223}"
+                           Style="{DynamicResource TextBlockStyle}"/>
+
+                <ToggleButton x:Name="steamEnabledToggleButton"
+                              Grid.Column="2"
+                              Height="20"
+                              Margin="20"
+                              HorizontalAlignment="Right"
+                              Click="SteamEnabledToggleButtonClick"
+                              Style="{StaticResource ToggleButtonStyle}">
+
+                    <ToggleButton.Effect>
+
+                        <!-- Drop shadow effect -->
+                        <DropShadowEffect BlurRadius="15"
+                                          Direction="-90"
+                                          RenderingBias="Quality"
+                                          ShadowDepth="1"
+                                          Opacity="0.3"/>
+                    </ToggleButton.Effect>
+                </ToggleButton>
+            </Grid>
+
+            <!-- Divider -->
+            <Rectangle Grid.Row="8"
+                       Margin="20,0,20,0"
+                       Height="1"
+                       Fill="{DynamicResource LighterColour}">
+
+                <Rectangle.Effect>
+                    <DropShadowEffect BlurRadius="8"
+                          Direction="-90"
+                          RenderingBias="Quality"
+                          ShadowDepth="1"
+                          Opacity="0.3"/>
+                </Rectangle.Effect>
+            </Rectangle>
+
+            <!-- Developer  mode option -->
+            <Grid Grid.Row="9">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock VerticalAlignment="Center"
+                               Margin="20,0,10,0"
+                               Foreground="FloralWhite"
+                               TextWrapping="Wrap"
+                               Text="{DynamicResource item218}"
+                               Style="{DynamicResource TextBlockStyle}"/>
+
+                    <Grid>
+                        <Ellipse Width="18"
+                                 Height="18"
+                                 Fill="{DynamicResource LighterColour}"
+                                 ToolTipService.InitialShowDelay="0">
+
+                            <Ellipse.ToolTip>
+                                <ToolTip Content="{DynamicResource item219}"
+                                         Style="{DynamicResource ToolTipStyle}"/>
+                            </Ellipse.ToolTip>
+
+                            <Ellipse.Effect>
+                                <DropShadowEffect BlurRadius="8"
+                                                  Direction="-90"
+                                                  RenderingBias="Quality"
+                                                  ShadowDepth="1"
+                                                  Opacity="0.3"/>
+                            </Ellipse.Effect>
+                        </Ellipse>
+
+                        <Ellipse Width="18"
+                                 Height="18"
+                                 IsHitTestVisible="False">
+
+                            <Ellipse.Fill>
+                                <ImageBrush ImageSource="..\Resources\Grain.png" Opacity="0.5" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/>
+                            </Ellipse.Fill>
+                        </Ellipse>
+
+                        <TextBlock Foreground="FloralWhite"
+                                   FontFamily="Bahnschrift Light"
+                                   Text="?"
+                                   FontSize="10"
+                                   Padding="0,2,0,0"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   IsHitTestVisible="False"
+                                   RenderOptions.BitmapScalingMode="Fant"
+                                   Style="{DynamicResource TextBlockStyle}"/>
+
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Trigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                     To="0.8"
+                                                                     Duration="0:0:0.1"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.EnterActions>
+                                        <Trigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                     Duration="0:0:0.1"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.ExitActions>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                    </Grid>
+
+                </StackPanel>
+
+                <ToggleButton x:Name="developerModeToggleButton"
+                              Grid.Column="2"
+                              Height="20"
+                              Margin="20"
+                              HorizontalAlignment="Right"
+                              Click="DeveloperModeToggleButtonClick"
+                              Style="{StaticResource ToggleButtonStyle}">
+
+                    <ToggleButton.Effect>
+
+                        <!-- Drop shadow effect -->
+                        <DropShadowEffect BlurRadius="15"
+                              Direction="-90"
+                              RenderingBias="Quality"
+                              ShadowDepth="1"
+                              Opacity="0.3"/>
+                    </ToggleButton.Effect>
+                </ToggleButton>
+            </Grid>
+
+            <!-- Divider -->
+            <Rectangle Grid.Row="10"
+                       Margin="20,0,20,0"
+                       Height="1"
+                       Fill="{DynamicResource LighterColour}">
+
+                <Rectangle.Effect>
+                    <DropShadowEffect BlurRadius="8"
+                          Direction="-90"
+                          RenderingBias="Quality"
+                          ShadowDepth="1"
+                          Opacity="0.3"/>
+                </Rectangle.Effect>
+            </Rectangle>
+
+            <!-- Current launcher version -->
+            <Grid Grid.Row="11">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock VerticalAlignment="Center"
+                           Margin="20"
+                           Foreground="FloralWhite"
+                           TextWrapping="Wrap"
+                           Text="{DynamicResource item124}"
+                           Style="{DynamicResource TextBlockStyle}"/>
+
+                <TextBlock x:Name="currentVersionNumber"
+                           Grid.Column="2"
+                           Margin="20"
+                           Foreground="FloralWhite"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right"
+                           Style="{DynamicResource TextBlockStyle}"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Page>

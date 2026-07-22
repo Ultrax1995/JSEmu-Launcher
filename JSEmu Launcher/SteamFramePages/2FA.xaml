@@ -1,0 +1,198 @@
+﻿<UserControl x:Class="H1Emu_Launcher.SteamFramePages._2FA"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             UseLayoutRounding="True"
+             d:DesignWidth="565"
+             d:DesignHeight="140"
+             FontFamily="Bahnschrift Light"
+             FontSize="16"
+             Foreground="FloralWhite">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <Storyboard x:Key="LoadingIconAnimation">
+                <DoubleAnimation Storyboard.TargetName="loadingIconRotateTransform"
+                                 Storyboard.TargetProperty="Angle"
+                                 By="0"
+                                 To="360"
+                                 Duration="0:0:2"
+                                 RepeatBehavior="Forever">
+
+                    <DoubleAnimation.EasingFunction>
+                        <BackEase EasingMode="EaseInOut"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+            </Storyboard>
+
+            <!-- Load dictionary into xaml resources just so we can see on the designer -->
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="..\Language\StringResources.en-EN.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid x:Name="_2FACodeScreen">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Textbox to enter auth code -->
+            <TextBox x:Name="authBox"
+                     Height="35"
+                     Padding="30,1,35,0"
+                     Margin="0,0,10,0"
+                     VerticalAlignment="Top"
+                     VerticalContentAlignment="Center"
+                     CharacterCasing="Upper"
+                     IsHitTestVisible="True"
+                     GotFocus="AuthBoxGotFocus"
+                     LostFocus="AuthBoxLostFocus"
+                     KeyDown="_2FAKeyDown"
+                     Style="{DynamicResource TextBoxStyle}">
+
+                <TextBox.Effect>
+                    <DropShadowEffect BlurRadius="15"
+                          Direction="-90"
+                          RenderingBias="Quality"
+                          ShadowDepth="0"
+                          Opacity="0.3"/>
+                </TextBox.Effect>
+            </TextBox>
+
+            <!-- Hint for auth code textbox -->
+            <TextBlock x:Name="authHint"
+                       Margin="0,8,10,0"
+                       Padding="35,0,0,0"
+                       VerticalAlignment="Top"
+                       IsHitTestVisible="False"
+                       Foreground="Gray"
+                       Text="{DynamicResource item77}"
+                       Style="{DynamicResource TextBlockStyle}"/>
+
+            <!-- Padlock image -->
+            <Path Data="{DynamicResource PadlockUnlockedIcon}"
+                  Stretch="Uniform"
+                  Fill="FloralWhite"
+                  RenderOptions.BitmapScalingMode="Fant"
+                  Width="18"
+                  Height="18"
+                  VerticalAlignment="Top"
+                  HorizontalAlignment="Left"
+                  Margin="10,8,0,0"/>
+
+            <!-- Button to submit 2fa code -->
+            <Button x:Name="twoFAButton"
+                    Click="ContinueButton"
+                    Height="20"
+                    Width="20"
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Right"
+                    Margin="0,7,20,0"
+                    RenderOptions.BitmapScalingMode="Fant"
+                    Style="{DynamicResource PathButton}">
+
+                <Button.Content>
+                    <Path Data="{DynamicResource ArrowIcon}"
+                          Stretch="Uniform"
+                          Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}}"/>
+                </Button.Content>
+            </Button>
+
+            <!-- Loading wheel GIF -->
+            <Path x:Name="loadingIcon"
+                  Data="{DynamicResource LoadingIcon}"
+                  Stretch="Uniform"
+                  Stroke="FloralWhite"
+                  StrokeThickness="2"
+                  StrokeEndLineCap="Round"
+                  Margin="0,8,20,0"
+                  Height="18"
+                  Width="18"
+                  VerticalAlignment="Top"
+                  HorizontalAlignment="Right"
+                  Visibility="Hidden"
+                  RenderTransformOrigin="0.5, 0.5">
+
+                <Path.RenderTransform>
+                    <RotateTransform x:Name="loadingIconRotateTransform" Angle="0"/>
+                </Path.RenderTransform>
+            </Path>
+
+            <!-- Please enter 2 factor code text -->
+            <TextBlock x:Name="twoFacInstructionText"
+                       Grid.Column="1"
+                       Margin="10,0,0,0"
+                       VerticalAlignment="Top"
+                       TextWrapping="Wrap"
+                       Text="{DynamicResource item78}"
+                       Style="{DynamicResource TextBlockStyle}"/>
+        </Grid>
+
+        <!-- Separate screen for accepting the login prompt on a mobile device -->
+        <Grid x:Name="_2FAAppScreen"
+              HorizontalAlignment="Center"
+              Visibility="Hidden">
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Please enter 2 factor code text -->
+            <TextBlock Margin="10,0,0,0"
+                       VerticalAlignment="Top"
+                       TextWrapping="Wrap"
+                       Text="{DynamicResource item81}"
+                       Style="{DynamicResource TextBlockStyle}"/>
+
+            <!-- Loading wheel GIF -->
+            <Path Grid.Column="1"
+                  Data="{DynamicResource LoadingIcon}"
+                  Stretch="Uniform"
+                  Stroke="FloralWhite"
+                  StrokeThickness="2"
+                  StrokeEndLineCap="Round"
+                  Margin="10,0,0,0"
+                  Height="18"
+                  Width="18"
+                  VerticalAlignment="Top"
+                  HorizontalAlignment="Right"
+                  RenderTransformOrigin="0.5, 0.5">
+
+                <Path.RenderTransform>
+                    <RotateTransform x:Name="loadingIconRotateTransformSecondary" Angle="0"/>
+                </Path.RenderTransform>
+
+                <Path.Triggers>
+                    <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetName="loadingIconRotateTransformSecondary"
+                                                 Storyboard.TargetProperty="Angle"
+                                                 By="0"
+                                                 To="360"
+                                                 Duration="0:0:2"
+                                                 RepeatBehavior="Forever">
+
+                                    <DoubleAnimation.EasingFunction>
+                                        <BackEase EasingMode="EaseInOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Path.Triggers>
+            </Path>
+        </Grid>
+    </Grid>
+</UserControl>

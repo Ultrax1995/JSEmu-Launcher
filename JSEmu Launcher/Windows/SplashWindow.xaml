@@ -1,0 +1,98 @@
+<Window x:Class="H1Emu_Launcher.SplashWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:classes="clr-namespace:H1Emu_Launcher.Classes"
+        mc:Ignorable="d"
+        UseLayoutRounding="True"
+        Title="{DynamicResource item210}"
+        MinHeight="100"
+        MaxHeight="150"
+        MinWidth="400"
+        MaxWidth="800"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        Background="Transparent"
+        FontFamily="Bahnschrift Light"
+        FontSize="16"
+        Foreground="FloralWhite"
+        Loaded="SplashScreenWindowLoaded"
+        Closing="SplashScreenWindowClosing">
+
+    <!-- Keep window animations -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="1" CaptionHeight="0" NonClientFrameEdges="Bottom, Left, Right"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <ResourceDictionary>
+
+            <!-- Load dictionary into xaml resources just so we can see on the designer -->
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="..\Language\StringResources.en-EN.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <!-- Tasbar icon info -->
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo x:Name="taskbarIcon" Description="JSEmu Launcher"/>
+    </Window.TaskbarItemInfo>
+
+    <!-- Window grid -->
+    <Grid Background="{DynamicResource DarkerColour}">
+        
+        <Grid MouseLeftButtonDown="MoveSplashScreenWindow">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Grainy texture -->
+            <Grid.Background>
+                <ImageBrush ImageSource="..\Resources\Grain.png" Opacity="0.5" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/>
+            </Grid.Background>
+
+            <!-- Checking for updates text -->
+            <TextBlock Margin="30,10,30,10"
+                       VerticalAlignment="Center"
+                       TextAlignment="Center"
+                       FontSize="30"
+                       Text="{DynamicResource item48}"
+                       Style="{DynamicResource TextBlockStyle}"/>
+
+            <!-- Divider -->
+            <ProgressBar Grid.Row="1"
+                         Height="2"
+                         Margin="15,0,15,0"
+                         Background="{DynamicResource LighterColour}"
+                         Foreground="{DynamicResource RedAccent}"
+                         BorderBrush="{DynamicResource LighterColour}"
+                         BorderThickness="1"
+                         classes:ProgressBarCornerRadius.CornerRadius="1"
+                         IsIndeterminate="True"
+                         Style="{DynamicResource ProgressBar}">
+
+                <!-- Drop shadow effect -->
+                <ProgressBar.Effect>
+                    <DropShadowEffect BlurRadius="8"
+                                      Direction="-90"
+                                      RenderingBias="Quality"
+                                      ShadowDepth="1"/>
+
+                </ProgressBar.Effect>
+            </ProgressBar>
+
+            <!-- Please wait text -->
+            <TextBlock Grid.Row="2"
+                       Margin="30,10,30,10"
+                       TextAlignment="Center"
+                       VerticalAlignment="Center"
+                       Text="{DynamicResource item4}"
+                       Style="{DynamicResource TextBlockStyle}"/>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,8 @@
+bin/
+obj/
+.vs/
+H1Emu Launcher Setup/Debug/
+H1Emu Launcher Setup/Release/
+H1Emu Launcher Setup/H1Emu Launcher Certificate.cer
+H1Emu Launcher Setup/H1Emu Launcher Certificate.pfx
+H1Emu Launcher Setup/Private Key.key

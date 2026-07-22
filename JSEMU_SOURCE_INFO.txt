@@ -1,0 +1,8 @@
+JSEmu Launcher - modified build
+
+Based on H1emu/h1emu-launcher v3.5.2
+Original project: https://github.com/H1emu/h1emu-launcher
+License: GNU GPL v3
+
+When redistributing the binary, provide the corresponding modified source code
+under the GNU GPL v3 license.

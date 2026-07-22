@@ -1,0 +1,266 @@
+﻿<Page x:Class="H1Emu_Launcher.SettingsPages.GameFiles"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:H1Emu_Launcher.SettingsPages"
+      xmlns:classes="clr-namespace:H1Emu_Launcher.Classes"
+      mc:Ignorable="d"
+      UseLayoutRounding="True"
+      d:DesignWidth="735"
+      Title="Game Files"
+      FontFamily="Bahnschrift Light"
+      FontSize="16"
+      Foreground="FloralWhite">
+
+    <Page.Resources>
+        <ResourceDictionary>
+            
+            <!-- Load dictionary into xaml resources just so we can see on the designer -->
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="..\Language\StringResources.en-EN.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
+
+    <Border Background="{DynamicResource DarkerColour}"
+            UseLayoutRounding="True"
+            CornerRadius="0,5,5,5">
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+            </Grid.RowDefinitions>
+
+            <!-- Grainy texture -->
+            <Grid.Background>
+                <ImageBrush ImageSource="..\Resources\Grain.png" Opacity="0.5" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/>
+            </Grid.Background>
+
+            <!-- Grid to host patch, latest, stable buttons and corresponding textboxes -->
+            <Grid Grid.Row="1">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Patch button text -->
+                    <TextBlock Margin="20"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Left"
+                               TextWrapping="Wrap"
+                               Style="{DynamicResource TextBlockStyle}">
+
+                        <Run Text="{DynamicResource item45}"/>
+    
+                        <Hyperlink x:Name="deleteSinglePlayerDataHyperLink"
+                                   Click="DeleteSingleplayerDataClick"
+                                   Style="{DynamicResource HyperLinkStyle}">
+    
+                            <Run Text="{DynamicResource item176}"
+                                 Cursor="Hand"/>
+
+                        </Hyperlink>
+                    </TextBlock>
+
+                    <!-- Install patch button -->
+                    <Button x:Name="patchButton"
+                            Grid.Column="2"
+                            Click="InstallPatchButton"
+                            Margin="20"
+                            Padding="25,7,25,7"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Right"
+                            Content="{DynamicResource item42}"
+                            Style="{DynamicResource PrimaryButton}">
+
+                        <Button.Effect>
+
+                            <!-- Drop shadow effect -->
+                            <DropShadowEffect BlurRadius="15"
+                                              Direction="-90"
+                                              RenderingBias="Quality"
+                                              ShadowDepth="1"
+                                              Opacity="0.3"/>
+                        </Button.Effect>
+                    </Button>
+                </Grid>
+
+                <!-- Divider -->
+                <Rectangle Grid.Row="1"
+                           Margin="20,0,20,0"
+                           Height="1"
+                           Fill="{DynamicResource LighterColour}">
+
+                    <Rectangle.Effect>
+                        <DropShadowEffect BlurRadius="8"
+                                          Direction="-90"
+                                          RenderingBias="Quality"
+                                          ShadowDepth="1"
+                                          Opacity="0.3"/>
+                    </Rectangle.Effect>
+                </Rectangle>
+
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Latest server button text -->
+                    <TextBlock Margin="20"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Left"
+                               TextWrapping="Wrap"
+                               Text="{DynamicResource item46}"
+                               Style="{DynamicResource TextBlockStyle}"/>
+
+                    <!-- Install latest server button -->
+                    <Button x:Name="latestButton"
+                            Grid.Column="2"
+                            Click="InstallServerButton"
+                            Margin="20"
+                            Padding="25,7,25,7"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Right"
+                            Content="{DynamicResource item43}"
+                            Style="{DynamicResource PrimaryButton}">
+
+                        <Button.Effect>
+
+                            <!-- Drop shadow effect -->
+                            <DropShadowEffect BlurRadius="15"
+                                              Direction="-90"
+                                              RenderingBias="Quality"
+                                              ShadowDepth="1"
+                                              Opacity="0.3"/>
+                        </Button.Effect>
+                    </Button>
+                </Grid>
+
+                <!-- Divider -->
+                <Rectangle Grid.Row="3"
+                           Margin="20,0,20,0"
+                           Height="1"
+                           Fill="{DynamicResource LighterColour}">
+
+                    <Rectangle.Effect>
+                        <DropShadowEffect BlurRadius="8"
+                                          Direction="-90"
+                                          RenderingBias="Quality"
+                                          ShadowDepth="1"
+                                          Opacity="0.3"/>
+                    </Rectangle.Effect>
+                </Rectangle>
+
+                <Grid Grid.Row="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Stable server button text -->
+                    <TextBlock Margin="20"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Left"
+                               TextWrapping="Wrap"
+                               Text="{DynamicResource item47}"
+                               Style="{DynamicResource TextBlockStyle}"/>
+
+                    <!-- Install stable server button -->
+                    <Button x:Name="stableButton"
+                            Grid.Column="2"
+                            Click="InstallServerButton"
+                            Margin="20"
+                            Padding="25,7,25,7"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Right"
+                            Content="{DynamicResource item44}"
+                            Style="{DynamicResource PrimaryButton}">
+
+                        <Button.Effect>
+
+                            <!-- Drop shadow effect -->
+                            <DropShadowEffect BlurRadius="15"
+                                              Direction="-90"
+                                              RenderingBias="Quality"
+                                              ShadowDepth="1"
+                                              Opacity="0.3"/>
+                        </Button.Effect>
+                    </Button>
+                </Grid>
+            </Grid>
+
+            <!-- Border for settings progress bar -->
+            <Border x:Name="settingsProgressRow"
+                    Grid.Row="2"
+                    Visibility="Collapsed">
+
+                <Grid x:Name="settingsProgressRowContent">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Divider -->
+                    <Rectangle Margin="20,0,20,0"
+                               Height="1"
+                               Fill="{DynamicResource LighterColour}">
+
+                        <Rectangle.Effect>
+                            <DropShadowEffect BlurRadius="8"
+                                              Direction="-90"
+                                              RenderingBias="Quality"
+                                              ShadowDepth="1"
+                                              Opacity="0.3"/>
+                        </Rectangle.Effect>
+                    </Rectangle>
+
+                    <!-- Status progress bar -->
+                    <ProgressBar x:Name="settingsProgressBar"
+                                 Grid.Row="1"
+                                 Height="35"
+                                 Margin="20"
+                                 VerticalAlignment="Center"
+                                 Background="{DynamicResource LighterColour}"
+                                 Foreground="{DynamicResource DarkerColour}"
+                                 BorderBrush="{DynamicResource RedAccent}"
+                                 BorderThickness="2"
+                                 classes:ProgressBarCornerRadius.CornerRadius="5"
+                                 Style="{DynamicResource ProgressBar}">
+
+                        <ProgressBar.Effect>
+
+                            <!-- Drop shadow effect -->
+                            <DropShadowEffect BlurRadius="15"
+                                              Direction="-90"
+                                              RenderingBias="Quality"
+                                              ShadowDepth="1"
+                                              Opacity="0.3"/>
+                        </ProgressBar.Effect>
+                    </ProgressBar>
+
+                    <!-- Status text to overlay progress bar -->
+                    <TextBlock x:Name="settingsProgressText"
+                               Grid.Row="1"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"
+                               Style="{DynamicResource TextBlockStyle}"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Page>

@@ -1,0 +1,222 @@
+﻿<Page x:Class="H1Emu_Launcher.SettingsPages.AccountKey"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:H1Emu_Launcher.SettingsPages"
+      mc:Ignorable="d"
+      UseLayoutRounding="True"
+      d:DesignWidth="735"
+      Title="Account Key"
+      FontFamily="Bahnschrift Light"
+      FontSize="16"
+      Foreground="FloralWhite"
+      Loaded="AccountKeyLoaded">
+
+    <Page.Resources>
+        <ResourceDictionary>
+
+            <!-- Load dictionary into xaml resources just so we can see on the designer -->
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="..\Language\StringResources.en-EN.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
+
+    <Border Background="{DynamicResource DarkerColour}"
+            UseLayoutRounding="True"
+            CornerRadius="0,5,5,5">
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+            </Grid.RowDefinitions>
+
+            <!-- Grainy texture -->
+            <Grid.Background>
+                <ImageBrush ImageSource="..\Resources\Grain.png" Opacity="0.5" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/>
+            </Grid.Background>
+
+            <!-- Info about account key message -->
+            <TextBlock Grid.Row="1"
+                       Margin="20"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       Foreground="FloralWhite"
+                       TextWrapping="Wrap"
+                       Text="{DynamicResource item156}"
+                       Style="{DynamicResource TextBlockStyle}"/>
+
+            <!-- Hyperlink to user authentication key website -->
+            <TextBlock Grid.Row="2"
+                       Margin="20,0,20,20"
+                       HorizontalAlignment="Center"
+                       Style="{DynamicResource TextBlockStyle}">
+
+                <Hyperlink Click="DiscordInviteLinkClick"
+                           FontWeight="Bold"
+                           Style="{DynamicResource HyperLinkStyle}">
+    
+                    <TextBlock Text="https://discord.com/invite/h1emu"/>
+    
+                </Hyperlink>
+
+                <!-- Context menu to copy link -->
+                <TextBlock.ContextMenu>
+                    <ContextMenu Style="{DynamicResource ContextMenuStyle}">
+                        <MenuItem Click="DiscordInviteLinkCopy"
+                                  Header="{DynamicResource item193}"
+                                  Style="{DynamicResource CustomMenuItem}">
+                            
+                            <MenuItem.Icon>
+                                <Path Data="{DynamicResource CopyIcon}"
+                                      Fill="{Binding RelativeSource={RelativeSource Mode=Self}, Path=(TextElement.Foreground)}"
+                                      Stretch="Uniform"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </ContextMenu>
+                </TextBlock.ContextMenu>
+            </TextBlock>
+
+            <!-- Divider -->
+            <Rectangle Grid.Row="3"
+                       Margin="20,0,20,0"
+                       Height="1"
+                       Fill="{DynamicResource LighterColour}">
+
+                <Rectangle.Effect>
+                    <DropShadowEffect BlurRadius="8"
+                                      Direction="-90"
+                                      RenderingBias="Quality"
+                                      ShadowDepth="1"
+                                      Opacity="0.3"/>
+                </Rectangle.Effect>
+            </Rectangle>
+
+            <Grid Grid.Row="4">
+
+                <!-- Plain text box that holds account key for visibility toggle -->
+                <TextBox x:Name="accountKeyBoxText"
+                         TextChanged="AccountKeyBoxTextTextChanged"
+                         Height="35"
+                         Margin="20"
+                         Padding="35,0,40,0"
+                         VerticalAlignment="Center"
+                         VerticalContentAlignment="Center"
+                         Visibility="Hidden"
+                         GotFocus="AccountKeyBoxGotFocus"
+                         LostFocus="AccountKeyBoxLostFocus"
+                         Style="{DynamicResource TextBoxStyle}">
+
+                    <TextBox.Effect>
+
+                        <!-- Drop shadow effect -->
+                        <DropShadowEffect BlurRadius="15"
+                                          Direction="-90"
+                                          RenderingBias="Quality"
+                                          ShadowDepth="1"
+                                          Opacity="0.3"/>
+                    </TextBox.Effect>
+                </TextBox>
+
+                <!-- Password box to hold account key -->
+                <PasswordBox x:Name="accountKeyBoxPassword"
+                             PasswordChanged="AccountKeyBoxPasswordPasswordChanged"
+                             Height="35"
+                             Margin="20"
+                             Padding="35,0,40,0"
+                             PasswordChar="●"
+                             VerticalAlignment="Center"
+                             VerticalContentAlignment="Center"
+                             GotFocus="AccountKeyBoxGotFocus"
+                             LostFocus="AccountKeyBoxLostFocus"
+                             Style="{DynamicResource PasswordBoxStyle}">
+
+                    <PasswordBox.Effect>
+
+                        <!-- Drop shadow effect -->
+                        <DropShadowEffect BlurRadius="15"
+                                          Direction="-90"
+                                          RenderingBias="Quality"
+                                          ShadowDepth="1"
+                                          Opacity="0.3"/>
+                    </PasswordBox.Effect>
+                </PasswordBox>
+
+                <!-- Hint for account key textbox -->
+                <TextBlock x:Name="accountKeyBoxHint"
+                           Height="27"
+                           Margin="20,0,20,0"
+                           Padding="40,4,40,0"
+                           VerticalAlignment="Center"
+                           IsHitTestVisible="False"
+                           Foreground="Gray"
+                           Text="{DynamicResource item154}"
+                           Style="{DynamicResource TextBlockStyle}"/>
+
+                <!-- Password visibility show button -->
+                <Button x:Name="toggleKeyVisibilityButton"
+                        Click="ToggleKeyVisibility"
+                        Width="20"
+                        Height="20"
+                        Margin="0,0,32,0"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Right"
+                        RenderOptions.BitmapScalingMode="Fant"
+                        Style="{StaticResource PathButton}">
+
+                    <Button.Content>
+                        <Path Data="{DynamicResource EyeIcon}"
+                              Stretch="Uniform"
+                              Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}}"/>
+                    </Button.Content>
+                </Button>
+
+                <!-- Key image inside of account key textbox -->
+                <Path Data="{DynamicResource KeyIcon}"
+                      Stretch="Uniform"
+                      Fill="FloralWhite"
+                      Width="18"
+                      Height="18"
+                      Margin="30,0,0,1"
+                      VerticalAlignment="Center"
+                      HorizontalAlignment="Left"/>
+            </Grid>
+
+            <Border x:Name="generateAccountKeyButtonRow"
+                    Grid.Row="5"
+                    BorderThickness="0">
+
+                <Grid x:Name="generateAccountKeyButtonRowContent">
+                    <!-- Generate Account Key button -->
+                    <Button Click="GenerateAccountKeyButtonClick"
+                            Margin="20,15,20,20"
+                            Padding="25,7,25,7"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            Content="GENERATE"
+                            Visibility="Visible"
+                            Style="{DynamicResource PrimaryButton}">
+
+                        <Button.Effect>
+
+                            <!-- Drop shadow effect -->
+                            <DropShadowEffect BlurRadius="15"
+                                              Direction="-90"
+                                              RenderingBias="Quality"
+                                              ShadowDepth="1"
+                                              Opacity="0.3"/>
+                        </Button.Effect>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Page>

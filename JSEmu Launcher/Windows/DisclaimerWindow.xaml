@@ -1,0 +1,371 @@
+﻿<Window x:Class="H1Emu_Launcher.DisclaimerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        UseLayoutRounding="True"
+        Title="{DynamicResource item208}"
+        MaxWidth="800"
+        MaxHeight="710"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        Background="Transparent"
+        FontFamily="Bahnschrift Light"
+        FontSize="16"
+        Foreground="FloralWhite"
+        Loaded="DisclaimerWindowLoaded"
+        Closed="DisclaimerWindowClosed">
+
+    <!-- Keep window animations -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="1" CaptionHeight="0" NonClientFrameEdges="Bottom, Left, Right"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <ResourceDictionary>
+
+            <!-- Load dictionary into xaml resources just so we can see on the designer -->
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="..\Language\StringResources.en-EN.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <!-- Window grid -->
+    <Grid Background="{DynamicResource LighterColour}">
+        
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Grainy texture -->
+            <Grid.Background>
+                <ImageBrush ImageSource="..\Resources\Grain.png"
+                            Opacity="0.5"
+                            TileMode="Tile"
+                            ViewportUnits="Absolute"
+                            Viewport="0,0,512,512"/>
+                
+            </Grid.Background>
+
+            <!-- Grid for logo and exit button -->
+            <Grid MouseLeftButtonDown="MoveDisclaimerWindow"
+                  Background="Transparent">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Logo -->
+                <Image Source="..\Resources\H1EmuIcon.png"
+                       Stretch="Uniform"
+                       Height="45"
+                       Margin="20"
+                       VerticalAlignment="Top"
+                       HorizontalAlignment="Left">
+
+                    <Image.Effect>
+                        <DropShadowEffect BlurRadius="15"
+                                          Direction="-90"
+                                          RenderingBias="Quality"
+                                          ShadowDepth="0"
+                                          Opacity="0.3"/>
+                    </Image.Effect>
+                </Image>
+
+                <!-- Exit button -->
+                <Button x:Name="ExitButton"
+                        Grid.Column="2"
+                        Click="CloseDisclaimerWindow"
+                        Background="{DynamicResource RedAccent}"
+                        Width="50"
+                        Height="30"
+                        Margin="20"
+                        VerticalAlignment="Top"
+                        Style="{StaticResource ToolBarButtonStyle}">
+
+                    <Button.Content>
+                        <Path Data="{DynamicResource XIcon}"
+                              Stretch="Uniform"
+                              Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}}"
+                              Width="10"
+                              Height="10"/>
+
+                    </Button.Content>
+                </Button>
+            </Grid>
+
+            <!-- Main content in darkened area -->
+            <Border Grid.Row="1"
+                    Background="{DynamicResource DarkerColour}"
+                    Margin="20,0,20,20"
+                    UseLayoutRounding="True"
+                    CornerRadius="5">
+
+                <!-- Drop shadow effect -->
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="8"
+                                      Direction="-90"
+                                      RenderingBias="Quality"
+                                      ShadowDepth="1"/>
+
+                </Border.Effect>
+
+                <!-- Border for grainy texture -->
+                <Border CornerRadius="5">
+
+                    <!-- Grainy texture -->
+                    <Border.Background>
+                        <ImageBrush ImageSource="..\Resources\Grain.png" Opacity="0.5" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/>
+                    </Border.Background>
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="10"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Welcome message -->
+                        <TextBlock x:Name="welcomeMessage"
+                                   Grid.Row="1"
+                                   Margin="0,10,0,0"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   Foreground="#FFED1C24"
+                                   FontSize="32"
+                                   FontWeight="Bold"
+                                   FontFamily="{StaticResource Signika}"
+                                   Text="{DynamicResource item158}"
+                                   Style="{DynamicResource TextBlockStyle}"/>
+
+                        <!-- Terms of service message -->
+                        <TextBlock x:Name="TOSHeader"
+                                   Grid.Row="2"
+                                   Margin="0,20,0,20"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   Foreground="#FFED1C24"
+                                   FontFamily="Bahnschrift"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   TextDecorations="Underline"
+                                   Text="Terms of Service"
+                                   Style="{DynamicResource TextBlockStyle}"/>
+
+                        <ScrollViewer Grid.Row="3"
+                                      Margin="20,0,20,20"
+                                      FontFamily="Bahnschrift"
+                                      Style="{DynamicResource CustomScrollViewer}">
+                            
+                            <!-- Main disclaimer message -->
+                            <StackPanel>
+                                <TextBlock Margin="0,0,0,5"
+                                           FontWeight="Bold"
+                                           Foreground="#FFED1C24"
+                                           TextDecorations="Underline"
+                                           TextWrapping="Wrap"
+                                           Text="1. Acceptance of Terms"
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="By accessing and using H1Emu Servers, you agree to follow these Terms of Service. If you do not agree to these terms, you must discontinue your use of the game, services or code."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock Margin="0,30,0,5"
+                                           FontWeight="Bold"
+                                           Foreground="#FFED1C24"
+                                           TextDecorations="Underline"
+                                           TextWrapping="Wrap"
+                                           Text="2. Game Version"
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="The only version of H1Z1: Just Survive that this project supports is 22nd December 2016. You must use this version to ensure that everything works correctly and as intended."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock Margin="0,30,0,5"
+                                           FontWeight="Bold"
+                                           Foreground="#FFED1C24"
+                                           TextDecorations="Underline"
+                                           TextWrapping="Wrap"
+                                           Text="3. FairPlay Anti-Cheat Software"
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="To maintain a fair and enjoyable environment for all players, H1Emu Servers use the Fairplay anti-cheat software. Fairplay runs concurrently with the game to prevent and detect the use of unauthorized third-party programs that provide unfair advantages. By playing the game, you acknowledge and agree that Fairplay may collect, process, and store the following information:"
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock Margin="0,20,0,0"
+                                           FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="- Your IP address."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+                                
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="- Game identifiers, including in-game name and account ID."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+                                
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="- Hardware device information and identifiers, such as serial numbers."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+                                
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="- Information related to the running operating system and game-related files."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+                                
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="- Information about processes, drivers, and executable code running on your system."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="- File names that may include your operating system username."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="- Fairplay may retain this information for the duration of its services for the game to detect and prevent unfair gameplay."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock Margin="0,30,0,5"
+                                           FontWeight="Bold"
+                                           Foreground="#FFED1C24"
+                                           TextDecorations="Underline"
+                                           TextWrapping="Wrap"
+                                           Text="4. Use of Data"
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="The data collected by Fairplay is used solely for the purpose of maintaining a fair gaming environment by identifying and acting upon cheating behavior. We are committed to taking swift actions, including issuing bans where necessary, to ensure fairness in the game."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock Margin="0,30,0,5"
+                                           FontWeight="Bold"
+                                           Foreground="#FFED1C24"
+                                           TextDecorations="Underline"
+                                           TextWrapping="Wrap"
+                                           Text="5. Your Control Over Data Collection"
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="You have the right to stop the collection of this data at any time by closing the game. Fairplay will cease to collect any information about your system, TextBlockning programs, or any other data once the game is closed."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock Margin="0,30,0,5"
+                                           FontWeight="Bold"
+                                           Foreground="#FFED1C24"
+                                           TextDecorations="Underline"
+                                           TextWrapping="Wrap"
+                                           Text="6. Transparency and Fair Use"
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="We are not a company, but we commit to being transparent and fair in our use of your data. Our sole aim is to protect the integrity of the game and ensure a level playing field for all players."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock Margin="0,30,0,5"
+                                           FontWeight="Bold"
+                                           Foreground="#FFED1C24"
+                                           TextDecorations="Underline"
+                                           TextWrapping="Wrap"
+                                           Text="7. Updates to Terms"
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="We may modify these Terms of Service at any time. You agree to review these terms periodically to stay informed of any changes."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- Divider -->
+                        <Rectangle Grid.Row="4"
+                                   Margin="20,0,20,0"
+                                   Height="1"
+                                   Fill="{DynamicResource LighterColour}">
+
+                            <Rectangle.Effect>
+                                <DropShadowEffect BlurRadius="8"
+                                                  Direction="-90"
+                                                  RenderingBias="Quality"
+                                                  ShadowDepth="1"
+                                                  Opacity="0.3"/>
+                            </Rectangle.Effect>
+                        </Rectangle>
+
+                        <StackPanel Grid.Row="5"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Center">
+
+                            <!-- Confirm check box -->
+                            <CheckBox x:Name="agreedToRulesCheckBox"
+                                      VerticalAlignment="Center"
+                                      Content="I have read and agree to the above"
+                                      IsChecked="False"
+                                      Checked="AgreedToRulesCheckBoxChecked"
+                                      Unchecked="AgreedToRulesCheckBoxChecked"
+                                      Foreground="FloralWhite"
+                                      Style="{DynamicResource AnimatedCheckBox}">
+
+                                <CheckBox.Effect>
+                                    <DropShadowEffect BlurRadius="8"
+                                                      Direction="-90"
+                                                      RenderingBias="Quality"
+                                                      ShadowDepth="1"
+                                                      Opacity="0.3"/>
+                                </CheckBox.Effect>
+                            </CheckBox>
+
+                            <!-- Continue button -->
+                            <Button x:Name="continueButton"
+                                    Click="ContinueButton"
+                                    Margin="20,20,0,20"
+                                    Padding="25,7,25,7"
+                                    IsEnabled="False"
+                                    Content="{DynamicResource item167}"
+                                    Style="{DynamicResource PrimaryButton}">
+
+                                <Button.Effect>
+                                    <DropShadowEffect BlurRadius="15"
+                                                      Direction="-90"
+                                                      RenderingBias="Quality"
+                                                      ShadowDepth="0"
+                                                      Opacity="0.3"/>
+                                </Button.Effect>
+                            </Button>
+                        </StackPanel>
+
+                        <Grid.Effect>
+                            <DropShadowEffect BlurRadius="8"
+                                              Direction="-90"
+                                              RenderingBias="Quality"
+                                              ShadowDepth="1"
+                                              Opacity="0.3"/>
+                        </Grid.Effect>
+                    </Grid>
+                </Border>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
