@@ -1,15 +1,59 @@
-      - name: Restore dependencies
-        run: dotnet restore "JSEmu Launcher/H1Emu Launcher.csproj" --runtime win-x64
+name: Build JSEmu Launcher
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Windows x64 Launcher
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install .NET 9 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Display .NET information
+        run: dotnet --info
 
       - name: Publish launcher
-        run: >
-          dotnet publish
-          "JSEmu Launcher/H1Emu Launcher.csproj"
-          --configuration Release
-          --runtime win-x64
-          --self-contained true
-          --no-restore
-          --output "publish/JSEmu-Launcher-win-x64"
-          -p:PublishSingleFile=false
-          -p:DebugType=None
-          -p:DebugSymbols=false
+        shell: pwsh
+        run: |
+          dotnet publish "JSEmu Launcher/H1Emu Launcher.csproj" `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained true `
+            --output "publish/JSEmu-Launcher-win-x64" `
+            -p:PublishSingleFile=false `
+            -p:DebugType=None `
+            -p:DebugSymbols=false
+
+      - name: Display compiled files
+        shell: pwsh
+        run: |
+          Get-ChildItem "publish/JSEmu-Launcher-win-x64" -Recurse |
+          Select-Object FullName, Length
+
+      - name: Upload compiled launcher
+        uses: actions/upload-artifact@v4
+        with:
+          name: JSEmu-Launcher-win-x64
+          path: publish/JSEmu-Launcher-win-x64/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 6
