@@ -1,4 +1,4 @@
-![JSEmu.eu Logo](JSEmu Launcher/Resources/BackgroundArt.png)
+![JSEmu.eu Launcher](JSEmu%20Launcher/Resources/BackgroundArt.png)
 
 # JSEmu.eu Launcher
 
