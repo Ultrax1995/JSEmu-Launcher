@@ -15,7 +15,15 @@ namespace H1Emu_Launcher
     {
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
-            // Adds the correct language file to the resource dictionary and then loads it
+            // The newly downloaded launcher starts itself in this special mode.
+            // It waits for the old launcher to close, replaces it, and starts
+            // the updated launcher from the original path.
+            if (TryApplySelfUpdate(e.Args))
+            {
+                Shutdown();
+                return;
+            }
+
             Resources.MergedDictionaries.Clear();
             Resources.MergedDictionaries.Add(SetLanguageFile.LoadFile());
 
@@ -23,8 +31,14 @@ namespace H1Emu_Launcher
 
             if (Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName).Length > 1)
             {
-                // Remove some characters
-                SendArgumentsToRunningInstance(string.Join(' ', e.Args).Replace("h1emulauncher://", "").Replace("/\"", "").Replace("%20", " ").Split(' '));
+                SendArgumentsToRunningInstance(
+                    string.Join(' ', e.Args)
+                        .Replace("h1emulauncher://", "")
+                        .Replace("/\"", "")
+                        .Replace("%20", " ")
+                        .Split(' ')
+                );
+
                 Environment.Exit(0);
             }
 
@@ -36,18 +50,124 @@ namespace H1Emu_Launcher
 
             StartPipeServer();
 
-            // Lower the framerate of animations otherwise GPU usage is high
-            Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 60 });
+            Timeline.DesiredFrameRateProperty.OverrideMetadata(
+                typeof(Timeline),
+                new FrameworkPropertyMetadata { DefaultValue = 60 }
+            );
 
-            // Delete old carousel images folder, no longer needed on newer versions of the launcher
             if (Directory.Exists($"{Info.APPLICATION_DATA_PATH}\\JSEmu Launcher\\CarouselImages"))
                 Directory.Delete($"{Info.APPLICATION_DATA_PATH}\\JSEmu Launcher\\CarouselImages", true);
 
-            // Delete old args text file, no longer needed on newer versions of the launcher
             File.Delete($"{Info.APPLICATION_DATA_PATH}\\JSEmu Launcher\\args.txt");
+
+            // Clean a stale updater from an older successful update if possible.
+            try
+            {
+                string staleUpdater = Path.Combine(
+                    Info.APPLICATION_DATA_PATH,
+                    "JSEmu Launcher",
+                    "Updates",
+                    "JSEmu Launcher.update.exe"
+                );
+
+                if (File.Exists(staleUpdater))
+                    File.Delete(staleUpdater);
+            }
+            catch
+            {
+                // It may still be exiting after replacing the launcher.
+                // The same path will be overwritten during the next update.
+            }
 
             SplashWindow sp = new();
             sp.Show();
+        }
+
+        private static bool TryApplySelfUpdate(string[] args)
+        {
+            if (args.Length < 1 ||
+                !string.Equals(args[0], "--apply-update", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            try
+            {
+                if (args.Length < 3)
+                    throw new ArgumentException("Missing self-update arguments.");
+
+                if (!int.TryParse(args[1], out int oldProcessId))
+                    throw new ArgumentException("Invalid old launcher process ID.");
+
+                string targetExe = Path.GetFullPath(args[2]);
+
+                string updaterExe =
+                    Environment.ProcessPath ??
+                    Process.GetCurrentProcess().MainModule?.FileName;
+
+                if (string.IsNullOrWhiteSpace(updaterExe))
+                    throw new Exception("Unable to determine updater executable path.");
+
+                try
+                {
+                    Process oldProcess = Process.GetProcessById(oldProcessId);
+
+                    if (!oldProcess.HasExited)
+                        oldProcess.WaitForExit(60000);
+                }
+                catch (ArgumentException)
+                {
+                    // Old process already exited.
+                }
+
+                Exception lastCopyError = null;
+
+                for (int attempt = 0; attempt < 30; attempt++)
+                {
+                    try
+                    {
+                        File.Copy(updaterExe, targetExe, true);
+                        lastCopyError = null;
+                        break;
+                    }
+                    catch (IOException ex)
+                    {
+                        lastCopyError = ex;
+                    }
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        lastCopyError = ex;
+                    }
+
+                    Thread.Sleep(500);
+                }
+
+                if (lastCopyError != null)
+                    throw lastCopyError;
+
+                ProcessStartInfo launcherStart = new()
+                {
+                    FileName = targetExe,
+                    UseShellExecute = true
+                };
+
+                // The file was just updated, so skip exactly one immediate
+                // GitHub check. The next normal start checks again.
+                launcherStart.ArgumentList.Add("-skipupdatecheck");
+
+                Process.Start(launcherStart);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"JSEmu Launcher could not finish the automatic update.\n\n{ex.Message}",
+                    "JSEmu Launcher Update",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
+            }
+
+            return true;
         }
 
         private void StartPipeServer()
@@ -56,7 +176,9 @@ namespace H1Emu_Launcher
             {
                 while (true)
                 {
-                    NamedPipeServerStream pipeServer = new("H1EmuLauncherPipe", PipeDirection.In);
+                    NamedPipeServerStream pipeServer =
+                        new("H1EmuLauncherPipe", PipeDirection.In);
+
                     pipeServer.WaitForConnection();
 
                     StreamReader reader = new(pipeServer);
@@ -76,7 +198,9 @@ namespace H1Emu_Launcher
         {
             try
             {
-                NamedPipeClientStream pipeClient = new(".", "H1EmuLauncherPipe", PipeDirection.Out);
+                NamedPipeClientStream pipeClient =
+                    new(".", "H1EmuLauncherPipe", PipeDirection.Out);
+
                 StreamWriter writer = new(pipeClient);
 
                 pipeClient.Connect(1000);
@@ -85,7 +209,10 @@ namespace H1Emu_Launcher
             }
             catch (Exception e)
             {
-                CustomMessageBox.Show($"Error sending launch arguments to active instance: \"{e.Message}\".", LauncherWindow.launcherInstance);
+                CustomMessageBox.Show(
+                    $"Error sending launch arguments to active instance: \"{e.Message}\".",
+                    LauncherWindow.launcherInstance
+                );
             }
         }
 
@@ -109,10 +236,19 @@ namespace H1Emu_Launcher
             {
                 if (LauncherWindow.launcherInstance == null)
                 {
-                    MessageBoxResult mbr = CustomMessageBox.Show($"An exception occurred that prevented the application from starting: \"{(e.ExceptionObject as Exception).Message}\".\n\nDeleting the application data can sometimes fix this, would you like to try that and attempt to restart now?", null, false, true, true);
+                    MessageBoxResult mbr = CustomMessageBox.Show(
+                        $"An exception occurred that prevented the application from starting: \"{(e.ExceptionObject as Exception).Message}\".\n\nDeleting the application data can sometimes fix this, would you like to try that and attempt to restart now?",
+                        null,
+                        false,
+                        true,
+                        true
+                    );
+
                     if (mbr == MessageBoxResult.Yes)
                     {
-                        DirectoryInfo di = new($"{Info.APPLICATION_DATA_PATH}\\JSEmu Launcher");
+                        DirectoryInfo di =
+                            new($"{Info.APPLICATION_DATA_PATH}\\JSEmu Launcher");
+
                         foreach (var file in di.GetFiles())
                             file.Delete();
 
@@ -120,7 +256,11 @@ namespace H1Emu_Launcher
                     }
                 }
 
-                CustomMessageBox.Show($"An unhandled exception occurred: \"{(e.ExceptionObject as Exception).Message}\".\n\nThe launcher will now close.", LauncherWindow.launcherInstance);
+                CustomMessageBox.Show(
+                    $"An unhandled exception occurred: \"{(e.ExceptionObject as Exception).Message}\".\n\nThe launcher will now close.",
+                    LauncherWindow.launcherInstance
+                );
+
                 Environment.Exit(1);
             }
         }

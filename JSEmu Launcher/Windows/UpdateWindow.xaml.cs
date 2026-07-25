@@ -17,13 +17,13 @@ namespace H1Emu_Launcher
         public static UpdateWindow updateInstance;
         public static string installerDownloadURL;
         public static string installerFileName;
+        public static Version expectedVersion;
 
         public UpdateWindow()
         {
             InitializeComponent();
             updateInstance = this;
 
-            // Adds the correct language file to the resource dictionary and then loads it
             Resources.MergedDictionaries.Clear();
             Resources.MergedDictionaries.Add(SetLanguageFile.LoadFile());
         }
@@ -34,28 +34,90 @@ namespace H1Emu_Launcher
             await UpdateLauncher();
         }
 
-        private async Task UpdateLauncher()
+        private static bool CanWriteToTargetDirectory(string targetExe)
         {
             try
             {
+                string directory = Path.GetDirectoryName(targetExe);
+
+                if (string.IsNullOrWhiteSpace(directory))
+                    return false;
+
+                string testFile = Path.Combine(
+                    directory,
+                    $".jsemu-update-test-{Guid.NewGuid():N}.tmp"
+                );
+
+                using FileStream fs = new(
+                    testFile,
+                    FileMode.CreateNew,
+                    FileAccess.Write,
+                    FileShare.None,
+                    1,
+                    FileOptions.DeleteOnClose
+                );
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private async Task UpdateLauncher()
+        {
+            string updatesDirectory = Path.Combine(
+                Info.APPLICATION_DATA_PATH,
+                "JSEmu Launcher",
+                "Updates"
+            );
+
+            string downloadedLauncher = Path.Combine(
+                updatesDirectory,
+                "JSEmu Launcher.update.exe"
+            );
+
+            try
+            {
+                Directory.CreateDirectory(updatesDirectory);
+
                 downloadSetupProgress.IsIndeterminate = true;
-                taskbarIcon.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Indeterminate;
+                taskbarIcon.ProgressState =
+                    System.Windows.Shell.TaskbarItemProgressState.Indeterminate;
 
-                // Delete any old installation files if they exist in case of corruption
-                if (File.Exists($"{Info.APPLICATION_DATA_PATH}\\JSEmu Launcher\\{installerFileName}"))
-                    File.Delete($"{Info.APPLICATION_DATA_PATH}\\JSEmu Launcher\\{installerFileName}");
+                if (File.Exists(downloadedLauncher))
+                    File.Delete(downloadedLauncher);
 
-                HttpResponseMessage response = await SplashWindow.httpClient.GetAsync(installerDownloadURL, HttpCompletionOption.ResponseHeadersRead);
-                // Throw an exception if we didn't get the correct response, with the first letter capitalised in the message
+                using HttpResponseMessage response =
+                    await SplashWindow.httpClient.GetAsync(
+                        installerDownloadURL,
+                        HttpCompletionOption.ResponseHeadersRead
+                    );
+
                 if (response.StatusCode != HttpStatusCode.OK)
-                    throw new Exception($"{char.ToUpper(response.ReasonPhrase.First())}{response.ReasonPhrase.Substring(1)}");
+                {
+                    string reason = response.ReasonPhrase ?? response.StatusCode.ToString();
+                    throw new Exception(reason);
+                }
 
                 downloadSetupProgress.IsIndeterminate = false;
-                taskbarIcon.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
+                taskbarIcon.ProgressState =
+                    System.Windows.Shell.TaskbarItemProgressState.Normal;
 
                 long totalBytes = response.Content.Headers.ContentLength ?? -1L;
-                using Stream contentStream = await response.Content.ReadAsStreamAsync();
-                using FileStream fileStream = new($"{Info.APPLICATION_DATA_PATH}\\JSEmu Launcher\\{installerFileName}", FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
+
+                await using Stream contentStream =
+                    await response.Content.ReadAsStreamAsync();
+
+                await using FileStream fileStream = new(
+                    downloadedLauncher,
+                    FileMode.Create,
+                    FileAccess.Write,
+                    FileShare.None,
+                    8192,
+                    true
+                );
 
                 byte[] buffer = new byte[8192];
                 long totalBytesRead = 0;
@@ -63,61 +125,123 @@ namespace H1Emu_Launcher
 
                 while ((bytesRead = await contentStream.ReadAsync(buffer)) != 0)
                 {
-                    // Write the data to the file
                     await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
                     totalBytesRead += bytesRead;
 
-                    // Update the progress bar
                     if (totalBytes > 0)
                     {
-                        float progressPercentage = (float)totalBytesRead * 100 / totalBytes;
+                        float progressPercentage =
+                            (float)totalBytesRead * 100 / totalBytes;
+
                         downloadSetupProgress.Value = progressPercentage;
-                        downloadSetupProgressText.Text = $"{FindResource("item54")} {progressPercentage:0.00}%";
+                        downloadSetupProgressText.Text =
+                            $"{FindResource("item54")} {progressPercentage:0.00}%";
                         taskbarIcon.ProgressValue = progressPercentage / 100;
                     }
                 }
 
+                await fileStream.FlushAsync();
+
+                if (totalBytesRead < 1024)
+                    throw new InvalidDataException("Downloaded launcher file is unexpectedly small.");
+
+                // Basic PE executable sanity check.
+                await using (FileStream verifyStream = new(
+                    downloadedLauncher,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.Read
+                ))
+                {
+                    if (verifyStream.ReadByte() != 0x4D || verifyStream.ReadByte() != 0x5A)
+                        throw new InvalidDataException("Downloaded file is not a valid Windows executable.");
+                }
+
+                FileVersionInfo downloadedInfo =
+                    FileVersionInfo.GetVersionInfo(downloadedLauncher);
+
+                Version downloadedVersion =
+                    SplashWindow.NormalizeVersion(downloadedInfo.FileVersion);
+
+                if (expectedVersion != null && downloadedVersion != expectedVersion)
+                {
+                    throw new InvalidDataException(
+                        $"Downloaded launcher version {downloadedVersion} does not match expected version {expectedVersion}."
+                    );
+                }
+
                 downloadSetupProgress.IsIndeterminate = true;
-                taskbarIcon.ProgressState = System.Windows.Shell.TaskbarItemProgressState.None;
+                taskbarIcon.ProgressState =
+                    System.Windows.Shell.TaskbarItemProgressState.None;
             }
             catch (AggregateException e)
             {
                 downloadSetupProgress.IsIndeterminate = true;
-                taskbarIcon.ProgressState = System.Windows.Shell.TaskbarItemProgressState.None;
+                taskbarIcon.ProgressState =
+                    System.Windows.Shell.TaskbarItemProgressState.None;
 
                 string exceptionList = string.Empty;
+
                 foreach (Exception exception in e.InnerExceptions)
                     exceptionList += $"\n\n{exception.GetType().Name}: {exception.Message}";
 
-                if (e.InnerException is HttpRequestException ex)
-                {
-                    if (ex.StatusCode == null)
-                        exceptionList += $"\n\n{FindResource("item137")}";
-                }
+                if (e.InnerException is HttpRequestException ex && ex.StatusCode == null)
+                    exceptionList += $"\n\n{FindResource("item137")}";
 
-                CustomMessageBox.Show($"{FindResource("item80").ToString().Replace(":", ".").Replace("：", ".")} {FindResource("item16")}{exceptionList}", this);
+                CustomMessageBox.Show(
+                    $"{FindResource("item80").ToString().Replace(":", ".").Replace("：", ".")} {FindResource("item16")}{exceptionList}",
+                    this
+                );
+
                 return;
             }
             catch (Exception ex)
             {
                 downloadSetupProgress.IsIndeterminate = true;
-                taskbarIcon.ProgressState = System.Windows.Shell.TaskbarItemProgressState.None;
+                taskbarIcon.ProgressState =
+                    System.Windows.Shell.TaskbarItemProgressState.None;
 
-                CustomMessageBox.Show($"{FindResource("item80")} \"{ex.Message}\".", this);
+                CustomMessageBox.Show(
+                    $"{FindResource("item80")} \"{ex.Message}\".",
+                    this
+                );
+
                 return;
             }
 
             try
             {
-                Process.Start(new ProcessStartInfo
+                string currentExe =
+                    Environment.ProcessPath ??
+                    Process.GetCurrentProcess().MainModule?.FileName;
+
+                if (string.IsNullOrWhiteSpace(currentExe))
+                    throw new Exception("Unable to determine the current launcher path.");
+
+                ProcessStartInfo updaterStart = new()
                 {
-                    FileName = $"{Info.APPLICATION_DATA_PATH}\\JSEmu Launcher\\{installerFileName}",
+                    FileName = downloadedLauncher,
                     UseShellExecute = true
-                });
+                };
+
+                updaterStart.ArgumentList.Add("--apply-update");
+                updaterStart.ArgumentList.Add(Environment.ProcessId.ToString());
+                updaterStart.ArgumentList.Add(currentExe);
+
+                // If the launcher is installed in a protected folder such as
+                // Program Files, start the temporary updater as administrator.
+                if (!CanWriteToTargetDirectory(currentExe))
+                    updaterStart.Verb = "runas";
+
+                Process.Start(updaterStart);
             }
             catch (Exception ph)
             {
-                CustomMessageBox.Show($"{FindResource("item186")} \"{ph.Message}\"\n\n{FindResource("item187")}", this);
+                CustomMessageBox.Show(
+                    $"{FindResource("item186")} \"{ph.Message}\"\n\n{FindResource("item187")}",
+                    this
+                );
+
                 return;
             }
 

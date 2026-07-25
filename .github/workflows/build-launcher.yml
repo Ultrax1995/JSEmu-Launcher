@@ -1,16 +1,12 @@
 name: Build and Release JSEmu Launcher
 
 on:
-  # Sprawdza kompilację po każdej zmianie na main
   push:
     branches:
       - main
-
-    # Tworzy Release po wysłaniu tagu, np. v3.5.1
     tags:
       - "v*"
 
-  # Pozwala uruchomić sam build ręcznie
   workflow_dispatch:
 
 permissions:
@@ -33,6 +29,51 @@ jobs:
       - name: Display .NET information
         run: dotnet --info
 
+      - name: Resolve launcher version
+        id: version
+        shell: pwsh
+        run: |
+          if ("${{ github.ref_type }}" -eq "tag") {
+            $tag = "${{ github.ref_name }}"
+
+            if ($tag -notmatch '^v(?<version>\d+\.\d+\.\d+(?:\.\d+)?)$') {
+              throw "Release tag must look like v3.5.3 or v3.5.3.0"
+            }
+
+            $version = $Matches.version
+          }
+          else {
+            [xml]$project = Get-Content "JSEmu Launcher/H1Emu Launcher.csproj"
+
+            $group = $project.Project.PropertyGroup |
+              Where-Object { $_.Version } |
+              Select-Object -First 1
+
+            $version = [string]$group.Version
+
+            if ([string]::IsNullOrWhiteSpace($version)) {
+              throw "Could not read <Version> from H1Emu Launcher.csproj"
+            }
+          }
+
+          $parts = $version.Split('.')
+
+          if ($parts.Count -eq 3) {
+            $fileVersion = "$version.0"
+          }
+          elseif ($parts.Count -eq 4) {
+            $fileVersion = $version
+          }
+          else {
+            throw "Invalid version: $version"
+          }
+
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "file_version=$fileVersion" >> $env:GITHUB_OUTPUT
+
+          Write-Host "Build version: $version"
+          Write-Host "Assembly/File version: $fileVersion"
+
       - name: Publish launcher as single EXE
         shell: pwsh
         run: |
@@ -45,7 +86,11 @@ jobs:
             -p:IncludeNativeLibrariesForSelfExtract=true `
             -p:EnableCompressionInSingleFile=true `
             -p:DebugType=None `
-            -p:DebugSymbols=false
+            -p:DebugSymbols=false `
+            -p:Version="${{ steps.version.outputs.version }}" `
+            -p:AssemblyVersion="${{ steps.version.outputs.file_version }}" `
+            -p:FileVersion="${{ steps.version.outputs.file_version }}" `
+            -p:InformationalVersion="${{ steps.version.outputs.version }}"
 
       - name: Verify compiled EXE
         shell: pwsh
@@ -58,6 +103,16 @@ jobs:
             throw "JSEmu Launcher.exe was not created."
           }
 
+          $expected = "${{ steps.version.outputs.file_version }}"
+          $actual = (Get-Item $exe).VersionInfo.FileVersion
+
+          Write-Host "Expected version: $expected"
+          Write-Host "Built EXE version: $actual"
+
+          if ($actual -ne $expected) {
+            throw "Built launcher has the wrong FileVersion."
+          }
+
           Get-Item $exe | Format-List FullName, Length
 
       - name: Create GitHub Release and upload EXE
@@ -66,8 +121,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ github.ref_name }}" `
-            "publish/JSEmu-Launcher-win-x64/JSEmu Launcher.exe" `
-            --verify-tag `
-            --title "JSEmu Launcher ${{ github.ref_name }}" `
-            --generate-notes
+          $tag = "${{ github.ref_name }}"
+          $exe = "publish/JSEmu-Launcher-win-x64/JSEmu Launcher.exe"
+
+          if (gh release view $tag 2>$null) {
+            gh release upload $tag $exe --clobber
+          }
+          else {
+            gh release create $tag `
+              $exe `
+              --verify-tag `
+              --title "JSEmu Launcher $tag" `
+              --generate-notes
+          }

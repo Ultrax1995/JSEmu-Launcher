@@ -11,23 +11,21 @@ namespace H1Emu_Launcher.Classes
         public static string H1EMU_SERVER_IP = "54.37.161.81:1115";
 
         public static string H1EMU_OFFICIAL_SERVER_IP = "loginserver.h1emu.com:1115";
-
         public static string SERVER_JSON_API = "https://api.github.com/repos/QuentinGruber/h1z1-server/releases/latest";
 
-        public static string LAUNCHER_JSON_API = "https://api.github.com/repos/H1emu/h1emu-launcher/releases/latest";
+        // JSEmu launcher auto-update endpoint.
+        public static string LAUNCHER_JSON_API = "https://api.github.com/repos/Ultrax1995/JSEmu-Launcher/releases/latest";
 
         // 0 = JSEmu.eu - Assets Pack
         public static string OFFICIAL_ASSET_PACK = "https://assets.h1emukrakow.eu/Assets/";
-
         // 1 = H1Emu.com - Assets Pack
         public static string H1EMU_ASSET_PACK = "https://raw.githubusercontent.com/H1emu/asset-pack/refs/heads/main/feed.json";
 
         public static string SERVER_BUG_LINK = "https://github.com/QuentinGruber/h1z1-server/issues/new?assignees=&labels=bug&template=bug_report.md&title=";
 
-        public static string LAUNCHER_BUG_LINK = "https://github.com/H1emu/h1emu-launcher/issues/new";
+        public static string LAUNCHER_BUG_LINK = "https://github.com/Ultrax1995/JSEmu-Launcher/issues/new";
 
         public static string ACCOUNT_KEY_CHECK_API = "https://jsemu.eu/";
-
         public static string JSEMU_ACCOUNT_KEY_CHECK_API = "https://jsemu.eu/";
 
         public static string H1EMU_ACCOUNT_KEY_CHECK_API = "http://loginserver.h1emu.com/isverified?authKey=";
@@ -37,7 +35,6 @@ namespace H1Emu_Launcher.Classes
         public static string DISCORD_UPDATES_LINK = "https://discord.com/channels/1416363907336896544/1425465707339972629";
 
         public static string CHANGELOG = "https://discord.com/channels/1416363907336896544/1425465707339972629";
-
         public static string WEBSITE = "https://jsemu.eu/";
 
         public static string GAME_CRASH_URL = "https://jsemu.eu/";
