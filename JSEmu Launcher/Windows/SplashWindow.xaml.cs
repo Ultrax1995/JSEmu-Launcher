@@ -109,12 +109,19 @@ namespace H1Emu_Launcher
                 localVersion = NormalizeVersion(assemblyVersion.ToString());
 
                 var launcherAsset = jsonLauncherDes.assets?.FirstOrDefault(asset =>
-                    string.Equals(
-                        asset.name,
-                        "JSEmu Launcher.exe",
-                        StringComparison.OrdinalIgnoreCase
-                    )
-                );
+                {
+                    if (string.IsNullOrWhiteSpace(asset.name))
+                        return false;
+
+                    string normalized = asset.name
+                        .Replace(" ", "")
+                        .Replace(".", "")
+                        .Replace("-", "")
+                        .Replace("_", "")
+                        .ToLowerInvariant();
+
+                    return normalized == "jsemulauncherexe";
+                });
 
                 if (launcherAsset == null ||
                     string.IsNullOrWhiteSpace(launcherAsset.browser_download_url))
