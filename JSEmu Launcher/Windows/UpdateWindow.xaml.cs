@@ -110,37 +110,68 @@ namespace H1Emu_Launcher
                 await using Stream contentStream =
                     await response.Content.ReadAsStreamAsync();
 
-                await using FileStream fileStream = new(
+                long totalBytesRead = 0;
+
+                await using (FileStream fileStream = new(
                     downloadedLauncher,
                     FileMode.Create,
                     FileAccess.Write,
                     FileShare.None,
                     8192,
                     true
-                );
-
-                byte[] buffer = new byte[8192];
-                long totalBytesRead = 0;
-                int bytesRead;
-
-                while ((bytesRead = await contentStream.ReadAsync(buffer)) != 0)
+                ))
                 {
-                    await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
-                    totalBytesRead += bytesRead;
+                    byte[] buffer = new byte[8192];
+                    int bytesRead;
 
-                    if (totalBytes > 0)
+                    while ((bytesRead = await contentStream.ReadAsync(buffer)) != 0)
                     {
-                        float progressPercentage =
-                            (float)totalBytesRead * 100 / totalBytes;
+                        await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+                        totalBytesRead += bytesRead;
 
-                        downloadSetupProgress.Value = progressPercentage;
-                        downloadSetupProgressText.Text =
-                            $"{FindResource("item54")} {progressPercentage:0.00}%";
-                        taskbarIcon.ProgressValue = progressPercentage / 100;
+                        if (totalBytes > 0)
+                        {
+                            float progressPercentage =
+                                (float)totalBytesRead * 100 / totalBytes;
+
+                            downloadSetupProgress.Value = progressPercentage;
+                            downloadSetupProgressText.Text =
+                                $"{FindResource("item54")} {progressPercentage:0.00}%";
+
+                            taskbarIcon.ProgressValue = progressPercentage / 100;
+                        }
                     }
+
+                    await fileStream.FlushAsync();
                 }
 
-                await fileStream.FlushAsync();
+                // TUTAJ fileStream jest już zamknięty
+
+                if (totalBytesRead < 1024)
+                {
+                    throw new InvalidDataException(
+                        "Downloaded launcher file is unexpectedly small."
+                    );
+                }
+
+                // Basic PE executable sanity check.
+                await using (FileStream verifyStream = new(
+                    downloadedLauncher,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.Read
+                ))
+                {
+                    if (
+                        verifyStream.ReadByte() != 0x4D ||
+                        verifyStream.ReadByte() != 0x5A
+                    )
+                    {
+                        throw new InvalidDataException(
+                            "Downloaded file is not a valid Windows executable."
+                        );
+                    }
+                }
 
                 if (totalBytesRead < 1024)
                     throw new InvalidDataException("Downloaded launcher file is unexpectedly small.");
