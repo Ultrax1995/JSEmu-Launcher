@@ -61,7 +61,7 @@
                     <TextBlock Margin="60,0,60,0"
                                Foreground="FloralWhite"
                                FontWeight="Light"
-                               Text="• Ultrax • Eric • Avcio • Kentin • JSON •"
+                               Text="• Ultrax • Avcio • Kentin • JSON •"
                                HorizontalAlignment="Center"
                                TextWrapping="Wrap"
                                TextAlignment="Center"
