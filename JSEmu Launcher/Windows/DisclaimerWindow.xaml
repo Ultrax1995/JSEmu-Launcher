@@ -180,7 +180,7 @@
 
                                 <TextBlock FontWeight="Light"
                                            TextWrapping="Wrap"
-                                           Text="By accessing and using H1Emu Servers, you agree to follow these Terms of Service. If you do not agree to these terms, you must discontinue your use of the game, services or code."
+                                           Text="By launching this launcher, creating an account, or otherwise accessing and playing on H1Emu / JSEmu servers, you agree to follow these Terms of Service. If you do not agree to these terms, you must discontinue your use of the game, services or code."
                                            Style="{DynamicResource TextBlockStyle}"/>
 
                                 <TextBlock Margin="0,30,0,5"
@@ -188,7 +188,20 @@
                                            Foreground="#FFED1C24"
                                            TextDecorations="Underline"
                                            TextWrapping="Wrap"
-                                           Text="2. Game Version"
+                                           Text="2. About This Project"
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="H1Emu / JSEmu is a free, non-profit, fan-made continuation of H1Z1: Just Survive, built and maintained by community volunteers. It is not affiliated with, endorsed by, or sponsored by Daybreak Game Company or any other past or present rights holder of H1Z1. All original game assets remain the property of their respective owners."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock Margin="0,30,0,5"
+                                           FontWeight="Bold"
+                                           Foreground="#FFED1C24"
+                                           TextDecorations="Underline"
+                                           TextWrapping="Wrap"
+                                           Text="3. Game Version"
                                            Style="{DynamicResource TextBlockStyle}"/>
 
                                 <TextBlock FontWeight="Light"
@@ -201,7 +214,20 @@
                                            Foreground="#FFED1C24"
                                            TextDecorations="Underline"
                                            TextWrapping="Wrap"
-                                           Text="3. FairPlay Anti-Cheat Software"
+                                           Text="4. Player Conduct"
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="While using our services, you agree not to cheat, exploit bugs or vulnerabilities, harass or discriminate against other players or staff, share or sell accounts, or attempt to disrupt the servers. Staff decisions regarding rule enforcement are final."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock Margin="0,30,0,5"
+                                           FontWeight="Bold"
+                                           Foreground="#FFED1C24"
+                                           TextDecorations="Underline"
+                                           TextWrapping="Wrap"
+                                           Text="5. FairPlay Anti-Cheat Software"
                                            Style="{DynamicResource TextBlockStyle}"/>
 
                                 <TextBlock FontWeight="Light"
@@ -250,7 +276,7 @@
                                            Foreground="#FFED1C24"
                                            TextDecorations="Underline"
                                            TextWrapping="Wrap"
-                                           Text="4. Use of Data"
+                                           Text="6. Use of Data"
                                            Style="{DynamicResource TextBlockStyle}"/>
 
                                 <TextBlock FontWeight="Light"
@@ -263,12 +289,12 @@
                                            Foreground="#FFED1C24"
                                            TextDecorations="Underline"
                                            TextWrapping="Wrap"
-                                           Text="5. Your Control Over Data Collection"
+                                           Text="7. Your Control Over Data Collection"
                                            Style="{DynamicResource TextBlockStyle}"/>
 
                                 <TextBlock FontWeight="Light"
                                            TextWrapping="Wrap"
-                                           Text="You have the right to stop the collection of this data at any time by closing the game. Fairplay will cease to collect any information about your system, TextBlockning programs, or any other data once the game is closed."
+                                           Text="You have the right to stop the collection of this data at any time by closing the game. Fairplay will cease to collect any information about your system, running programs, or any other data once the game is closed."
                                            Style="{DynamicResource TextBlockStyle}"/>
 
                                 <TextBlock Margin="0,30,0,5"
@@ -276,7 +302,46 @@
                                            Foreground="#FFED1C24"
                                            TextDecorations="Underline"
                                            TextWrapping="Wrap"
-                                           Text="6. Transparency and Fair Use"
+                                           Text="8. Virtual Currency, Store Purchases &amp; Donations"
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="JSEmu Coins and any items, crates, or cosmetics obtained through the store are virtual, have no real-world monetary value, and cannot be exchanged for real money or transferred between accounts. Purchases help cover our server and infrastructure costs and are generally non-refundable, except where required by applicable law. Prices, item availability, and the store itself may change or be removed at any time."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock Margin="0,30,0,5"
+                                           FontWeight="Bold"
+                                           Foreground="#FFED1C24"
+                                           TextDecorations="Underline"
+                                           TextWrapping="Wrap"
+                                           Text="9. Enforcement &amp; Bans"
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="We reserve the right to warn, restrict, suspend, or permanently ban any account that violates these Terms of Service, at our sole discretion and without prior notice. Enforcement actions may result in the loss of access to your character, inventory, coins, or store purchases, and no compensation is owed for any such loss."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock Margin="0,30,0,5"
+                                           FontWeight="Bold"
+                                           Foreground="#FFED1C24"
+                                           TextDecorations="Underline"
+                                           TextWrapping="Wrap"
+                                           Text="10. Service Availability"
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="Our servers and services are provided free of charge, on an &quot;as is&quot; and &quot;as available&quot; basis, without any warranty of uptime, performance, or continued availability. We may modify, suspend, or permanently discontinue any part of the service at any time without notice, and we are not liable for any loss of data, progress, or virtual items resulting from downtime or discontinuation."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock Margin="0,30,0,5"
+                                           FontWeight="Bold"
+                                           Foreground="#FFED1C24"
+                                           TextDecorations="Underline"
+                                           TextWrapping="Wrap"
+                                           Text="11. Transparency and Fair Use"
                                            Style="{DynamicResource TextBlockStyle}"/>
 
                                 <TextBlock FontWeight="Light"
@@ -289,12 +354,25 @@
                                            Foreground="#FFED1C24"
                                            TextDecorations="Underline"
                                            TextWrapping="Wrap"
-                                           Text="7. Updates to Terms"
+                                           Text="12. Updates to Terms"
                                            Style="{DynamicResource TextBlockStyle}"/>
 
                                 <TextBlock FontWeight="Light"
                                            TextWrapping="Wrap"
-                                           Text="We may modify these Terms of Service at any time. You agree to review these terms periodically to stay informed of any changes."
+                                           Text="We may modify these Terms of Service at any time. Continuing to play after changes are published constitutes acceptance of the updated terms, so you agree to review these terms periodically to stay informed of any changes. The current version is always available on our website."
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock Margin="0,30,0,5"
+                                           FontWeight="Bold"
+                                           Foreground="#FFED1C24"
+                                           TextDecorations="Underline"
+                                           TextWrapping="Wrap"
+                                           Text="13. Contact"
+                                           Style="{DynamicResource TextBlockStyle}"/>
+
+                                <TextBlock FontWeight="Light"
+                                           TextWrapping="Wrap"
+                                           Text="If you have any questions about these Terms of Service, please reach out to the staff team on our Discord server."
                                            Style="{DynamicResource TextBlockStyle}"/>
                             </StackPanel>
                         </ScrollViewer>

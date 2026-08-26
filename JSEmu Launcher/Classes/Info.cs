@@ -8,7 +8,7 @@ namespace H1Emu_Launcher.Classes
 
         public static string NODEJS_VERSION = "22.9.0";
 
-        public static string H1EMU_SERVER_IP = "54.37.161.81:1115";
+        public static string H1EMU_SERVER_IP = "135.125.173.208:1115";
 
         public static string H1EMU_OFFICIAL_SERVER_IP = "loginserver.h1emu.com:1115";
         public static string SERVER_JSON_API = "https://api.github.com/repos/QuentinGruber/h1z1-server/releases/latest";
