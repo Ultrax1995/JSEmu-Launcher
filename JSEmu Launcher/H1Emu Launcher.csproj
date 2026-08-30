@@ -7,10 +7,10 @@
 	  <UseWPF>true</UseWPF>
 	  <UseWindowsForms>true</UseWindowsForms>
 	  <ApplicationIcon>Resources\Icon.ico</ApplicationIcon>
-	  <FileVersion>3.5.1</FileVersion>
+	  <FileVersion>3.5.15</FileVersion>
 	  <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
 	  <Authors>JSEmu.eu</Authors>
-	  <Version>3.5.1</Version>
+	  <Version>3.5.15</Version>
 	  <AssemblyName>JSEmu Launcher</AssemblyName>
 	  <SignAssembly>false</SignAssembly>
 	  <Copyright>© JSEmu.eu</Copyright>
@@ -18,7 +18,7 @@
 	  <Description>Launcher for JSEmu.eu Just Survive servers.</Description>
 	  <Title>JSEmu Launcher</Title>
 	  <PackageIcon>Icon.ico</PackageIcon>
-	  <AssemblyVersion>3.5.1</AssemblyVersion>
+	  <AssemblyVersion>3.5.15</AssemblyVersion>
 	  <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 

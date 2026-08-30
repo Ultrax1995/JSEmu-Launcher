@@ -192,8 +192,10 @@ namespace H1Emu_Launcher.Classes
                 if (string.IsNullOrWhiteSpace(expectedHash))
                     throw new Exception($"Asset \"{item.filename}\" has no hash in the asset pack manifest.");
 
-                // Assets without an explicit path keep the original behaviour and land in Resources\Assets
-                bool usesDefaultDirectory = string.IsNullOrWhiteSpace(item.path);
+                // A missing path means the manifest predates the field, so the file keeps the
+                // original behaviour and lands in Resources\Assets. An empty path is explicit
+                // and means the root of the game folder, so the two must not be conflated.
+                bool usesDefaultDirectory = item.path == null;
                 string targetDirectory = usesDefaultDirectory
                     ? defaultAssetsDirectory
                     : Path.GetFullPath(Path.Combine(gameDirectory, item.path));
