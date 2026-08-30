@@ -172,20 +172,11 @@
   <data name="Grain" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Grain.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="H1Z1_BE" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\H1Z1_BE.exe;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="Placeholder" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Placeholder.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="H1Z1_FP" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\H1Z1_FP.exe;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\logo.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Game_Patch_2016" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Game_Patch_2016.zip;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="Server_Quickstart" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Server_Quickstart.zip;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -196,20 +187,8 @@
   <data name="BackgroundArt" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\BackgroundArt.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="H1EmuVoiceClient" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\H1EmuVoiceClient.exe;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="PrimaryButton" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\PrimaryButton.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Sound_Banks" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Sound_Banks.zip;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="lz4" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\lz4.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Locales" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Locales.zip;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="5" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\5.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

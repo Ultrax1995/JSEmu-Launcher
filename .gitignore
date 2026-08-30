@@ -6,3 +6,14 @@ H1Emu Launcher Setup/Release/
 H1Emu Launcher Setup/H1Emu Launcher Certificate.cer
 H1Emu Launcher Setup/H1Emu Launcher Certificate.pfx
 H1Emu Launcher Setup/Private Key.key
+
+# Visual Studio per-developer settings and build temporaries
+*.user
+*_wpftmp.csproj
+
+# Editor backup copies
+*.bak
+*.bak.*
+
+# Local publish output
+publish/

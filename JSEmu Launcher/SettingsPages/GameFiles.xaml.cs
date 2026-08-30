@@ -60,33 +60,9 @@ namespace H1Emu_Launcher.SettingsPages
                 {
                     if (Properties.Settings.Default.gameVersionString == "22dec2016")
                     {
-                        // Extract main game patch
-                        File.WriteAllBytes($"{Properties.Settings.Default.activeDirectory}\\Game_Patch_2016.zip", Properties.Resources.Game_Patch_2016);
-                        ZipFile.ExtractToDirectory($"{Properties.Settings.Default.activeDirectory}\\Game_Patch_2016.zip", $"{Properties.Settings.Default.activeDirectory}", true);
-
-                        // Extract modified Sound Bank files
-                        File.WriteAllBytes($"{Properties.Settings.Default.activeDirectory}\\Resources\\Audio\\pc9\\SoundBanks\\Sound_Banks.zip", Properties.Resources.Sound_Banks);
-                        ZipFile.ExtractToDirectory($"{Properties.Settings.Default.activeDirectory}\\Resources\\Audio\\pc9\\SoundBanks\\Sound_Banks.zip", $"{Properties.Settings.Default.activeDirectory}\\Resources\\Audio\\pc9\\SoundBanks", true);
-
-                        // Extract voice chat patch
-                        File.WriteAllBytes($"{Properties.Settings.Default.activeDirectory}\\H1EmuVoiceClient.exe", Properties.Resources.H1EmuVoiceClient);
-
-                        // Extract modified BattlEye to provide custom anti-cheat and asset validation
-                        File.WriteAllBytes($"{Properties.Settings.Default.activeDirectory}\\H1Z1_BE.exe", Properties.Resources.H1Z1_BE);
-
-                        // Extract custom H1Z1_FP (Fair Play) anticheat binary
-                        File.WriteAllBytes($"{Properties.Settings.Default.activeDirectory}\\H1Z1_FP.exe", Properties.Resources.H1Z1_FP);
-
                         // Extract FairPlay logo
                         Bitmap fairPlayLogo = new(Properties.Resources.logo);
                         fairPlayLogo.Save($"{Properties.Settings.Default.activeDirectory}\\logo.bmp", ImageFormat.Bmp);
-
-                        // Extract lz4.dll file patch for smaller data sizes using compression
-                        File.WriteAllBytes($"{Properties.Settings.Default.activeDirectory}\\lz4.dll", Properties.Resources.lz4);
-
-                        // Extract patched Locale files
-                        File.WriteAllBytes($"{Properties.Settings.Default.activeDirectory}\\Locale\\Locales.zip", Properties.Resources.Locales);
-                        ZipFile.ExtractToDirectory($"{Properties.Settings.Default.activeDirectory}\\Locale\\Locales.zip", $"{Properties.Settings.Default.activeDirectory}\\Locale", true);
 
                         // Clean up Assets directory
                         foreach (string file in Directory.GetFiles($"{Properties.Settings.Default.activeDirectory}\\Resources\\Assets"))
@@ -121,68 +97,17 @@ namespace H1Emu_Launcher.SettingsPages
                             assetPackJsonURL = assetPackJson[Properties.Settings.Default.selectedAssetPack - 2].AssetPackURL;
                         }
 
-                        // Query the asset pack JSON URL
-                        HttpResponseMessage response = await SplashWindow.httpClient.GetAsync(assetPackJsonURL, HttpCompletionOption.ResponseHeadersRead);
-
-                        // Throw an exception if we didn't get the correct response, with the first letter in the message capitalised
-                        if (response.StatusCode != HttpStatusCode.OK)
-                            throw new Exception($"{char.ToUpper(response.ReasonPhrase.First())}{response.ReasonPhrase.Substring(1)}");
-
-                        // Deserialise the JSON into an object
-                        string jsonAssetPack = await response.Content.ReadAsStringAsync();
-                        JsonEndPoints.AssetPackJson.Root jsonAssetPackDes = JsonSerializer.Deserialize<JsonEndPoints.AssetPackJson.Root>(jsonAssetPack);
-
-                        List<string> verifiedAssets = [];
-                        for (int i = 0; i <= 255; i++)
-                            verifiedAssets.Add($"Assets_{i:D3}.pack");
-
-                        Dispatcher.Invoke(new Action(delegate
+                        await InstallPatchClass.DownloadAssetPack(assetPackJsonURL, (filename, percentage) =>
                         {
-                            settingsProgressBar.IsIndeterminate = false;
-                            LauncherWindow.launcherInstance.taskbarIcon.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
-                        }));
-
-                        // For each asset in the JSON, download the asset file
-                        foreach (JsonEndPoints.AssetPackJson.Asset item in jsonAssetPackDes.assets)
-                        {
-                            // Deserialise the JSON into an object
-                            HttpResponseMessage responseDownloadURL = await SplashWindow.httpClient.GetAsync(item.url, HttpCompletionOption.ResponseHeadersRead);
-                            
-                            // Throw an exception if we didn't get the correct response, with the first letter in the message capitalised
-                            if (responseDownloadURL.StatusCode != HttpStatusCode.OK)
-                                throw new Exception($"{char.ToUpper(responseDownloadURL.ReasonPhrase.First())}{responseDownloadURL.ReasonPhrase.Substring(1)}");
-
-                            long totalBytes = responseDownloadURL.Content.Headers.ContentLength ?? -1L;
-                            using Stream contentStream = await responseDownloadURL.Content.ReadAsStreamAsync();
-                            using (FileStream fileStream = new($"{Properties.Settings.Default.activeDirectory}\\Resources\\Assets\\{item.filename}", FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
+                            Dispatcher.Invoke(new Action(delegate
                             {
-                                byte[] buffer = new byte[8192];
-                                long totalBytesRead = 0;
-                                int bytesRead;
-
-                                while ((bytesRead = await contentStream.ReadAsync(buffer)) != 0)
-                                {
-                                    // Write the data to the file
-                                    await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
-                                    totalBytesRead += bytesRead;
-
-                                    // Update the progress bar
-                                    if (totalBytes > 0)
-                                    {
-                                        float progressPercentage = (float)totalBytesRead * 100 / totalBytes;
-
-                                        Dispatcher.Invoke(new Action(delegate
-                                        {
-                                            settingsProgressBar.Value = progressPercentage;
-                                            settingsProgressText.Text = $"{FindResource("item54").ToString().Replace("...", "")} \"{item.filename}\"... {progressPercentage:0.00}%";
-                                            LauncherWindow.launcherInstance.taskbarIcon.ProgressValue = progressPercentage / 100;
-                                        }));
-                                    }
-                                }
-                            };
-
-                            verifiedAssets.Add(item.filename);
-                        }
+                                settingsProgressBar.IsIndeterminate = false;
+                                settingsProgressBar.Value = percentage;
+                                settingsProgressText.Text = $"{FindResource("item54").ToString().Replace("...", "")} \"{filename}\"... {percentage:0.00}%";
+                                LauncherWindow.launcherInstance.taskbarIcon.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
+                                LauncherWindow.launcherInstance.taskbarIcon.ProgressValue = percentage / 100;
+                            }));
+                        });
 
                         Dispatcher.Invoke(new Action(delegate
                         {
@@ -190,14 +115,6 @@ namespace H1Emu_Launcher.SettingsPages
                             settingsProgressText.Text = FindResource("item99").ToString();
                             LauncherWindow.launcherInstance.taskbarIcon.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Indeterminate;
                         }));
-
-                        // Make sure that only the default game assets and the newly installed asset pack is the only thing in the "Assets" folder
-                        foreach (string file in Directory.GetFiles($"{Properties.Settings.Default.activeDirectory}\\Resources\\Assets"))
-                        {
-                            string fileName = Path.GetFileName(file);
-                            if (!verifiedAssets.Contains(fileName))
-                                File.Delete(file);
-                        }
                     }
 
                     // Delete BattlEye folder to prevent Steam from trying to launch the game

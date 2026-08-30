@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace H1Emu_Launcher.Classes
 {
@@ -8,7 +8,7 @@ namespace H1Emu_Launcher.Classes
 
         public static string NODEJS_VERSION = "22.9.0";
 
-        public static string H1EMU_SERVER_IP = "135.125.173.208:1115";
+        public static string H1EMU_SERVER_IP = "loginserver.jsemu.eu:1115";
 
         public static string H1EMU_OFFICIAL_SERVER_IP = "loginserver.h1emu.com:1115";
         public static string SERVER_JSON_API = "https://api.github.com/repos/QuentinGruber/h1z1-server/releases/latest";
@@ -17,7 +17,9 @@ namespace H1Emu_Launcher.Classes
         public static string LAUNCHER_JSON_API = "https://api.github.com/repos/Ultrax1995/JSEmu-Launcher/releases/latest";
 
         // 0 = JSEmu.eu - Assets Pack
-        public static string OFFICIAL_ASSET_PACK = "https://assets.h1emukrakow.eu/Assets/";
+        // v2 also lists patch files, which need the path/extract fields to be installed correctly
+        public static string OFFICIAL_ASSET_PACK = "https://assets.h1emukrakow.eu/feed/v2";
+
         // 1 = H1Emu.com - Assets Pack
         public static string H1EMU_ASSET_PACK = "https://raw.githubusercontent.com/H1emu/asset-pack/refs/heads/main/feed.json";
 

@@ -25,33 +25,9 @@ namespace H1Emu_Launcher.Classes
 
                 if (Properties.Settings.Default.gameVersionString == "22dec2016")
                 {
-                    // Extract main game patch
-                    File.WriteAllBytes($"{Properties.Settings.Default.activeDirectory}\\Game_Patch_2016.zip", Properties.Resources.Game_Patch_2016);
-                    ZipFile.ExtractToDirectory($"{Properties.Settings.Default.activeDirectory}\\Game_Patch_2016.zip", $"{Properties.Settings.Default.activeDirectory}", true);
-
-                    // Extract modified Sound Bank files
-                    File.WriteAllBytes($"{Properties.Settings.Default.activeDirectory}\\Resources\\Audio\\pc9\\SoundBanks\\Sound_Banks.zip", Properties.Resources.Sound_Banks);
-                    ZipFile.ExtractToDirectory($"{Properties.Settings.Default.activeDirectory}\\Resources\\Audio\\pc9\\SoundBanks\\Sound_Banks.zip", $"{Properties.Settings.Default.activeDirectory}\\Resources\\Audio\\pc9\\SoundBanks", true);
-
-                    // Extract voice chat patch
-                    File.WriteAllBytes($"{Properties.Settings.Default.activeDirectory}\\H1EmuVoiceClient.exe", Properties.Resources.H1EmuVoiceClient);
-
-                    // Extract modified BattlEye to provide custom anti-cheat and asset validation
-                    File.WriteAllBytes($"{Properties.Settings.Default.activeDirectory}\\H1Z1_BE.exe", Properties.Resources.H1Z1_BE);
-
-                    // Extract custom H1Z1_FP (Fair Play) anticheat binary
-                    File.WriteAllBytes($"{Properties.Settings.Default.activeDirectory}\\H1Z1_FP.exe", Properties.Resources.H1Z1_FP);
-
                     // Extract FairPlay logo
                     Bitmap fairPlayLogo = new Bitmap(Properties.Resources.logo);
                     fairPlayLogo.Save($"{Properties.Settings.Default.activeDirectory}\\logo.bmp", ImageFormat.Bmp);
-
-                    // Extract lz4.dll file patch for smaller data sizes using compression
-                    File.WriteAllBytes($"{Properties.Settings.Default.activeDirectory}\\lz4.dll", Properties.Resources.lz4);
-
-                    // Extract patched Locale files
-                    File.WriteAllBytes($"{Properties.Settings.Default.activeDirectory}\\Locale\\Locales.zip", Properties.Resources.Locales);
-                    ZipFile.ExtractToDirectory($"{Properties.Settings.Default.activeDirectory}\\Locale\\Locales.zip", $"{Properties.Settings.Default.activeDirectory}\\Locale", true);
 
                     // Get the download URL for the selected asset pack
                     string assetPackJsonURL = string.Empty;
@@ -119,93 +95,17 @@ namespace H1Emu_Launcher.Classes
 
                     Properties.Settings.Default.Save();
 
-                    // Query the asset pack JSON URL
-                    HttpResponseMessage response = await SplashWindow.httpClient.GetAsync(assetPackJsonURL, HttpCompletionOption.ResponseHeadersRead);
-
-                    // Throw an exception if we didn't get the correct response, with the first letter in the message capitalised
-                    if (response.StatusCode != HttpStatusCode.OK)
-                        throw new Exception($"{char.ToUpper(response.ReasonPhrase.First())}{response.ReasonPhrase.Substring(1)}");
-
-                    // Deserialise the asset pack JSON into an object
-                    string jsonAssetPack = await response.Content.ReadAsStringAsync();
-                    JsonEndPoints.AssetPackJson.Root jsonAssetPackDes = JsonSerializer.Deserialize<JsonEndPoints.AssetPackJson.Root>(jsonAssetPack);
-
-                    List<string> verifiedAssets = [];
-                    for (int i = 0; i <= 255; i++)
-                        verifiedAssets.Add($"Assets_{i:D3}.pack");
-
-                    // For each asset in the JSON, download the asset file
-                    foreach (JsonEndPoints.AssetPackJson.Asset item in jsonAssetPackDes.assets)
+                    await DownloadAssetPack(assetPackJsonURL, (filename, percentage) =>
                     {
-                        bool isDownloadNeeded = false;
-
-                        if (!File.Exists($"{Properties.Settings.Default.activeDirectory}\\Resources\\Assets\\{item.filename}"))
-                            isDownloadNeeded = true;
-                        else
-                        {
-                            using var sha256 = SHA256.Create();
-                            using var stream = File.OpenRead($"{Properties.Settings.Default.activeDirectory}\\Resources\\Assets\\{item.filename}");
-
-                            byte[] hash = sha256.ComputeHash(stream);
-
-                            string hashHex = Convert.ToHexString(hash); // .NET 5+
-
-                            if (!hashHex.Equals(item.hash.Replace("sha256:", ""), StringComparison.OrdinalIgnoreCase))
-                                isDownloadNeeded = true;
-
-                        }
-
-                        if (isDownloadNeeded)
-                        {
-                            // Deserialise the JSON into an object
-                            HttpResponseMessage responseDownloadURL = await SplashWindow.httpClient.GetAsync(item.url, HttpCompletionOption.ResponseHeadersRead);
-
-                            // Throw an exception if we didn't get the correct response, with the first letter in the message capitalised
-                            if (responseDownloadURL.StatusCode != HttpStatusCode.OK)
-                                throw new Exception($"{char.ToUpper(responseDownloadURL.ReasonPhrase.First())}{responseDownloadURL.ReasonPhrase.Substring(1)}");
-
-                            long totalBytes = responseDownloadURL.Content.Headers.ContentLength ?? -1L;
-                            using Stream contentStream = await responseDownloadURL.Content.ReadAsStreamAsync();
-                            using (FileStream fileStream = new($"{Properties.Settings.Default.activeDirectory}\\Resources\\Assets\\{item.filename}", FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
-                            {
-                                byte[] buffer = new byte[8192];
-                                long totalBytesRead = 0;
-                                int bytesRead;
-
-                                LauncherWindow.launcherInstance.playButton.FontSize = 18;
-                                LauncherWindow.launcherInstance.taskbarIcon.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
-
-                                while ((bytesRead = await contentStream.ReadAsync(buffer)) != 0)
-                                {
-                                    // Write the data to the file
-                                    await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
-                                    totalBytesRead += bytesRead;
-
-                                    // Update the play button text to show the progress
-                                    if (totalBytes > 0)
-                                    {
-                                        float progressPercentage = (float)totalBytesRead * 100 / totalBytes;
-                                        LauncherWindow.launcherInstance.playButton.Content = LauncherWindow.launcherInstance.FindResource("item188") + $" {progressPercentage:0.00}%";
-                                        LauncherWindow.launcherInstance.taskbarIcon.ProgressValue = progressPercentage / 100;
-                                    }
-                                }
-                            };
-                        }
-
-                        verifiedAssets.Add(item.filename);
-                    }
+                        LauncherWindow.launcherInstance.playButton.FontSize = 18;
+                        LauncherWindow.launcherInstance.taskbarIcon.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
+                        LauncherWindow.launcherInstance.playButton.Content = LauncherWindow.launcherInstance.FindResource("item188") + $" {percentage:0.00}%";
+                        LauncherWindow.launcherInstance.taskbarIcon.ProgressValue = percentage / 100;
+                    });
 
                     LauncherWindow.launcherInstance.playButton.FontSize = 28;
                     LauncherWindow.launcherInstance.playButton.SetResourceReference(Button.ContentProperty, "item188");
                     LauncherWindow.launcherInstance.taskbarIcon.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Indeterminate;
-
-                    // Make sure that only the default game assets and the newly installed asset pack is the only thing in the "Assets" folder
-                    foreach (string file in Directory.GetFiles($"{Properties.Settings.Default.activeDirectory}\\Resources\\Assets"))
-                    {
-                        string fileName = Path.GetFileName(file);
-                        if (!verifiedAssets.Contains(fileName))
-                            File.Delete(file);
-                    }
                 }
 
                 // Delete BattlEye folder to prevent Steam from trying to launch the game
@@ -249,6 +149,133 @@ namespace H1Emu_Launcher.Classes
             LauncherWindow.launcherInstance.playButton.SetResourceReference(Button.ContentProperty, "item217");
             LauncherWindow.launcherInstance.taskbarIcon.ProgressState = System.Windows.Shell.TaskbarItemProgressState.None;
             return true;
+        }
+
+        /// <summary>
+        /// Downloads and installs every file listed in an asset pack manifest. Each file is
+        /// checked against the SHA-256 from the manifest both before and after downloading,
+        /// so a corrupted or tampered file is never installed.
+        /// </summary>
+        /// <param name="assetPackJsonURL">URL of the asset pack manifest.</param>
+        /// <param name="onProgress">Called with the file being downloaded and its percentage.</param>
+        public static async Task DownloadAssetPack(string assetPackJsonURL, Action<string, double> onProgress)
+        {
+            // Query the asset pack JSON URL
+            HttpResponseMessage response = await SplashWindow.httpClient.GetAsync(assetPackJsonURL, HttpCompletionOption.ResponseHeadersRead);
+
+            // Throw an exception if we didn't get the correct response, with the first letter in the message capitalised
+            if (response.StatusCode != HttpStatusCode.OK)
+                throw new Exception($"{char.ToUpper(response.ReasonPhrase.First())}{response.ReasonPhrase.Substring(1)}");
+
+            // Deserialise the asset pack JSON into an object
+            string jsonAssetPack = await response.Content.ReadAsStringAsync();
+            JsonEndPoints.AssetPackJson.Root jsonAssetPackDes = JsonSerializer.Deserialize<JsonEndPoints.AssetPackJson.Root>(jsonAssetPack);
+
+            List<string> verifiedAssets = [];
+            for (int i = 0; i <= 255; i++)
+                verifiedAssets.Add($"Assets_{i:D3}.pack");
+
+            string gameDirectory = Path.GetFullPath(Properties.Settings.Default.activeDirectory);
+            string defaultAssetsDirectory = Path.Combine(gameDirectory, "Resources", "Assets");
+
+            // Archives are cached outside of the game folder so their hash can still be
+            // verified on later launches, after they have been extracted
+            string assetCacheDirectory = $"{Info.APPLICATION_DATA_PATH}\\JSEmu Launcher\\AssetCache";
+            Directory.CreateDirectory(assetCacheDirectory);
+
+            // For each asset in the JSON, download the asset file
+            foreach (JsonEndPoints.AssetPackJson.Asset item in jsonAssetPackDes.assets)
+            {
+                string expectedHash = item.hash?.Replace("sha256:", "").Trim() ?? string.Empty;
+
+                // Never install a file that the manifest cannot vouch for
+                if (string.IsNullOrWhiteSpace(expectedHash))
+                    throw new Exception($"Asset \"{item.filename}\" has no hash in the asset pack manifest.");
+
+                // Assets without an explicit path keep the original behaviour and land in Resources\Assets
+                bool usesDefaultDirectory = string.IsNullOrWhiteSpace(item.path);
+                string targetDirectory = usesDefaultDirectory
+                    ? defaultAssetsDirectory
+                    : Path.GetFullPath(Path.Combine(gameDirectory, item.path));
+
+                string targetFile = Path.GetFullPath(Path.Combine(targetDirectory, item.filename));
+
+                // A remote manifest must never be able to write outside of the game folder
+                if (!targetFile.StartsWith(gameDirectory + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                    throw new Exception($"Asset \"{item.filename}\" points outside of the game directory.");
+
+                Directory.CreateDirectory(targetDirectory);
+
+                // Archives are hashed as their cached copy, plain files as the installed one
+                string downloadedFile = item.extract
+                    ? Path.Combine(assetCacheDirectory, item.filename)
+                    : targetFile;
+
+                if (!FileMatchesHash(downloadedFile, expectedHash))
+                {
+                    HttpResponseMessage responseDownloadURL = await SplashWindow.httpClient.GetAsync(item.url, HttpCompletionOption.ResponseHeadersRead);
+
+                    // Throw an exception if we didn't get the correct response, with the first letter in the message capitalised
+                    if (responseDownloadURL.StatusCode != HttpStatusCode.OK)
+                        throw new Exception($"{char.ToUpper(responseDownloadURL.ReasonPhrase.First())}{responseDownloadURL.ReasonPhrase.Substring(1)}");
+
+                    long totalBytes = responseDownloadURL.Content.Headers.ContentLength ?? -1L;
+
+                    using (Stream contentStream = await responseDownloadURL.Content.ReadAsStreamAsync())
+                    using (FileStream fileStream = new(downloadedFile, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
+                    {
+                        byte[] buffer = new byte[8192];
+                        long totalBytesRead = 0;
+                        int bytesRead;
+
+                        while ((bytesRead = await contentStream.ReadAsync(buffer)) != 0)
+                        {
+                            // Write the data to the file
+                            await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+                            totalBytesRead += bytesRead;
+
+                            // Report progress back to whichever window started the download
+                            if (totalBytes > 0)
+                                onProgress?.Invoke(item.filename, (double)totalBytesRead * 100 / totalBytes);
+                        }
+                    }
+
+                    // Check what actually arrived before it is installed or extracted
+                    if (!FileMatchesHash(downloadedFile, expectedHash))
+                    {
+                        File.Delete(downloadedFile);
+                        throw new Exception($"Downloaded file \"{item.filename}\" does not match the hash in the asset pack manifest.");
+                    }
+                }
+
+                // Archives are unpacked on every run so removed game files are restored
+                if (item.extract)
+                    ZipFile.ExtractToDirectory(downloadedFile, targetDirectory, true);
+
+                if (usesDefaultDirectory)
+                    verifiedAssets.Add(item.filename);
+            }
+
+            // Make sure that only the default game assets and the newly installed asset pack is the only thing in the "Assets" folder
+            foreach (string file in Directory.GetFiles(defaultAssetsDirectory))
+            {
+                string fileName = Path.GetFileName(file);
+                if (!verifiedAssets.Contains(fileName))
+                    File.Delete(file);
+            }
+        }
+
+        // Returns true when the file exists and its SHA-256 matches the expected hex digest
+        private static bool FileMatchesHash(string filePath, string expectedHash)
+        {
+            if (!File.Exists(filePath))
+                return false;
+
+            using SHA256 sha256 = SHA256.Create();
+            using FileStream stream = File.OpenRead(filePath);
+
+            return Convert.ToHexString(sha256.ComputeHash(stream))
+                .Equals(expectedHash, StringComparison.OrdinalIgnoreCase);
         }
     }
 }
