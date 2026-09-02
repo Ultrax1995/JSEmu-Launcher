@@ -32,7 +32,7 @@ namespace H1Emu_Launcher.Classes
 
         public static string H1EMU_ACCOUNT_KEY_CHECK_API = "http://loginserver.h1emu.com/isverified?authKey=";
 
-        public static string DISCORD_LINK = "https://jsemu.eu/";
+        public static string DISCORD_LINK = "https://discord.gg/bmRndA6FSG";
 
         public static string DISCORD_UPDATES_LINK = "https://discord.com/channels/1416363907336896544/1425465707339972629";
 

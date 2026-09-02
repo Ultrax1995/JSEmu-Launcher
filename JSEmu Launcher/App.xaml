@@ -13,9 +13,18 @@
                 <ResourceDictionary Source="Language\StringResources.en-EN.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <FontFamily x:Key="Signika">pack://application:,,,/Fonts/#Signika</FontFamily>
-            <SolidColorBrush x:Key="LighterColour" Color="#FF2A2A32"/>
-            <SolidColorBrush x:Key="DarkerColour" Color="#1C1B22"/>
-            <SolidColorBrush x:Key="RedAccent" Color="#DB111C"/>
+            <!-- Modern launcher palette. Existing keys are retained so every view and
+                 code path continues to use the same resource contract. -->
+            <SolidColorBrush x:Key="LighterColour" Color="#111827"/>
+            <SolidColorBrush x:Key="DarkerColour" Color="#0A0F1C"/>
+            <SolidColorBrush x:Key="RedAccent" Color="#E11D2A"/>
+            <SolidColorBrush x:Key="AccentColour" Color="#E11D2A"/>
+            <SolidColorBrush x:Key="AccentHoverColour" Color="#F02A36"/>
+            <SolidColorBrush x:Key="SurfaceColour" Color="#E6121A2A"/>
+            <SolidColorBrush x:Key="SurfaceRaisedColour" Color="#F01A2436"/>
+            <SolidColorBrush x:Key="StrokeColour" Color="#334155"/>
+            <SolidColorBrush x:Key="MutedTextColour" Color="#94A3B8"/>
+            <SolidColorBrush x:Key="SuccessColour" Color="#34D399"/>
             <PathGeometry x:Key="ArrowIcon" Figures="M18.59 13H3a1 1 0 0 1 0-2h15.59l-5.3-5.3a1 1 0 1 1 1.42-1.4l7 7a1 1 0 0 1 0 1.4l-7 7a1 1 0 0 1-1.42-1.4l5.3-5.3z"/>
             <PathGeometry x:Key="PlayIcon" Figures="M3.9,18.9V5.1c0-1.6,1.7-2.6,3-1.8l12,6.9c1.4,0.8,1.4,2.9,0,3.7l-12,6.9C5.6,21.5,3.9,20.5,3.9,18.9z"/>
             <PathGeometry x:Key="FolderIcon" Figures="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
@@ -2094,6 +2103,7 @@
                 <Setter Property="Background" Value="{StaticResource LighterColour}"/>
                 <Setter Property="BorderBrush" Value="{StaticResource RedAccent}"/>
                 <Setter Property="Foreground" Value="{StaticResource TextBoxStyle.Static.Foreground}"/>
+                <Setter Property="CaretBrush" Value="{StaticResource RedAccent}"/>
                 <Setter Property="BorderThickness" Value="2.5"/>
                 <Setter Property="KeyboardNavigation.TabNavigation" Value="None"/>
                 <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -2163,6 +2173,7 @@
                 <Setter Property="Background" Value="{StaticResource LighterColour}"/>
                 <Setter Property="BorderBrush" Value="{StaticResource RedAccent}"/>
                 <Setter Property="Foreground" Value="{StaticResource PassBox.Static.Foreground}"/>
+                <Setter Property="CaretBrush" Value="{StaticResource RedAccent}"/>
                 <Setter Property="BorderThickness" Value="2.5"/>
                 <Setter Property="KeyboardNavigation.TabNavigation" Value="None"/>
                 <Setter Property="HorizontalContentAlignment" Value="Left"/>

@@ -156,7 +156,7 @@
                                        FontWeight="Bold"
                                        Style="{DynamicResource HyperLinkStyle}">
     
-                                <TextBlock Text="https://discord.com/invite/h1emu"/>
+                                <TextBlock Text="https://discord.gg/bmRndA6FSG"/>
     
                             </Hyperlink>
 

@@ -8,7 +8,7 @@
       UseLayoutRounding="True"
       d:DesignWidth="735"
       Title="Options"
-      FontFamily="Bahnschrift Light"
+      FontFamily="Segoe UI"
       FontSize="16"
       Foreground="FloralWhite"
       Loaded="OptionsLoaded">
@@ -23,9 +23,9 @@
         </ResourceDictionary>
     </Page.Resources>
 
-    <Border Background="{DynamicResource DarkerColour}"
+    <Border Background="#06090D"
             UseLayoutRounding="True"
-            CornerRadius="0,5,5,5">
+            CornerRadius="0">
 
         <Grid>
             <Grid.RowDefinitions>
@@ -46,7 +46,7 @@
 
             <!-- Grainy texture -->
             <Grid.Background>
-                <ImageBrush ImageSource="..\Resources\Grain.png" Opacity="0.5" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/>
+                <ImageBrush ImageSource="..\Resources\Grain.png" Opacity="0.12" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/>
             </Grid.Background>
 
             <!-- Selected language option -->

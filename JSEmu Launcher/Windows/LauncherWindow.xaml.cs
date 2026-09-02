@@ -1352,7 +1352,18 @@ namespace H1Emu_Launcher
 
         private void MoveWindow(object sender, MouseButtonEventArgs e)
         {
-            DragMove();
+            if (e.LeftButton != MouseButtonState.Pressed)
+                return;
+
+            try
+            {
+                DragMove();
+                e.Handled = true;
+            }
+            catch (InvalidOperationException)
+            {
+                // The mouse button can be released before Windows begins the move.
+            }
         }
 
         private void CloseLauncher(object sender, RoutedEventArgs e)

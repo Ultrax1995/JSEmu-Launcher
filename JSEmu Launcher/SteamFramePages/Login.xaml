@@ -7,9 +7,9 @@
              UseLayoutRounding="True"
              d:DesignWidth="565"
              d:DesignHeight="140"
-             FontFamily="Bahnschrift Light"
-             FontSize="16"
-             Foreground="FloralWhite">
+             FontFamily="Segoe UI"
+             FontSize="15"
+             Foreground="#E7E9ED">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -37,9 +37,9 @@
     <!-- Main Grid -->
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="20"/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="52"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="52"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
@@ -51,9 +51,12 @@
         <!-- Username box -->
         <TextBox x:Name="usernameBox"
                  Grid.Row="0"
-                 Height="35"
-                 Margin="0,0,10,0"
-                 Padding="30,1,0,0"
+                 Height="52"
+                 Margin="0,0,16,0"
+                 Padding="42,1,10,0"
+                 Background="#11151A"
+                 BorderBrush="#94262C"
+                 BorderThickness="1"
                  VerticalAlignment="Center"
                  VerticalContentAlignment="Center"
                  GotFocus="UsernameBoxGotFocus"
@@ -73,30 +76,30 @@
         <!-- Hint for username textbox -->
         <TextBlock x:Name="usernameHint"
                    Grid.Row="0"
-                   Margin="0,2,10,0"
-                   Padding="35,0,0,0"
+                   Margin="0,2,16,0"
+                   Padding="43,0,0,0"
                    VerticalAlignment="Center"
                    HorizontalAlignment="Left"
                    IsHitTestVisible="False"
-                   Foreground="Gray"
+                   Foreground="#858B93"
                    Text="{DynamicResource item59}"
                    Style="{DynamicResource TextBlockStyle}"/>
 
         <!-- Icon for username textbox -->
         <Path Data="{DynamicResource ShieldIcon}"
               Stretch="Uniform"
-              Fill="FloralWhite"
+              Fill="#DDE0E4"
               Grid.Row="0"
               RenderOptions.BitmapScalingMode="Fant"
               Width="18"
               Height="18"
-              Margin="10,0,0,0"
+              Margin="14,0,0,0"
               VerticalAlignment="Center"
               HorizontalAlignment="Left"/>
         
         <!-- Text beside username textbox -->
         <TextBlock Grid.Column="1"
-                   Margin="10,0,0,0"
+                   Margin="16,5,0,0"
                    TextWrapping="Wrap"
                    VerticalAlignment="Top"
                    Text="{DynamicResource item34}"
@@ -105,9 +108,12 @@
         <!-- Password box -->
         <PasswordBox x:Name="passwordBox"
                      Grid.Row="2"
-                     Height="35"
-                     Margin="0,0,10,0"
-                     Padding="30,0,30,0"
+                     Height="52"
+                     Margin="0,0,16,0"
+                     Padding="42,0,42,0"
+                     Background="#11151A"
+                     BorderBrush="#4B3035"
+                     BorderThickness="1"
                      PasswordChar="●"
                      VerticalAlignment="Center"
                      VerticalContentAlignment="Center"
@@ -129,23 +135,23 @@
         <TextBlock x:Name="passwordHint"
                    Grid.Row="2"
                    Margin="0,1,0,0"
-                   Padding="35,0,0,0"
+                   Padding="43,0,0,0"
                    VerticalAlignment="Center"
                    HorizontalAlignment="Left"
                    IsHitTestVisible="False"
-                   Foreground="Gray"
+                   Foreground="#858B93"
                    Text="{DynamicResource item60}"
                    Style="{DynamicResource TextBlockStyle}"/>
 
         <!-- Icon for password textbox -->
         <Path Data="{DynamicResource PadlockLockedIcon}"
               Stretch="Uniform"
-              Fill="FloralWhite"
+              Fill="#DDE0E4"
               Grid.Row="2"
               RenderOptions.BitmapScalingMode="Fant"
               Width="18"
               Height="18"
-              Margin="10,0,0,1"
+              Margin="14,0,0,1"
               VerticalAlignment="Center"
               HorizontalAlignment="Left"/>
 
@@ -155,7 +161,7 @@
                 Click="LoginButton" 
                 Width="20"
                 Height="20"
-                Margin="0,0,20,2"
+                Margin="0,0,30,2"
                 VerticalAlignment="Center"
                 HorizontalAlignment="Right"
                 Style="{DynamicResource PathButton}">
@@ -172,11 +178,11 @@
               Grid.Row="2"
               Data="{DynamicResource LoadingIcon}"
               Stretch="Uniform"
-              Stroke="FloralWhite"
+              Stroke="#E7E9ED"
               StrokeThickness="2"
               StrokeEndLineCap="Round"
               HorizontalAlignment="Right"
-              Margin="0,0,20,1"
+              Margin="0,0,30,1"
               Width="18"
               Height="18"
               Visibility="Hidden"
@@ -190,7 +196,7 @@
         <!-- Login message -->
         <TextBlock Grid.Row="2"
                    Grid.Column="1"
-                   Margin="10,0,0,0"
+                   Margin="16,4,0,0"
                    VerticalAlignment="Top"
                    TextWrapping="Wrap"
                    Text="{DynamicResource item35}"

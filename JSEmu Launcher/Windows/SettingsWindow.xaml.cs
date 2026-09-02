@@ -27,7 +27,18 @@ namespace H1Emu_Launcher
 
         public void MoveSettingsWindow(object sender, MouseButtonEventArgs e)
         {
-            DragMove();
+            if (e.LeftButton != MouseButtonState.Pressed)
+                return;
+
+            try
+            {
+                DragMove();
+                e.Handled = true;
+            }
+            catch (InvalidOperationException)
+            {
+                // The mouse button can be released before Windows begins the move.
+            }
         }
 
         public static void SwitchToAssetPacksTab(string newAssetPackName, string newAssetPackURL)

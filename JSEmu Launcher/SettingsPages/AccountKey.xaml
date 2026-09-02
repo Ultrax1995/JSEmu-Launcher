@@ -8,7 +8,7 @@
       UseLayoutRounding="True"
       d:DesignWidth="735"
       Title="Account Key"
-      FontFamily="Bahnschrift Light"
+      FontFamily="Segoe UI"
       FontSize="16"
       Foreground="FloralWhite"
       Loaded="AccountKeyLoaded">
@@ -23,9 +23,9 @@
         </ResourceDictionary>
     </Page.Resources>
 
-    <Border Background="{DynamicResource DarkerColour}"
+    <Border Background="#06090D"
             UseLayoutRounding="True"
-            CornerRadius="0,5,5,5">
+            CornerRadius="0">
 
         <Grid>
             <Grid.RowDefinitions>
@@ -40,7 +40,7 @@
 
             <!-- Grainy texture -->
             <Grid.Background>
-                <ImageBrush ImageSource="..\Resources\Grain.png" Opacity="0.5" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/>
+                <ImageBrush ImageSource="..\Resources\Grain.png" Opacity="0.12" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/>
             </Grid.Background>
 
             <!-- Info about account key message -->
@@ -54,22 +54,55 @@
                        Text="{DynamicResource item156}"
                        Style="{DynamicResource TextBlockStyle}"/>
 
-            <!-- Hyperlink to user authentication key website -->
-            <TextBlock Grid.Row="2"
-                       Margin="20,0,20,20"
-                       HorizontalAlignment="Center"
-                       Style="{DynamicResource TextBlockStyle}">
-
-                <Hyperlink Click="DiscordInviteLinkClick"
-                           FontWeight="Bold"
-                           Style="{DynamicResource HyperLinkStyle}">
-    
-                    <TextBlock Text="https://discord.com/invite/h1emu"/>
-    
-                </Hyperlink>
-
-                <!-- Context menu to copy link -->
-                <TextBlock.ContextMenu>
+            <!-- Discord account-link button -->
+            <Button Grid.Row="2" Click="DiscordInviteLinkClick"
+                    Width="220" Height="48" Margin="20,0,20,20"
+                    HorizontalAlignment="Center" Cursor="Hand"
+                    Background="#111522" BorderBrush="#3B435C" BorderThickness="1"
+                    Foreground="White" ToolTip="Join the JSEmu Discord">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="DiscordButtonSurface"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="9" Padding="13,7">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="38"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Width="28" Height="28" HorizontalAlignment="Left"
+                                        Background="#5865F2" CornerRadius="8">
+                                    <Viewbox Width="18" Height="14" Stretch="Uniform">
+                                        <Canvas Width="24" Height="18">
+                                            <Path Data="M3,6 C5,2.5 19,2.5 21,6 L23,13 C23.8,15.8 20,17.5 18,14.7 L16.5,12.8 C13.5,13.8 10.5,13.8 7.5,12.8 L6,14.7 C4,17.5 0.2,15.8 1,13 Z" Fill="White"/>
+                                            <Ellipse Canvas.Left="7" Canvas.Top="7.7" Width="3" Height="3" Fill="#5865F2"/>
+                                            <Ellipse Canvas.Left="14" Canvas.Top="7.7" Width="3" Height="3" Fill="#5865F2"/>
+                                        </Canvas>
+                                    </Viewbox>
+                                </Border>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="JOIN DISCORD" FontSize="13" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Link your JSEmu account" FontSize="10.5" Foreground="#AEB4D7"/>
+                                </StackPanel>
+                                <Path Grid.Column="2" Data="{DynamicResource RightArrowIcon}"
+                                      Fill="#7C87FF" Width="6" Height="12" Stretch="Fill"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="DiscordButtonSurface" Property="Background" Value="#171A2A"/>
+                                <Setter TargetName="DiscordButtonSurface" Property="BorderBrush" Value="#5865F2"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="DiscordButtonSurface" Property="Background" Value="#202442"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+                <Button.ContextMenu>
                     <ContextMenu Style="{DynamicResource ContextMenuStyle}">
                         <MenuItem Click="DiscordInviteLinkCopy"
                                   Header="{DynamicResource item193}"
@@ -82,8 +115,8 @@
                             </MenuItem.Icon>
                         </MenuItem>
                     </ContextMenu>
-                </TextBlock.ContextMenu>
-            </TextBlock>
+                </Button.ContextMenu>
+            </Button>
 
             <!-- Divider -->
             <Rectangle Grid.Row="3"

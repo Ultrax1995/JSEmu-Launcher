@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,6 +29,25 @@ namespace H1Emu_Launcher
             Resources.MergedDictionaries.Add(SetLanguageFile.LoadFile());
 
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+
+            // Internal visual-QA mode: bypass update/disclaimer startup windows.
+            // Normal launcher startup is unchanged unless this explicit flag is used.
+            if (e.Args.Any(arg => string.Equals(arg, "-preview", StringComparison.OrdinalIgnoreCase)))
+            {
+                LauncherWindow previewWindow = new();
+                previewWindow.Show();
+                return;
+            }
+
+            if (e.Args.Any(arg => string.Equals(arg, "-preview-settings", StringComparison.OrdinalIgnoreCase)))
+            {
+                LauncherWindow previewOwner = new();
+                previewOwner.Show();
+
+                SettingsWindow settingsPreview = new();
+                settingsPreview.Show();
+                return;
+            }
 
             if (Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName).Length > 1)
             {

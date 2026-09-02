@@ -52,6 +52,8 @@
     <None Remove="Resources\Game_Patch_2016.zip" />
     <None Remove="Resources\Grain.png" />
     <None Remove="Resources\H1EmuIcon.png" />
+    <None Remove="Resources\HeroBanner-v2.png" />
+    <None Remove="Resources\UserHeroBanner.png" />
     <Resource Include="Language\StringResources.fr-FR.xaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
@@ -152,6 +154,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\H1EmuIcon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\HeroBanner-v2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\UserHeroBanner.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Icon.ico">

@@ -8,7 +8,7 @@
       UseLayoutRounding="True"
       d:DesignWidth="735"
       Title="About"
-      FontFamily="Bahnschrift"
+      FontFamily="Segoe UI"
       FontSize="16"
       Foreground="FloralWhite">
 
@@ -21,17 +21,17 @@
         </ResourceDictionary>
     </Page.Resources>
 
-    <Border Background="{DynamicResource DarkerColour}"
+    <Border Background="#06090D"
             UseLayoutRounding="True"
             VerticalAlignment="Top"
-            CornerRadius="0,5,5,5">
+            CornerRadius="0">
 
         <Grid>
 
             <!-- Grainy texture -->
             <Grid.Background>
                 <ImageBrush ImageSource="..\Resources\Grain.png"
-                            Opacity="0.5"
+                            Opacity="0.12"
                             TileMode="Tile"
                             ViewportUnits="Absolute"
                             Viewport="0,0,512,512"/>

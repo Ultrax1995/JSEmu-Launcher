@@ -42,7 +42,10 @@ namespace H1Emu_Launcher.Classes
         {
             get
             {
-                return System.Reflection.Assembly.GetExecutingAssembly().ManifestModule.Name;
+                // ManifestModule.Name is unavailable for assemblies bundled into a
+                // single-file executable. A stable name also keeps settings portable
+                // between framework-dependent and self-contained builds.
+                return "JSEmu Launcher";
             }
             set
             {
