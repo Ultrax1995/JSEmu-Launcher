@@ -115,6 +115,23 @@
                         </ControlTemplate.Triggers>
                     </ControlTemplate></Button.Template>
                 </Button>
+                <Button x:Name="hubButton" Tag="Battle Pass, Pimp My Car, Scrap Yard" Click="OpenHub" Width="218" Height="60" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="260,0,0,10" Background="#E00B0E14" BorderBrush="#5A4A22" BorderThickness="1" Foreground="White" Cursor="Hand" ToolTip="Battle Pass, Pimp My Car, Scrap Yard and your coins">
+                    <Button.Template><ControlTemplate TargetType="Button">
+                        <Border x:Name="HubBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="11" Padding="15,9">
+                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition Width="*"/><ColumnDefinition Width="18"/></Grid.ColumnDefinitions>
+                                <Border Width="30" Height="30" HorizontalAlignment="Left" VerticalAlignment="Center" Background="#F2BC55" CornerRadius="15">
+                                    <TextBlock Text="C" FontSize="16" FontWeight="Bold" Foreground="#3A2A00" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center"><TextBlock Text="JSEMU HUB" FontWeight="SemiBold" FontSize="14" Foreground="#F5F6F7"/><TextBlock Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" Foreground="#C9B98A" FontSize="12" TextTrimming="CharacterEllipsis"/></StackPanel>
+                                <Path Grid.Column="2" Data="{DynamicResource RightArrowIcon}" Fill="#F2BC55" Width="7" Height="14" Stretch="Fill"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="HubBorder" Property="Background" Value="#2A2210"/><Setter TargetName="HubBorder" Property="BorderBrush" Value="#F2BC55"/></Trigger>
+                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="HubBorder" Property="Background" Value="#3A2F14"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate></Button.Template>
+                </Button>
                 <Button x:Name="discordLink" Click="OpenDiscord" Width="218" Height="60" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,30,10" Background="#E00B0E14" BorderBrush="#373D50" BorderThickness="1" Foreground="White" Cursor="Hand" ToolTip="Join the JSEmu Discord">
                     <Button.Template><ControlTemplate TargetType="Button">
                         <Border x:Name="DiscordBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="11" Padding="15,9">

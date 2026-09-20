@@ -945,13 +945,10 @@ namespace H1Emu_Launcher
                 if (Properties.Settings.Default.autoMinimise && Visibility == Visibility.Visible)
                 {
                     Hide();
-                    
-                    if (Properties.Settings.Default.firstToast)
-                    {
-                        new ToastContentBuilder().AddText(FindResource("item191").ToString()).Show();
-                        Properties.Settings.Default.firstToast = false;
-                        Properties.Settings.Default.Save();
-                    }
+
+                    // Windows 11 may keep the icon in the overflow flyout, so say where the launcher went.
+                    launcherNotifyIcon.Visible = true;
+                    launcherNotifyIcon.ShowBalloonTip(5000, "JSEmu Launcher", "Launcher is running in the system tray. Click its icon to bring it back.", System.Windows.Forms.ToolTipIcon.Info);
                 }
             }
             catch (Exception ex)
@@ -1021,6 +1018,8 @@ namespace H1Emu_Launcher
         public static string[] rawArgs;
         private async void LauncherWindowContentRendered(object sender, EventArgs e)
         {
+            _ = UpdateHubCoins();
+
             if (rawArgs != null)
                 await ExecuteArguments(rawArgs);
         }
@@ -1297,10 +1296,53 @@ namespace H1Emu_Launcher
             window.ShowDialog();
         }
 
+        private void OpenHub(object sender, RoutedEventArgs e)
+        {
+            if (HubApi.KeyHash() == null)
+            {
+                CustomMessageBox.Show("Enter your Account Key in Settings first - the Hub uses it to find your account.", this);
+                return;
+            }
+
+            HubWindow window = new() { Owner = this };
+            window.Closed += async (_, _) => await UpdateHubCoins();
+            window.Show();
+        }
+
+        private async System.Threading.Tasks.Task UpdateHubCoins()
+        {
+            try
+            {
+                long? coins = await HubApi.GetCoinsAsync();
+                if (coins.HasValue)
+                    hubButton.Tag = $"{coins.Value:N0} coins";
+            }
+            catch
+            {
+                // Keep the default subtitle.
+            }
+        }
+
+        private async Task PromoteTrayIconAsync()
+        {
+            if (!await TrayIconUtil.PromoteOwnIconAsync())
+                return;
+
+            // The shell only reads the promotion when the icon is registered, so re-add it.
+            if (!IsVisible)
+            {
+                launcherNotifyIcon.Visible = false;
+                launcherNotifyIcon.Visible = true;
+            }
+        }
+
         private void LauncherWindowIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (!IsVisible)
+            {
                 launcherNotifyIcon.Visible = true;
+                _ = PromoteTrayIconAsync();
+            }
             else
                 launcherNotifyIcon.Visible = false;
         }
