@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -1282,6 +1282,19 @@ namespace H1Emu_Launcher
         {
             SettingsWindow sw = new();
             sw.ShowDialog();
+        }
+
+        private void OpenDressingRoom(object sender, RoutedEventArgs e)
+        {
+            string accountKey = Properties.Settings.Default.sessionIdKey?.Trim() ?? string.Empty;
+            if (string.IsNullOrEmpty(accountKey))
+            {
+                CustomMessageBox.Show("Enter your Account Key in Settings first - the Dressing Room uses it to find your skins.", this);
+                return;
+            }
+
+            DressingRoomWindow window = new(AccountKeyUtil.EncryptStringSHA256(accountKey)) { Owner = this };
+            window.ShowDialog();
         }
 
         private void LauncherWindowIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
