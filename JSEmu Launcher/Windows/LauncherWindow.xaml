@@ -115,7 +115,7 @@
                         </ControlTemplate.Triggers>
                     </ControlTemplate></Button.Template>
                 </Button>
-                <Button x:Name="hubButton" Tag="Battle Pass, Pimp My Car, Scrap Yard" Click="OpenHub" Width="218" Height="60" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="260,0,0,10" Background="#E00B0E14" BorderBrush="#5A4A22" BorderThickness="1" Foreground="White" Cursor="Hand" ToolTip="Battle Pass, Pimp My Car, Scrap Yard and your coins">
+                <Button x:Name="hubButton" Tag="Battle Pass, Pimp My Car, Scrap Yard" Click="OpenHub" Width="218" Height="60" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="30,0,0,80" Background="#E00B0E14" BorderBrush="#5A4A22" BorderThickness="1" Foreground="White" Cursor="Hand" ToolTip="Battle Pass, Pimp My Car, Scrap Yard and your coins">
                     <Button.Template><ControlTemplate TargetType="Button">
                         <Border x:Name="HubBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="11" Padding="15,9">
                             <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition Width="*"/><ColumnDefinition Width="18"/></Grid.ColumnDefinitions>
