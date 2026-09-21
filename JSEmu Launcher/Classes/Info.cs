@@ -16,6 +16,10 @@ namespace H1Emu_Launcher.Classes
         // JSEmu launcher auto-update endpoint.
         public static string LAUNCHER_JSON_API = "https://api.github.com/repos/Ultrax1995/JSEmu-Launcher/releases/latest";
 
+        // Same release info and exe served from jsemu.eu, for networks that cannot reach GitHub.
+        public static string LAUNCHER_MIRROR_API = "https://jsemu.eu/api/launcher/latest";
+        public static string LAUNCHER_MIRROR_DOWNLOAD = "https://jsemu.eu/api/launcher/download";
+
         // 0 = JSEmu.eu - Assets Pack
         // v2 also lists patch files, which need the path/extract fields to be installed correctly
         public static string OFFICIAL_ASSET_PACK = "https://assets.h1emukrakow.eu/feed/v2";

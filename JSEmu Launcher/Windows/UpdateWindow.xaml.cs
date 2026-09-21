@@ -65,6 +65,36 @@ namespace H1Emu_Launcher
             }
         }
 
+        // Downloads from the release URL (GitHub); if that host cannot be reached or refuses,
+        // the same exe is fetched from jsemu.eu.
+        private static async Task<HttpResponseMessage> OpenDownloadAsync()
+        {
+            string[] sources = installerDownloadURL == Info.LAUNCHER_MIRROR_DOWNLOAD
+                ? new[] { installerDownloadURL }
+                : new[] { installerDownloadURL, Info.LAUNCHER_MIRROR_DOWNLOAD };
+
+            Exception? first = null;
+            foreach (string url in sources)
+            {
+                HttpResponseMessage? response = null;
+                try
+                {
+                    response = await SplashWindow.httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+                    if (response.StatusCode == HttpStatusCode.OK)
+                        return response;
+
+                    throw new Exception(response.ReasonPhrase ?? response.StatusCode.ToString());
+                }
+                catch (Exception ex)
+                {
+                    response?.Dispose();
+                    first ??= ex;
+                }
+            }
+
+            throw first!;
+        }
+
         private async Task UpdateLauncher()
         {
             string updatesDirectory = Path.Combine(
@@ -89,17 +119,7 @@ namespace H1Emu_Launcher
                 if (File.Exists(downloadedLauncher))
                     File.Delete(downloadedLauncher);
 
-                using HttpResponseMessage response =
-                    await SplashWindow.httpClient.GetAsync(
-                        installerDownloadURL,
-                        HttpCompletionOption.ResponseHeadersRead
-                    );
-
-                if (response.StatusCode != HttpStatusCode.OK)
-                {
-                    string reason = response.ReasonPhrase ?? response.StatusCode.ToString();
-                    throw new Exception(reason);
-                }
+                using HttpResponseMessage response = await OpenDownloadAsync();
 
                 downloadSetupProgress.IsIndeterminate = false;
                 taskbarIcon.ProgressState =

@@ -65,6 +65,40 @@ namespace H1Emu_Launcher
             );
         }
 
+        // GitHub first; if it cannot be reached (blocked or broken DNS in some countries),
+        // the identical release info from jsemu.eu is used instead.
+        private static async Task<string> FetchLauncherReleaseJson()
+        {
+            try
+            {
+                using HttpResponseMessage response = await httpClient.GetAsync(
+                    Info.LAUNCHER_JSON_API,
+                    HttpCompletionOption.ResponseHeadersRead
+                );
+
+                if (response.StatusCode != HttpStatusCode.OK)
+                    throw new Exception(response.ReasonPhrase ?? response.StatusCode.ToString());
+
+                return await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception githubError)
+            {
+                try
+                {
+                    using HttpResponseMessage mirror = await httpClient.GetAsync(Info.LAUNCHER_MIRROR_API);
+                    if (mirror.StatusCode != HttpStatusCode.OK)
+                        throw new Exception(mirror.ReasonPhrase ?? mirror.StatusCode.ToString());
+
+                    return await mirror.Content.ReadAsStringAsync();
+                }
+                catch
+                {
+                    // Neither worked: report the original GitHub error.
+                    throw githubError;
+                }
+            }
+        }
+
         public static async Task<bool> CheckVersion(Window owner)
         {
             try
@@ -81,18 +115,7 @@ namespace H1Emu_Launcher
                         System.Windows.Shell.TaskbarItemProgressState.Indeterminate;
                 }
 
-                using HttpResponseMessage response = await httpClient.GetAsync(
-                    Info.LAUNCHER_JSON_API,
-                    HttpCompletionOption.ResponseHeadersRead
-                );
-
-                if (response.StatusCode != HttpStatusCode.OK)
-                {
-                    string reason = response.ReasonPhrase ?? response.StatusCode.ToString();
-                    throw new Exception(reason);
-                }
-
-                string jsonLauncher = await response.Content.ReadAsStringAsync();
+                string jsonLauncher = await FetchLauncherReleaseJson();
 
                 JsonEndPoints.H1EmuLauncherJson.Root jsonLauncherDes =
                     JsonSerializer.Deserialize<JsonEndPoints.H1EmuLauncherJson.Root>(jsonLauncher);
