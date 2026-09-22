@@ -2,6 +2,12 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="H1Emu_Launcher.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
+    <Setting Name="gameEdition" Type="System.String" Scope="User">
+      <Value Profile="(Default)">2016</Value>
+    </Setting>
+    <Setting Name="activeDirectory2018" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
     <Setting Name="activeDirectory" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>

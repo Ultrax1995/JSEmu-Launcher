@@ -54,6 +54,24 @@
                     </ControlTemplate.Triggers>
                 </ControlTemplate></Setter.Value></Setter>
             </Style>
+            <!-- Game edition tab (2016 / 2018). Active state: Background/BorderBrush set from code. -->
+            <Style x:Key="EditionTabStyle" TargetType="Button">
+                <Setter Property="Foreground" Value="#E8E8E8"/><Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderBrush" Value="Transparent"/><Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Cursor" Value="Hand"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Border x:Name="TabBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7" Padding="16,4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="HoverLayer" Background="#18FFFFFF" CornerRadius="7" Opacity="0" IsHitTestVisible="False"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="HoverLayer" Property="Opacity" Value="1"/></Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="TabBorder" Property="Opacity" Value="0.7"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate></Setter.Value></Setter>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -79,8 +97,39 @@
                 <Border IsHitTestVisible="False"><Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                     <GradientStop Color="#18000000" Offset="0"/><GradientStop Color="#06000000" Offset="0.48"/><GradientStop Color="#E6080B0E" Offset="1"/>
                 </LinearGradientBrush></Border.Background></Border>
+                <!-- 2018 mode: warm tint over the banner (under the controls) -->
+                <Border x:Name="tint2018" IsHitTestVisible="False" Visibility="Collapsed">
+                    <Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#40E0902A" Offset="0"/><GradientStop Color="#10E0902A" Offset="0.55"/><GradientStop Color="#35B8561A" Offset="1"/>
+                    </LinearGradientBrush></Border.Background>
+                </Border>
                 <Border Width="38" Height="38" Margin="18" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#CA090C10" BorderBrush="#3B4146" BorderThickness="1" CornerRadius="9">
                     <Grid><Ellipse Width="13" Height="13" Stroke="#DDE1E5" StrokeThickness="1.5"/><Rectangle Width="3" Height="8" Fill="#E61D2B" RadiusX="1" RadiusY="1"/></Grid>
+                </Border>
+                <!-- Game edition switch: 2016 (existing) / 2018 (Steam build, JSEmu 2018 server) -->
+                <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="66,16,0,0" Background="#E6070A0D" BorderBrush="#2C3237" BorderThickness="1" CornerRadius="10" Padding="4">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="GAME" Foreground="#6E757C" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,10,0">
+                            <TextBlock.LayoutTransform><RotateTransform Angle="-90"/></TextBlock.LayoutTransform>
+                        </TextBlock>
+                        <Button x:Name="edition2016Button" Tag="2016" Click="EditionButtonClick" Height="44" MinWidth="96" Style="{StaticResource EditionTabStyle}" ToolTip="Just Survive 2016 - classic JSEmu servers">
+                            <StackPanel>
+                                <TextBlock Text="2016" FontSize="17" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="edition2016Sub" Text="CLASSIC" FontSize="9" FontWeight="SemiBold" HorizontalAlignment="Center" Foreground="#9AA0A6"/>
+                            </StackPanel>
+                        </Button>
+                        <Border Width="4"/>
+                        <Button x:Name="edition2018Button" Tag="2018" Click="EditionButtonClick" Height="44" MinWidth="96" Style="{StaticResource EditionTabStyle}" ToolTip="Just Survive 2018 - Steam build, JSEmu 2018 server">
+                            <StackPanel>
+                                <TextBlock Text="2018" FontSize="17" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="edition2018Sub" Text="STEAM" FontSize="9" FontWeight="SemiBold" HorizontalAlignment="Center" Foreground="#9AA0A6"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Border>
+                <!-- 2018 mode: edition badge under the logo -->
+                <Border x:Name="badge2018" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,172,0,0" Padding="14,3" CornerRadius="12" Background="#CC1A1208" BorderBrush="#E8A33D" BorderThickness="1" IsHitTestVisible="False">
+                    <TextBlock Text="2 0 1 8   E D I T I O N   ·   S T E A M" Foreground="#F2B24E" FontSize="11" FontWeight="Bold"/>
                 </Border>
                 <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,16,16,0" Background="#DC070A0D" BorderBrush="#2C3237" BorderThickness="1" CornerRadius="7">
                     <StackPanel Orientation="Horizontal">
@@ -208,7 +257,19 @@
                             </Grid>
                             <Grid Grid.Row="2"><ComboBox x:Name="serverSelector" Height="52" Padding="42,0,12,0" SelectedIndex="0" VerticalContentAlignment="Center" SelectionChanged="ServerSelectorChanged" Background="#11151A" BorderBrush="#7F252A" BorderThickness="1" Foreground="#E7E9ED" Style="{DynamicResource ComboBoxStyle}">
                                 <ComboBoxItem Content="JSEmu Servers" Style="{DynamicResource ComboBoxItemStyle}"/><ComboBoxItem Content="H1Emu Servers" Style="{DynamicResource ComboBoxItemStyle}"/><ComboBoxItem Content="Singleplayer" Style="{DynamicResource ComboBoxItemStyle}"/><Separator Background="#3A3E43"/><ComboBoxItem Content="New Server..." PreviewMouseLeftButtonUp="AddNewServerClick" Style="{DynamicResource ComboBoxItemStyle}"/>
-                            </ComboBox><Path Data="M2,7 L12,2 L22,7 L12,12 Z M2,12 L12,17 L22,12 M2,17 L12,22 L22,17" Stroke="#E8E8E8" StrokeThickness="1.4" Width="22" Height="22" HorizontalAlignment="Left" Margin="14,0,0,0" IsHitTestVisible="False"/></Grid>
+                            </ComboBox><Path x:Name="serverSelectorIcon" Data="M2,7 L12,2 L22,7 L12,12 Z M2,12 L12,17 L22,12 M2,17 L12,22 L22,17" Stroke="#E8E8E8" StrokeThickness="1.4" Width="22" Height="22" HorizontalAlignment="Left" Margin="14,0,0,0" IsHitTestVisible="False"/>
+                                <!-- 2018 mode: fixed server instead of the server list -->
+                                <Border x:Name="server2018Info" Visibility="Collapsed" Height="52" Background="#15110B" BorderBrush="#8A5A1E" BorderThickness="1" CornerRadius="6">
+                                    <Grid Margin="14,0">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <Path Data="M2,7 L12,2 L22,7 L12,12 Z M2,12 L12,17 L22,12 M2,17 L12,22 L22,17" Stroke="#F2B24E" StrokeThickness="1.4" Width="22" Height="22" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,0,0,0">
+                                            <TextBlock Text="JSEmu 2018 Server" Foreground="#F2F3F5" FontSize="14" FontWeight="SemiBold"/>
+                                            <TextBlock Text="Just Survive 2018 · Steam build 2.1.886508" Foreground="#9A8A72" FontSize="11"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"><Ellipse Width="8" Height="8" Fill="#52B84A" Margin="0,0,6,0"/><TextBlock Text="EU" Foreground="#52B84A" FontSize="11" FontWeight="Bold"/></StackPanel>
+                                    </Grid>
+                                </Border></Grid>
                             <Button x:Name="playButton" Grid.Column="2" Grid.RowSpan="3" Click="LaunchClient" Height="98" VerticalAlignment="Bottom" FontSize="30" FontWeight="Bold" Content="{DynamicResource item8}" BorderBrush="#E11D27" BorderThickness="1" Style="{DynamicResource PrimaryButton}"/>
                         </Grid>
                     </Grid>

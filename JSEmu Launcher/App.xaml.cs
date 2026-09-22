@@ -64,6 +64,10 @@ namespace H1Emu_Launcher
 
             if (string.Join(' ', e.Args).Contains("-skipupdatecheck"))
                 SplashWindow.checkForUpdates = false;
+#if DEBUG
+            // Test builds never update themselves - the update would replace the build under test.
+            SplashWindow.checkForUpdates = false;
+#endif
 
             if (e.Args.Length > 0)
                 LauncherWindow.rawArgs = e.Args;
