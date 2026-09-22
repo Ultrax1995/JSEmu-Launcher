@@ -181,23 +181,41 @@ namespace H1Emu_Launcher.Classes
         // response, which means the host answered and the fallback would not help.
         private static async Task<HttpResponseMessage> GetWithFallbackAsync(string url, string fallbackUrl)
         {
+            Exception primaryError;
             try
             {
                 HttpResponseMessage response = await SplashWindow.httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
-                if (response.StatusCode == HttpStatusCode.OK || string.IsNullOrEmpty(fallbackUrl))
+                if (response.StatusCode == HttpStatusCode.OK)
                     return response;
 
                 response.Dispose();
-                throw new Exception($"{char.ToUpper(response.ReasonPhrase.First())}{response.ReasonPhrase.Substring(1)}");
+                primaryError = new Exception($"{char.ToUpper(response.ReasonPhrase.First())}{response.ReasonPhrase.Substring(1)}");
             }
-            catch (Exception) when (!string.IsNullOrEmpty(fallbackUrl))
+            catch (Exception ex)
+            {
+                primaryError = ex;
+            }
+
+            if (string.IsNullOrEmpty(fallbackUrl))
+                throw primaryError;
+
+            try
             {
                 HttpResponseMessage response = await SplashWindow.httpClient.GetAsync(fallbackUrl, HttpCompletionOption.ResponseHeadersRead);
-                if (response.StatusCode != HttpStatusCode.OK)
-                    throw new Exception($"{char.ToUpper(response.ReasonPhrase.First())}{response.ReasonPhrase.Substring(1)}");
+                if (response.StatusCode == HttpStatusCode.OK)
+                    return response;
 
-                return response;
+                response.Dispose();
             }
+            catch
+            {
+                // Falls through to the primary's own error below.
+            }
+
+            // Both hosts failed: always surface the primary (jsemu.eu) host's error, never the
+            // internal fallback's - players should only ever see the domain they know, not an
+            // address they don't recognise and may assume is wrong or suspicious.
+            throw primaryError;
         }
 
         public static async Task DownloadAssetPack(string assetPackJsonURL, Action<string, double> onProgress)
