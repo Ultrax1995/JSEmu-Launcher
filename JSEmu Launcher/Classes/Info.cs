@@ -22,7 +22,11 @@ namespace H1Emu_Launcher.Classes
 
         // 0 = JSEmu.eu - Assets Pack
         // v2 also lists patch files, which need the path/extract fields to be installed correctly
-        public static string OFFICIAL_ASSET_PACK = "https://assets.h1emukrakow.eu/feed/v2";
+        public static string OFFICIAL_ASSET_PACK = "https://assets.jsemu.eu/feed/v2";
+
+        // Same manifest and files, served from the old domain - used only if assets.jsemu.eu
+        // cannot be reached (e.g. the player's DNS/network has not picked up the new domain yet).
+        public static string OFFICIAL_ASSET_PACK_FALLBACK = "https://assets.h1emukrakow.eu/feed/v2";
 
         // 1 = H1Emu.com - Assets Pack
         public static string H1EMU_ASSET_PACK = "https://raw.githubusercontent.com/H1emu/asset-pack/refs/heads/main/feed.json";

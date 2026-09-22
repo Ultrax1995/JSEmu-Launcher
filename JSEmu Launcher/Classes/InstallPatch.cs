@@ -158,14 +158,52 @@ namespace H1Emu_Launcher.Classes
         /// </summary>
         /// <param name="assetPackJsonURL">URL of the asset pack manifest.</param>
         /// <param name="onProgress">Called with the file being downloaded and its percentage.</param>
+        // Only the official JSEmu manifest has a known fallback host - custom/H1Emu packs are
+        // used exactly as the user configured them.
+        private static string FallbackFor(string url) =>
+            url == Info.OFFICIAL_ASSET_PACK ? Info.OFFICIAL_ASSET_PACK_FALLBACK : null;
+
+        // assets.jsemu.eu-hosted item URLs get the same swap the manifest URL itself would, so a
+        // player whose network cannot reach the new domain still gets every file, not just the
+        // manifest.
+        private static string FallbackForItemUrl(string url)
+        {
+            string officialHost = Info.OFFICIAL_ASSET_PACK[..Info.OFFICIAL_ASSET_PACK.IndexOf('/', 8)];
+            if (string.IsNullOrEmpty(url) || !url.StartsWith(officialHost, StringComparison.OrdinalIgnoreCase))
+                return null;
+
+            string fallbackHost = Info.OFFICIAL_ASSET_PACK_FALLBACK[..Info.OFFICIAL_ASSET_PACK_FALLBACK.IndexOf('/', 8)];
+            return fallbackHost + url[officialHost.Length..];
+        }
+
+        // GETs a URL, retrying against fallbackUrl (if any) when the primary host cannot be
+        // reached at all (DNS failure, connection refused/timeout) - never on an HTTP error
+        // response, which means the host answered and the fallback would not help.
+        private static async Task<HttpResponseMessage> GetWithFallbackAsync(string url, string fallbackUrl)
+        {
+            try
+            {
+                HttpResponseMessage response = await SplashWindow.httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+                if (response.StatusCode == HttpStatusCode.OK || string.IsNullOrEmpty(fallbackUrl))
+                    return response;
+
+                response.Dispose();
+                throw new Exception($"{char.ToUpper(response.ReasonPhrase.First())}{response.ReasonPhrase.Substring(1)}");
+            }
+            catch (Exception) when (!string.IsNullOrEmpty(fallbackUrl))
+            {
+                HttpResponseMessage response = await SplashWindow.httpClient.GetAsync(fallbackUrl, HttpCompletionOption.ResponseHeadersRead);
+                if (response.StatusCode != HttpStatusCode.OK)
+                    throw new Exception($"{char.ToUpper(response.ReasonPhrase.First())}{response.ReasonPhrase.Substring(1)}");
+
+                return response;
+            }
+        }
+
         public static async Task DownloadAssetPack(string assetPackJsonURL, Action<string, double> onProgress)
         {
             // Query the asset pack JSON URL
-            HttpResponseMessage response = await SplashWindow.httpClient.GetAsync(assetPackJsonURL, HttpCompletionOption.ResponseHeadersRead);
-
-            // Throw an exception if we didn't get the correct response, with the first letter in the message capitalised
-            if (response.StatusCode != HttpStatusCode.OK)
-                throw new Exception($"{char.ToUpper(response.ReasonPhrase.First())}{response.ReasonPhrase.Substring(1)}");
+            HttpResponseMessage response = await GetWithFallbackAsync(assetPackJsonURL, FallbackFor(assetPackJsonURL));
 
             // Deserialise the asset pack JSON into an object
             string jsonAssetPack = await response.Content.ReadAsStringAsync();
@@ -215,11 +253,7 @@ namespace H1Emu_Launcher.Classes
 
                 if (!FileMatchesHash(downloadedFile, expectedHash))
                 {
-                    HttpResponseMessage responseDownloadURL = await SplashWindow.httpClient.GetAsync(item.url, HttpCompletionOption.ResponseHeadersRead);
-
-                    // Throw an exception if we didn't get the correct response, with the first letter in the message capitalised
-                    if (responseDownloadURL.StatusCode != HttpStatusCode.OK)
-                        throw new Exception($"{char.ToUpper(responseDownloadURL.ReasonPhrase.First())}{responseDownloadURL.ReasonPhrase.Substring(1)}");
+                    HttpResponseMessage responseDownloadURL = await GetWithFallbackAsync(item.url, FallbackForItemUrl(item.url));
 
                     long totalBytes = responseDownloadURL.Content.Headers.ContentLength ?? -1L;
 
