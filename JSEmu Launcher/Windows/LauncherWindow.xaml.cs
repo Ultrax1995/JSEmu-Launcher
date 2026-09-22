@@ -756,6 +756,15 @@ namespace H1Emu_Launcher
                 playButton.SetResourceReference(ContentProperty, "item217");
             }
 
+            // 2018 mode: separate game folder, own LaunchPad, always the JSEmu 2018 server.
+            if (Edition2018.Selected)
+            {
+                Launch2018();
+                playButton.IsEnabled = true;
+                playButton.SetResourceReference(ContentProperty, "item8");
+                return;
+            }
+
             if (!CheckGameVersionAndPath(this, false, true))
             {
                 playButton.IsEnabled = true;
@@ -994,6 +1003,118 @@ namespace H1Emu_Launcher
             }
         }
 
+        // ---- Game edition switch (2016 / 2018) --------------------------------------------
+        private void EditionButtonClick(object sender, RoutedEventArgs e)
+        {
+            string edition = (sender as Button)?.Tag as string ?? "2016";
+            if (Properties.Settings.Default.gameEdition == edition)
+                return;
+
+            Properties.Settings.Default.gameEdition = edition;
+            Properties.Settings.Default.Save();
+            ShowEdition();
+            if (edition == "2016")
+                CheckGameVersionAndPath(this, false, false);
+        }
+
+        // Highlights the active edition and shows its game folder.
+        public void ShowEdition()
+        {
+            bool is2018 = Edition2018.Selected;
+
+            // Accent: JSEmu red for 2016, amber for 2018.
+            Color accent = is2018 ? Color.FromRgb(0xE8, 0xA3, 0x3D) : Color.FromRgb(0xE1, 0x1D, 0x27);
+            Color accentDark = is2018 ? Color.FromRgb(0xB8, 0x6A, 0x1A) : Color.FromRgb(0x9E, 0x10, 0x18);
+            SolidColorBrush accentBrush = new(accent);
+            edition2016Button.Background = is2018 ? Brushes.Transparent : accentBrush;
+            edition2018Button.Background = is2018 ? accentBrush : Brushes.Transparent;
+            edition2016Button.Foreground = is2018 ? new SolidColorBrush(Color.FromRgb(0x9A, 0x9F, 0xA6)) : Brushes.White;
+            edition2016Button.BorderBrush = is2018 ? Brushes.Transparent : new SolidColorBrush(Color.FromRgb(0xFF, 0x4A, 0x52));
+            edition2018Button.BorderBrush = is2018 ? new SolidColorBrush(Color.FromRgb(0xFF, 0xD0, 0x80)) : Brushes.Transparent;
+            edition2018Button.Foreground = is2018 ? new SolidColorBrush(Color.FromRgb(0x1A, 0x12, 0x08)) : new SolidColorBrush(Color.FromRgb(0x9A, 0x9F, 0xA6));
+            edition2016Sub.Foreground = is2018 ? new SolidColorBrush(Color.FromRgb(0x6B, 0x70, 0x78)) : new SolidColorBrush(Color.FromArgb(0xCC, 0xFF, 0xFF, 0xFF));
+            edition2018Sub.Foreground = is2018 ? new SolidColorBrush(Color.FromArgb(0xCC, 0x1A, 0x12, 0x08)) : new SolidColorBrush(Color.FromRgb(0x6B, 0x70, 0x78));
+
+            playButton.BorderBrush = accentBrush;
+            if (is2018)
+            {
+                playButton.Background = new LinearGradientBrush(accent, accentDark, 90);
+                playButton.Foreground = new SolidColorBrush(Color.FromRgb(0x1A, 0x12, 0x08));
+            }
+            else
+            {
+                playButton.ClearValue(Button.BackgroundProperty);   // back to the PrimaryButton style
+                playButton.ClearValue(Button.ForegroundProperty);
+            }
+            directoryBox.BorderBrush = new SolidColorBrush(is2018 ? Color.FromRgb(0x8A, 0x5A, 0x1E) : Color.FromRgb(0x7F, 0x25, 0x2A));
+
+            // 2018 gets a warm banner, an edition badge and a fixed server card instead of the list.
+            tint2018.Visibility = is2018 ? Visibility.Visible : Visibility.Collapsed;
+            badge2018.Visibility = is2018 ? Visibility.Visible : Visibility.Collapsed;
+            server2018Info.Visibility = is2018 ? Visibility.Visible : Visibility.Collapsed;
+            serverSelector.Visibility = is2018 ? Visibility.Hidden : Visibility.Visible;
+            serverSelectorIcon.Visibility = is2018 ? Visibility.Hidden : Visibility.Visible;
+            serverSelector.IsEnabled = !is2018;
+            directoryButton.IsEnabled = !is2018;
+
+            if (!is2018)
+            {
+                directoryBox.Text = string.IsNullOrEmpty(Properties.Settings.Default.activeDirectory)
+                    ? FindResource("item75").ToString() : Properties.Settings.Default.activeDirectory;
+                return;
+            }
+
+            // 2018: prefer an install Steam knows about, then a folder saved after a download.
+            string dir = Edition2018.FindInSteam();
+            if (dir == null && Edition2018.IsValidInstall(Properties.Settings.Default.activeDirectory2018))
+                dir = Properties.Settings.Default.activeDirectory2018;
+            if (dir != null && dir != Properties.Settings.Default.activeDirectory2018)
+            {
+                Properties.Settings.Default.activeDirectory2018 = dir;
+                Properties.Settings.Default.Save();
+            }
+            directoryBox.Text = dir ?? "Just Survive 2018: not installed - log in with Steam below to download it";
+            currentGame.Text = dir == null ? "Game Version: 2018 not installed"
+                : Edition2018.IsValidInstall(dir) ? "Current Game Version: 2018" : "Game Version: not the 2018 build";
+        }
+
+        // Play in 2018 mode. Returns when the game was started (or an error was shown).
+        private void Launch2018()
+        {
+            string dir = Edition2018.FindInSteam();
+            if (dir == null && Edition2018.IsValidInstall(Properties.Settings.Default.activeDirectory2018))
+                dir = Properties.Settings.Default.activeDirectory2018;
+
+            if (dir == null)
+            {
+                CustomMessageBox.Show("Just Survive 2018 is not installed.\n\nLog in with your Steam account in the panel below - " +
+                    "the launcher will download the 2018 version into your Steam library.", this);
+                return;
+            }
+
+            if (!Edition2018.IsValidInstall(dir))
+            {
+                CustomMessageBox.Show($"The game in\n{dir}\nis not the 2018 build (2.1.886508). Update it in Steam or remove it and download again.", this);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(Properties.Settings.Default.sessionIdKey?.Trim()))
+            {
+                CustomMessageBox.Show(FindResource("item153").ToString(), this);
+                return;
+            }
+
+            try
+            {
+                Edition2018.PrepareGameDir(dir);
+                Edition2018.Launch(dir);
+            }
+            catch (Exception ex)
+            {
+                CustomMessageBox.Show($"{FindResource("item142")} \"{ex.Message}\"", this);
+            }
+        }
+
         private void LauncherWindowLoaded(object sender, RoutedEventArgs e)
         {
             // Delete old setup file
@@ -1006,6 +1127,7 @@ namespace H1Emu_Launcher
             DisplayVersionInformation();
             LoadServers();
             CheckGameVersionAndPath(this, false, false);
+            ShowEdition();
             Carousel.BeginImageCarousel();
             if (!Properties.Settings.Default.imageCarouselVisibility)
             {

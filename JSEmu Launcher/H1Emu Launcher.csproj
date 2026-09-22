@@ -25,6 +25,7 @@
   <ItemGroup>
     <Compile Remove="bin\**" />
     <EmbeddedResource Remove="bin\**" />
+    <EmbeddedResource Include="Resources\LaunchPad2018.exe" LogicalName="LaunchPad2018.exe" />
     <None Remove="bin\**" />
     <Page Remove="bin\**" />
   </ItemGroup>
