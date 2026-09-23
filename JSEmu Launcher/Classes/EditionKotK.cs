@@ -199,9 +199,19 @@ namespace H1Emu_Launcher.Classes
 
             Status?.Invoke("Signing in with your account key...");
             var manifest = await Api<GameManifest>(HttpMethod.Get, "api/manifest", null, ct);
-            var downloads = await DownloadConfiguration.ReadTrustedAsync(Http, Server, ct);
-            using (var installer = GameInstaller.Create(Http, Server with { ContentBaseUrl = downloads.ContentBaseUrl }))
-                await installer.Install(manifest, dir, progress, ct);
+            // Hashing all ~14.6 GB on every Play takes minutes on a hard drive. Play trusts the
+            // last full verification of this build when every file still has its manifest size;
+            // INSTALL / REPAIR (installOnly) always hashes everything.
+            if (installOnly || !VerifiedBefore(manifest, dir))
+            {
+                var downloads = await DownloadConfiguration.ReadTrustedAsync(Http, Server, ct);
+                using (var installer = GameInstaller.Create(Http, Server with { ContentBaseUrl = downloads.ContentBaseUrl }))
+                    await installer.Install(manifest, dir, progress, ct);
+            }
+            else
+            {
+                progress?.Report(new InstallProgress("Game files ready (full check: INSTALL / REPAIR)", 1, 1));
+            }
             if (installOnly)
             {
                 Status?.Invoke("KOTK installed and verified.");
@@ -253,6 +263,31 @@ namespace H1Emu_Launcher.Classes
             {
                 await Shutdown();
                 throw;
+            }
+        }
+
+        // GameInstaller writes .cranberry-install.json with the build id after hashing every file.
+        private static bool VerifiedBefore(GameManifest manifest, string dir)
+        {
+            try
+            {
+                string receipt = Path.Combine(dir, ".cranberry-install.json");
+                if (!File.Exists(receipt))
+                    return false;
+                using var json = JsonDocument.Parse(File.ReadAllText(receipt));
+                if (!json.RootElement.TryGetProperty("BuildId", out var build) || build.GetString() != manifest.BuildId)
+                    return false;
+                foreach (var file in manifest.Files)
+                {
+                    var info = new FileInfo(GameInstaller.SafePath(dir, file.Path));
+                    if (!info.Exists || info.Length != file.Size)
+                        return false;
+                }
+                return true;
+            }
+            catch (Exception ex) when (ex is IOException or JsonException or InvalidDataException or UnauthorizedAccessException)
+            {
+                return false;
             }
         }
 
