@@ -180,8 +180,10 @@ $@"""AppState""
                 ours = ms.ToArray();
             }
 
-            bool same = File.Exists(launchPad) && new FileInfo(launchPad).Length == ours.Length && File.ReadAllBytes(launchPad).SequenceEqual(ours);
-            if (!same)
+            // Our LaunchPad updates itself when the game starts, so a player can already have a
+            // newer one than we carry. Only write ours over a Daybreak LaunchPad (or an older
+            // build of ours) - otherwise we would undo that update on every launcher start.
+            if (!File.Exists(launchPad) || Older(LaunchPadVersion(launchPad), ResourceVersion(ours)))
             {
                 if (File.Exists(launchPad) && !File.Exists(original))
                     File.Copy(launchPad, original);
@@ -195,6 +197,38 @@ $@"""AppState""
             SetIniValue(lines, "sessionid", "auto");
             File.WriteAllLines(ini, lines);
         }
+
+        // Version of a LaunchPad.exe that is ours, or null for Daybreak's (no such product name).
+        private static Version LaunchPadVersion(string file)
+        {
+            try
+            {
+                FileVersionInfo info = FileVersionInfo.GetVersionInfo(file);
+                if (info.ProductName != "JSEmu LaunchPad")
+                    return null;
+                return new Version(info.FileMajorPart, info.FileMinorPart, info.FileBuildPart, info.FilePrivatePart);
+            }
+            catch { return null; }
+        }
+
+        // The same for the copy we carry in our resources (written to a temp file once).
+        private static Version resourceVersion;
+        private static Version ResourceVersion(byte[] ours)
+        {
+            if (resourceVersion != null)
+                return resourceVersion;
+            string tmp = Path.Combine(Path.GetTempPath(), "JSEmu-LaunchPad-wersja.exe");
+            try
+            {
+                File.WriteAllBytes(tmp, ours);
+                resourceVersion = LaunchPadVersion(tmp) ?? new Version(0, 0, 0, 0);
+            }
+            catch { resourceVersion = new Version(0, 0, 0, 0); }
+            finally { try { File.Delete(tmp); } catch { } }
+            return resourceVersion;
+        }
+
+        private static bool Older(Version installed, Version ours) => installed == null || installed < ours;
 
         private static void SetIniValue(List<string> lines, string key, string value)
         {
