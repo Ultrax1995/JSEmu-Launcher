@@ -224,11 +224,18 @@ namespace H1Emu_Launcher.Classes
                 _game = Process.Start(info) ?? throw new InvalidOperationException("Could not start the game.");
                 var game = _game;
 
-                // Client fixes run against the started process; the door fix also unlocks match entry.
-                _ = Task.Run(() => LootReloadFix.ApplyAfterStartup(game, dir, Log));
-                _ = Task.Run(() => ThrowableCleanupFix.ApplyAfterStartup(game, dir, Log));
-                _ = Task.Run(() => BinocularScopeFix.ApplyAfterStartup(game, dir, Log));
-                _ = Task.Run(() => OwnBulletTracers.ApplyAfterStartup(game, dir, Log));
+                // The door fix is required: the server holds players out of matches without it.
+                // The four gameplay fixes rewrite code in the running client once the player is in
+                // the world; both crashes seen on 23.09.2026 (H1Z1.exe+0xE427E3, inside the client's
+                // integrity guard FUN_140e427e0) came at the next zone change after they applied,
+                // so they stay off unless the player opts in.
+                if (Properties.Settings.Default.kotkClientFixes)
+                {
+                    _ = Task.Run(() => LootReloadFix.ApplyAfterStartup(game, dir, Log));
+                    _ = Task.Run(() => ThrowableCleanupFix.ApplyAfterStartup(game, dir, Log));
+                    _ = Task.Run(() => BinocularScopeFix.ApplyAfterStartup(game, dir, Log));
+                    _ = Task.Run(() => OwnBulletTracers.ApplyAfterStartup(game, dir, Log));
+                }
                 _ = Task.Run(() => DoorsReady(game, dir, launch));
 
                 // Raw input, Shift+Tab overlay and proximity voice need this (UI) thread's message loop.

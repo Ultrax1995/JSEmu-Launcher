@@ -449,6 +449,7 @@ namespace H1Emu_Launcher
         {
             var settings = Properties.Settings.Default;
             voiceEnabled.IsChecked = settings.kotkVoiceEnabled;
+            clientFixes.IsChecked = settings.kotkClientFixes;
             voiceKey.Text = settings.kotkVoiceKey ?? "";
             voiceVolume.Value = Math.Clamp(settings.kotkVoiceVolume, 0, 100);
             voiceInput.Items.Clear();
@@ -478,8 +479,9 @@ namespace H1Emu_Launcher
             settings.kotkVoiceOutput = (voiceOutput.SelectedItem as AudioDevice)?.Id ?? -1;
             settings.kotkVoiceVolume = (int)voiceVolume.Value;
             settings.kotkVoiceKey = voiceKey.Text.Trim();
+            settings.kotkClientFixes = clientFixes.IsChecked == true;
             settings.Save();
-            ShowStatus("Voice settings saved.");
+            ShowStatus("Settings saved.");
             await EditionKotK.RestartVoice();
         }
 
