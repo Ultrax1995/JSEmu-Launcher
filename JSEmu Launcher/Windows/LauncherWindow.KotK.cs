@@ -28,6 +28,12 @@ namespace H1Emu_Launcher
                 EditionKotK.Status += text => Dispatcher.BeginInvoke(() => kotkStatus.Text = text);
                 EditionKotK.StateChanged += ShowKotKSocial;
                 EditionKotK.InviteReceived += NotifyKotKInvite;
+                // The game was closed to leave a match: start it again straight into the menu.
+                EditionKotK.RestartRequested += async () =>
+                {
+                    kotkStatus.Text = "Returning to the menu - restarting KOTK...";
+                    await RunKotK(false);
+                };
             }
             if (!visible)
             {

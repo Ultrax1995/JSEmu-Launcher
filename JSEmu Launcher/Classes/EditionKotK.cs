@@ -257,12 +257,68 @@ namespace H1Emu_Launcher.Classes
 
                 game.EnableRaisingEvents = true;
                 game.Exited += (_, _) => dispatcher.BeginInvoke(async () => await Shutdown());
+                _ = Task.Run(() => WatchForRelogin(game, dir, dispatcher));
                 Status?.Invoke("KOTK started. Keep the launcher open while you play - Shift+Tab in game opens friends.");
             }
             catch
             {
                 await Shutdown();
                 throw;
+            }
+        }
+
+        /// <summary>Raised on the UI thread after the game was closed to return to the menu.</summary>
+        public static event Action RestartRequested;
+
+        // Leaving a match (Main Menu, Play Again, death, logout) makes the client log out and log
+        // back in inside the same process. On 23.09.2026 that in-process re-login reached the menu
+        // 5 times in 62 (H1Z1.exe+0xE427E3 in WaitForFirstZone), while a freshly started client
+        // reached it 155 times in 155. So the moment the client starts that re-login, close it
+        // and start a fresh one, which logs straight into the menu.
+        private static async Task WatchForRelogin(Process game, string dir, System.Windows.Threading.Dispatcher dispatcher)
+        {
+            string path = Path.Combine(dir, "Logs", "H1Z1 KOTK PlayClient (Live).log");
+            long position = -1;
+            DateTime started;
+            try { started = game.StartTime.ToUniversalTime(); } catch { return; }
+            while (!game.HasExited)
+            {
+                await Task.Delay(500);
+                try
+                {
+                    var info = new FileInfo(path);
+                    if (!info.Exists || info.LastWriteTimeUtc < started.AddSeconds(-5))
+                        continue; // the game has not rewritten its log for this run yet
+                    if (position < 0 || info.Length < position)
+                        position = 0;
+                    if (info.Length == position)
+                        continue;
+                    string text;
+                    using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+                    {
+                        stream.Seek(position, SeekOrigin.Begin);
+                        using var reader = new StreamReader(stream);
+                        text = await reader.ReadToEndAsync();
+                        position = stream.Position;
+                    }
+                    if (!text.Contains("newState=cClientRunStateWaitingForReloginSession"))
+                        continue;
+
+                    Log("client started an in-process re-login after a match: restarting the game for the menu");
+                    Status?.Invoke("Returning to the menu - restarting KOTK...");
+                    try { game.Kill(); } catch (InvalidOperationException) { }
+                    try { game.WaitForExit(15000); } catch { }
+                    await dispatcher.InvokeAsync(async () =>
+                    {
+                        await Shutdown();
+                        RestartRequested?.Invoke();
+                    }).Task.Unwrap();
+                    return;
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    // The game may hold the log exclusively for a moment; try again next tick.
+                }
             }
         }
 
