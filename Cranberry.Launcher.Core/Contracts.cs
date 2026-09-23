@@ -4,6 +4,7 @@ public sealed record Credentials(string Name, string Password, string JoinCode =
 // JSEmu launcher sign-in: KeyHash is SHA-256 (lowercase hex) of the player's JSEmu account key,
 // the same value JSEmu servers receive as sessionId. The raw key never leaves the player's PC.
 public sealed record KeyCredentials(string KeyHash, string Name = "", string JoinCode = "");
+public sealed record NameRequest(string Name);
 public sealed record ChangePasswordRequest(string CurrentPassword, string NewPassword);
 public sealed record AuthSession(string Token, string AccountId, string Name);
 public sealed record Person(string AccountId, string Name, bool Online, string GameStatus = "Offline", string AvatarVersion = "");

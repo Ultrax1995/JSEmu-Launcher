@@ -217,10 +217,15 @@
 
             <!-- PROFILE -->
             <StackPanel x:Name="pageProfile" Grid.Row="1" Margin="30,4,30,0" Visibility="Collapsed" Width="520" HorizontalAlignment="Left">
-                <TextBlock Text="KOTK NAME" Style="{StaticResource Heading}"/>
-                <TextBlock x:Name="profileName" FontSize="22" FontWeight="Bold" Margin="0,0,0,4"/>
+                <TextBlock Text="ACCOUNT NAME" Style="{StaticResource Heading}"/>
+                <TextBlock x:Name="profileName" FontSize="22" FontWeight="Bold" Margin="0,0,0,10"/>
+                <Grid Margin="0,0,0,6">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <TextBox x:Name="renameBox" Style="{StaticResource KotKField}" MaxLength="24" KeyDown="RenameKeyDown"/>
+                    <Button Grid.Column="1" Content="CHANGE NAME" Click="RenameClick" Margin="8,0,0,0" Style="{StaticResource KotKButton}"/>
+                </Grid>
                 <TextBlock Foreground="#8A96A2" TextWrapping="Wrap" Margin="0,0,0,24"
-                           Text="Your KOTK account belongs to your JSEmu account key. The name is chosen the first time the key signs in (set it next to the Play button before your first game)."/>
+                           Text="Shown to your friends, in your party and on the leaderboard. 3-24 letters, digits or _. Your character's in-game name is chosen in the game. The account belongs to your JSEmu account key."/>
                 <TextBlock Text="PROFILE PICTURE" Style="{StaticResource Heading}"/>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                     <Border Width="96" Height="96" CornerRadius="10" Background="#1A222C" ClipToBounds="True" Margin="0,0,16,0">

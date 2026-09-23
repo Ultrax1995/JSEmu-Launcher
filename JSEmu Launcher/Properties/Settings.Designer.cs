@@ -61,18 +61,6 @@ namespace H1Emu_Launcher.Properties {
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string kotkName {
-            get {
-                return ((string)(this["kotkName"]));
-            }
-            set {
-                this["kotkName"] = value;
-            }
-        }
-
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool kotkVoiceEnabled {
             get {

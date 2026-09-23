@@ -391,6 +391,24 @@ namespace H1Emu_Launcher
             boardBest.ItemsSource = entry.Best;
         }
 
+        // ---- account name -----------------------------------------------------------------------
+        private async void RenameClick(object sender, RoutedEventArgs e)
+        {
+            string name = renameBox.Text.Trim();
+            if (name.Length == 0) return;
+            if (!System.Text.RegularExpressions.Regex.IsMatch(name, "^[a-zA-Z0-9_]{3,24}$"))
+            {
+                ShowStatus("The name must be 3-24 letters, digits or _.");
+                return;
+            }
+            await Run(async () => { await EditionKotK.Rename(name); renameBox.Text = ""; }, $"Your name is now {name}.");
+        }
+
+        private void RenameKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter) RenameClick(sender, e);
+        }
+
         // ---- profile picture --------------------------------------------------------------------
         private void ChoosePictureClick(object sender, RoutedEventArgs e)
         {

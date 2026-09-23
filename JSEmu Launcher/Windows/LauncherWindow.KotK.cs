@@ -35,7 +35,6 @@ namespace H1Emu_Launcher
                 if (!EditionKotK.IsRunning) kotkPoll.Stop();
                 return;
             }
-            kotkNameBox.Text = Properties.Settings.Default.kotkName ?? "";
             if (kotkCancel == null && !EditionKotK.IsRunning)
                 kotkProgress.Value = EditionKotK.IsInstalled(EditionKotK.GameDirectory) ? 100 : 0;
             if (EditionKotK.HasAccountKey)
@@ -50,6 +49,8 @@ namespace H1Emu_Launcher
             var state = EditionKotK.State;
             int invites = state?.Invites.Count ?? 0;
             kotkHubButton.Content = invites == 0 ? "FRIENDS & PARTY" : $"FRIENDS & PARTY ({invites})";
+            if (state != null)
+                kotkAccount.Text = $"KOTK · SIGNED IN AS {state.Me.Name.ToUpperInvariant()}";
         }
 
         private void NotifyKotKInvite(SocialInvite invite)
@@ -168,18 +169,6 @@ namespace H1Emu_Launcher
             Properties.Settings.Default.activeDirectoryKotK = dir;
             Properties.Settings.Default.Save();
             ShowEdition();
-        }
-
-        private void KotKNameChanged(object sender, RoutedEventArgs e)
-        {
-            string name = kotkNameBox.Text.Trim();
-            if (name.Length > 0 && !Regex.IsMatch(name, "^[a-zA-Z0-9_]{3,24}$"))
-            {
-                kotkStatus.Text = "The KOTK name must be 3-24 letters, digits or _.";
-                return;
-            }
-            Properties.Settings.Default.kotkName = name;
-            Properties.Settings.Default.Save();
         }
 
         private void KotKCancelClick(object sender, RoutedEventArgs e) => kotkCancel?.Cancel();

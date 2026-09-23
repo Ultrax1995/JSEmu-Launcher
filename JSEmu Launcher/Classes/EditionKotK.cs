@@ -92,7 +92,7 @@ namespace H1Emu_Launcher.Classes
             try
             {
                 _signingIn = Send<AuthSession>(HttpMethod.Post, "api/auth/key",
-                    new KeyCredentials(AccountKeyUtil.EncryptStringSHA256(key), Properties.Settings.Default.kotkName ?? ""), null, CancellationToken.None);
+                    new KeyCredentials(AccountKeyUtil.EncryptStringSHA256(key)), null, CancellationToken.None);
                 var session = await _signingIn;
                 if (session.AccountId != Session?.AccountId)
                 {
@@ -105,6 +105,15 @@ namespace H1Emu_Launcher.Classes
                 return session;
             }
             finally { _signingIn = null; }
+        }
+
+        // The account name friends, party and the leaderboard show. A new account starts as Player_xxxxxx.
+        public static async Task Rename(string name)
+        {
+            var renamed = await Post<AuthSession>("api/account/name", new NameRequest(name));
+            if (Session != null)
+                Session = Session with { Name = renamed.Name };
+            await Poll();
         }
 
         public static void SignOut()
