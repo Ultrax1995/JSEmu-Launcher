@@ -256,10 +256,6 @@
                 <TextBlock Foreground="#8A96A2" TextWrapping="Wrap" Margin="0,0,0,12"
                            Text="Hold your proximity key while in the game. Default: middle mouse / numpad 4. Alt+M mutes voice."/>
                 <TextBlock Text="GAME FIXES" Style="{StaticResource Heading}" Margin="0,4,0,8"/>
-                <CheckBox x:Name="doorFix" Foreground="#DDE3E8" FontSize="14" Margin="0,0,0,4"
-                          Content="Door fix (doors open both ways)"/>
-                <TextBlock Foreground="#8A96A2" TextWrapping="Wrap" Margin="0,0,0,10" FontSize="12"
-                           Text="Only turn this off if the KOTK server says the door fix is not required. Applies from the next Play."/>
                 <CheckBox x:Name="clientFixes" Foreground="#DDE3E8" FontSize="14" Margin="0,0,0,4"
                           Content="Experimental client fixes (loot during reload, binocular scope, hide own tracers, throwables)"/>
                 <TextBlock Foreground="#E8A33D" TextWrapping="Wrap" Margin="0,0,0,14" FontSize="12"

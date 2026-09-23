@@ -246,12 +246,7 @@ namespace H1Emu_Launcher.Classes
                     _ = Task.Run(() => BinocularScopeFix.ApplyAfterStartup(game, dir, Log));
                     _ = Task.Run(() => OwnBulletTracers.ApplyAfterStartup(game, dir, Log));
                 }
-                // Off only for testing whether the in-memory door patch causes the client's
-                // 0xE427E3 crashes; the server must then run with CRANBERRY_REQUIRE_DOOR_CLIENT=0.
-                if (Properties.Settings.Default.kotkDoorFix)
-                    _ = Task.Run(() => DoorsReady(game, dir, launch));
-                else
-                    Log("door fix disabled in settings");
+                _ = Task.Run(() => DoorsReady(game, dir, launch));
 
                 // Raw input, Shift+Tab overlay and proximity voice need this (UI) thread's message loop.
                 _gameInput = new GameInput(game.Id);
