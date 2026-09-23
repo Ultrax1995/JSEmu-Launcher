@@ -159,6 +159,14 @@ $@"""AppState""
         // because a Steam "verify files" restores the original Daybreak LaunchPad.
         public static void PrepareGameDir(string gameDir)
         {
+            lock (prepareGate)
+                PrepareGameDirLocked(gameDir);
+        }
+
+        private static readonly object prepareGate = new();
+
+        private static void PrepareGameDirLocked(string gameDir)
+        {
             string launchPad = Path.Combine(gameDir, "LaunchPad.exe");
             string original = Path.Combine(gameDir, "LaunchPad.exe.daybreak-oryginal");
 
@@ -195,6 +203,33 @@ $@"""AppState""
                 lines[i] = $"{key}={value}";
             else
                 lines.Add($"{key}={value}");
+        }
+
+        // The installed 2018 folder: what Steam knows about first, then the folder saved after
+        // a download. Null when there is no 2018 build on the disk.
+        public static string ResolveGameDir()
+        {
+            string dir = FindInSteam();
+            if (!IsValidInstall(dir))
+                dir = Properties.Settings.Default.activeDirectory2018;
+            return IsValidInstall(dir) ? dir : null;
+        }
+
+        // Keeps our LaunchPad and its ini in place without waiting for the Play button, so the
+        // game also works when it is started from Steam. Quiet: runs on startup and in the
+        // background, so a locked file or a missing folder must never break the launcher.
+        public static string EnsureGameDirReady(string gameDir = null)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(gameDir))
+                    gameDir = ResolveGameDir();
+                if (!IsValidInstall(gameDir))
+                    return null;
+                PrepareGameDir(gameDir);
+                return gameDir;
+            }
+            catch { return null; }
         }
 
         // Through Steam when the game is registered there, otherwise LaunchPad.exe directly.
