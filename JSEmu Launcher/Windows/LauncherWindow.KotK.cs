@@ -5,43 +5,103 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using Cranberry.Launcher.Core;
 using H1Emu_Launcher.Classes;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace H1Emu_Launcher
 {
-    // KOTK edition: install / play through EditionKotK. See Classes\EditionKotK.cs.
+    // KOTK edition: install / play / social through EditionKotK. See Classes\EditionKotK.cs.
     public partial class LauncherWindow
     {
         private CancellationTokenSource kotkCancel;
+        private DispatcherTimer kotkPoll;
 
         private void ShowKotKPanel(bool visible)
         {
+            if (kotkPoll == null)
+            {
+                // Friends, invitations and party state, like the Cranberry launcher's 3 s poll.
+                kotkPoll = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
+                kotkPoll.Tick += async (_, _) => await EditionKotK.Poll();
+                EditionKotK.Status += text => Dispatcher.BeginInvoke(() => kotkStatus.Text = text);
+                EditionKotK.StateChanged += ShowKotKSocial;
+                EditionKotK.InviteReceived += NotifyKotKInvite;
+            }
             if (!visible)
+            {
+                // Keep polling while the game runs: party invitations still arrive.
+                if (!EditionKotK.IsRunning) kotkPoll.Stop();
                 return;
+            }
             kotkNameBox.Text = Properties.Settings.Default.kotkName ?? "";
             if (kotkCancel == null && !EditionKotK.IsRunning)
                 kotkProgress.Value = EditionKotK.IsInstalled(EditionKotK.GameDirectory) ? 100 : 0;
+            if (EditionKotK.HasAccountKey)
+            {
+                kotkPoll.Start();
+                _ = EditionKotK.Poll();
+            }
         }
 
-        private async Task LaunchKotK()
+        private void ShowKotKSocial()
+        {
+            var state = EditionKotK.State;
+            int invites = state?.Invites.Count ?? 0;
+            kotkHubButton.Content = invites == 0 ? "FRIENDS & PARTY" : $"FRIENDS & PARTY ({invites})";
+        }
+
+        private void NotifyKotKInvite(SocialInvite invite)
+        {
+            string text = invite.Kind.Equals("Friend", StringComparison.OrdinalIgnoreCase)
+                ? $"{invite.FromName} sent you a KOTK friend request."
+                : $"{invite.FromName} invited you to their KOTK party.";
+            // In-game party invitations already show in the game's own UI.
+            if (EditionKotK.IsRunning && invite.Kind == "GameParty")
+                return;
+            try { new ToastContentBuilder().AddText("KOTK invitation").AddText(text + " Open Friends & Party to accept.").Show(); }
+            catch (Exception ex) { EditionKotK.Log("toast: " + ex.Message); }
+        }
+
+        private bool EnsureKotKKey()
+        {
+            if (EditionKotK.HasAccountKey)
+                return true;
+            // Same flow as the JSEmu 2016 servers: offer to open the account key settings.
+            if (CustomMessageBox.Show(FindResource("item153").ToString(), this, false, true, true) == MessageBoxResult.Yes)
+            {
+                SettingsWindow sw = new();
+                sw.settingsTabControl.SelectedIndex = 2;
+                sw.ShowDialog();
+            }
+            if (!EditionKotK.HasAccountKey)
+                return false;
+            kotkPoll.Start();
+            return true;
+        }
+
+        private void KotKHubClick(object sender, RoutedEventArgs e)
+        {
+            if (EnsureKotKKey())
+                KotKHubWindow.Open(this);
+        }
+
+        private async Task LaunchKotK() => await RunKotK(false);
+
+        private async void KotKRepairClick(object sender, RoutedEventArgs e) => await RunKotK(true);
+
+        private async Task RunKotK(bool installOnly)
         {
             try
             {
-                string key = Properties.Settings.Default.sessionIdKey?.Trim();
-                if (string.IsNullOrEmpty(key))
+                if (kotkCancel != null || !EnsureKotKKey())
+                    return;
+                if (EditionKotK.IsRunning)
                 {
-                    // Same flow as the JSEmu 2016 servers: offer to open the account key settings.
-                    if (CustomMessageBox.Show(FindResource("item153").ToString(), this, false, true, true) == MessageBoxResult.Yes)
-                    {
-                        SettingsWindow sw = new();
-                        sw.settingsTabControl.SelectedIndex = 2;
-                        sw.ShowDialog();
-                    }
+                    CustomMessageBox.Show("KOTK is already running. Close the game first.", this);
                     return;
                 }
-                if (kotkCancel != null)
-                    return;
 
                 string dir = EditionKotK.GameDirectory;
                 if (!EditionKotK.IsInstalled(dir) && !HasRoomFor(dir, 15L * 1024 * 1024 * 1024))
@@ -53,6 +113,8 @@ namespace H1Emu_Launcher
 
                 kotkCancel = new CancellationTokenSource();
                 kotkCancelButton.Visibility = Visibility.Visible;
+                kotkRepairButton.IsEnabled = false;
+                playButton.IsEnabled = false;
                 var progress = new Progress<InstallProgress>(p =>
                 {
                     if (kotkCancel == null)
@@ -60,11 +122,11 @@ namespace H1Emu_Launcher
                     kotkProgress.Value = p.Total == 0 ? 0 : Math.Clamp(p.Complete * 100.0 / p.Total, 0, 100);
                     kotkStatus.Text = $"{p.Message}  •  {p.Complete / 1073741824.0:0.00} / {p.Total / 1073741824.0:0.00} GB";
                 });
-                void Status(string text) => Dispatcher.BeginInvoke(() => kotkStatus.Text = text);
 
-                await EditionKotK.InstallAndPlay(key, Properties.Settings.Default.kotkName, false, progress, Status, kotkCancel.Token);
+                await EditionKotK.InstallAndPlay(installOnly, progress, kotkCancel.Token);
                 kotkProgress.Value = 100;
                 currentGame.Text = "Current Game Version: KOTK Pre-Season 5";
+                kotkPoll.Start();
             }
             catch (OperationCanceledException)
             {
@@ -81,6 +143,7 @@ namespace H1Emu_Launcher
                 kotkCancel?.Dispose();
                 kotkCancel = null;
                 kotkCancelButton.Visibility = Visibility.Collapsed;
+                kotkRepairButton.IsEnabled = true;
                 playButton.IsEnabled = true;
                 playButton.SetResourceReference(ContentProperty, "item8");
             }

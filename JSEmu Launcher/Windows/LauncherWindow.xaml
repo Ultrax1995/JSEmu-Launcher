@@ -271,7 +271,11 @@
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="220"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                     <TextBlock Text="KOTK NAME" Foreground="#72889A" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <TextBox x:Name="kotkNameBox" Grid.Column="1" Height="34" Padding="10,0" MaxLength="24" VerticalContentAlignment="Center" Background="#11151A" BorderBrush="#1E5A8A" BorderThickness="1" Style="{DynamicResource TextBoxStyle}" LostFocus="KotKNameChanged" ToolTip="3-24 letters, digits or _. Used the first time your account key signs in to KOTK."/>
-                                    <Button x:Name="kotkCancelButton" Grid.Column="3" Content="Cancel" Height="34" MinWidth="90" Visibility="Collapsed" Click="KotKCancelClick" Style="{DynamicResource PrimaryButton}" FontSize="13"/>
+                                    <StackPanel Grid.Column="3" Orientation="Horizontal">
+                                        <Button x:Name="kotkHubButton" Content="FRIENDS &amp; PARTY" Height="34" MinWidth="150" Margin="0,0,8,0" Click="KotKHubClick" Style="{DynamicResource PrimaryButton}" FontSize="13" ToolTip="Friends, party, messages, leaderboard, profile picture and voice"/>
+                                        <Button x:Name="kotkRepairButton" Content="INSTALL / REPAIR" Height="34" MinWidth="140" Margin="0,0,8,0" Click="KotKRepairClick" Style="{DynamicResource PrimaryButton}" FontSize="13" ToolTip="Check every game file and download only what is missing or changed"/>
+                                        <Button x:Name="kotkCancelButton" Content="CANCEL" Height="34" MinWidth="90" Visibility="Collapsed" Click="KotKCancelClick" Style="{DynamicResource PrimaryButton}" FontSize="13"/>
+                                    </StackPanel>
                                 </Grid>
                                 <TextBlock x:Name="kotkStatus" Grid.Row="1" VerticalAlignment="Center" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Foreground="#C9D3DC" FontSize="13" Text="Press Play - the launcher downloads KOTK (about 14.6 GB) and signs you in with your account key."/>
                                 <ProgressBar x:Name="kotkProgress" Grid.Row="2" Height="10" Minimum="0" Maximum="100" Value="0" Style="{DynamicResource ProgressBar}"/>
