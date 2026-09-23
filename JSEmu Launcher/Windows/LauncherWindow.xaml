@@ -9,7 +9,7 @@
         WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize"
         FontFamily="Segoe UI" FontSize="15" Foreground="#E7E9ED" Background="Transparent"
         Loaded="LauncherWindowLoaded" ContentRendered="LauncherWindowContentRendered"
-        IsVisibleChanged="LauncherWindowIsVisibleChanged" Closed="LauncherWindowClosed">
+        IsVisibleChanged="LauncherWindowIsVisibleChanged" Closing="LauncherWindowClosing" Closed="LauncherWindowClosed">
 
     <WindowChrome.WindowChrome>
         <WindowChrome GlassFrameThickness="1" CaptionHeight="0" NonClientFrameEdges="Bottom, Left, Right"/>
@@ -103,6 +103,12 @@
                         <GradientStop Color="#40E0902A" Offset="0"/><GradientStop Color="#10E0902A" Offset="0.55"/><GradientStop Color="#35B8561A" Offset="1"/>
                     </LinearGradientBrush></Border.Background>
                 </Border>
+                <!-- KOTK mode: cold blue tint over the banner -->
+                <Border x:Name="tintKotK" IsHitTestVisible="False" Visibility="Collapsed">
+                    <Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#403D8EE8" Offset="0"/><GradientStop Color="#103D8EE8" Offset="0.55"/><GradientStop Color="#351A4FB8" Offset="1"/>
+                    </LinearGradientBrush></Border.Background>
+                </Border>
                 <Border Width="38" Height="38" Margin="18" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#CA090C10" BorderBrush="#3B4146" BorderThickness="1" CornerRadius="9">
                     <Grid><Ellipse Width="13" Height="13" Stroke="#DDE1E5" StrokeThickness="1.5"/><Rectangle Width="3" Height="8" Fill="#E61D2B" RadiusX="1" RadiusY="1"/></Grid>
                 </Border>
@@ -125,11 +131,21 @@
                                 <TextBlock x:Name="edition2018Sub" Text="STEAM" FontSize="9" FontWeight="SemiBold" HorizontalAlignment="Center" Foreground="#9AA0A6"/>
                             </StackPanel>
                         </Button>
+                        <Border Width="4"/>
+                        <Button x:Name="editionKotKButton" Tag="KOTK" Click="EditionButtonClick" Height="44" MinWidth="96" Style="{StaticResource EditionTabStyle}" ToolTip="King of the Kill - Pre-Season 5, JSEmu KOTK server">
+                            <StackPanel>
+                                <TextBlock Text="KOTK" FontSize="17" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="editionKotKSub" Text="PRE-SEASON 5" FontSize="9" FontWeight="SemiBold" HorizontalAlignment="Center" Foreground="#9AA0A6"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </Border>
                 <!-- 2018 mode: edition badge under the logo -->
                 <Border x:Name="badge2018" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,172,0,0" Padding="14,3" CornerRadius="12" Background="#CC1A1208" BorderBrush="#E8A33D" BorderThickness="1" IsHitTestVisible="False">
                     <TextBlock Text="2 0 1 8   E D I T I O N   ·   S T E A M" Foreground="#F2B24E" FontSize="11" FontWeight="Bold"/>
+                </Border>
+                <Border x:Name="badgeKotK" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,172,0,0" Padding="14,3" CornerRadius="12" Background="#CC08121A" BorderBrush="#3D8EE8" BorderThickness="1" IsHitTestVisible="False">
+                    <TextBlock Text="K I N G   O F   T H E   K I L L   ·   P R E - S E A S O N   5" Foreground="#6FB2F5" FontSize="11" FontWeight="Bold"/>
                 </Border>
                 <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,16,16,0" Background="#DC070A0D" BorderBrush="#2C3237" BorderThickness="1" CornerRadius="7">
                     <StackPanel Orientation="Horizontal">
@@ -247,6 +263,20 @@
                             <TextBlock Grid.Column="1" TextWrapping="Wrap" LineHeight="22" Foreground="#D4D7DB"><Run Text="{DynamicResource item10}" Foreground="#F0202A" FontWeight="Bold"/><Run Text=" "/><Run Text="{DynamicResource item11}"/><LineBreak/><LineBreak/><Run Text="{DynamicResource item50}"/></TextBlock>
                         </Grid></Border>
                         <Frame x:Name="steamFramePanel" Grid.Row="1" Margin="0,0,0,8" Height="140" Source="..\SteamFramePages\Login.xaml" NavigationUIVisibility="Hidden" f:DisableFrameNavigation.Disable="True"/>
+                        <!-- KOTK mode: no Steam login; the game downloads from the KOTK server's manifest -->
+                        <Border x:Name="kotkPanel" Grid.Row="1" Margin="0,0,0,8" Height="140" Visibility="Collapsed" Background="#0B1118" BorderBrush="#1E3A55" BorderThickness="1" CornerRadius="6" Padding="16,12">
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="220"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <TextBlock Text="KOTK NAME" Foreground="#72889A" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <TextBox x:Name="kotkNameBox" Grid.Column="1" Height="34" Padding="10,0" MaxLength="24" VerticalContentAlignment="Center" Background="#11151A" BorderBrush="#1E5A8A" BorderThickness="1" Style="{DynamicResource TextBoxStyle}" LostFocus="KotKNameChanged" ToolTip="3-24 letters, digits or _. Used the first time your account key signs in to KOTK."/>
+                                    <Button x:Name="kotkCancelButton" Grid.Column="3" Content="Cancel" Height="34" MinWidth="90" Visibility="Collapsed" Click="KotKCancelClick" Style="{DynamicResource PrimaryButton}" FontSize="13"/>
+                                </Grid>
+                                <TextBlock x:Name="kotkStatus" Grid.Row="1" VerticalAlignment="Center" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Foreground="#C9D3DC" FontSize="13" Text="Press Play - the launcher downloads KOTK (about 14.6 GB) and signs you in with your account key."/>
+                                <ProgressBar x:Name="kotkProgress" Grid.Row="2" Height="10" Minimum="0" Maximum="100" Value="0" Style="{DynamicResource ProgressBar}"/>
+                            </Grid>
+                        </Border>
                         <Grid Grid.Row="2" Margin="0,0,0,14"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                             <Rectangle Height="1" Fill="#30353A" Margin="0,0,16,0"/><TextBlock x:Name="currentGame" Grid.Column="1" Foreground="#92989F" FontSize="13" FontWeight="SemiBold" Text="{DynamicResource item69}"/><Rectangle Grid.Column="2" Height="1" Fill="#30353A" Margin="16,0,0,0"/>
                         </Grid>
@@ -266,6 +296,18 @@
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,0,0,0">
                                             <TextBlock Text="JSEmu 2018 Server" Foreground="#F2F3F5" FontSize="14" FontWeight="SemiBold"/>
                                             <TextBlock Text="Just Survive 2018 · Steam build 2.1.886508" Foreground="#9A8A72" FontSize="11"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"><Ellipse Width="8" Height="8" Fill="#52B84A" Margin="0,0,6,0"/><TextBlock Text="EU" Foreground="#52B84A" FontSize="11" FontWeight="Bold"/></StackPanel>
+                                    </Grid>
+                                </Border>
+                                <!-- KOTK mode: fixed server, reached through the launcher's encrypted tunnel -->
+                                <Border x:Name="serverKotKInfo" Visibility="Collapsed" Height="52" Background="#0B1118" BorderBrush="#1E5A8A" BorderThickness="1" CornerRadius="6">
+                                    <Grid Margin="14,0">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <Path Data="M2,7 L12,2 L22,7 L12,12 Z M2,12 L12,17 L22,12 M2,17 L12,22 L22,17" Stroke="#6FB2F5" StrokeThickness="1.4" Width="22" Height="22" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,0,0,0">
+                                            <TextBlock Text="JSEmu KOTK Server" Foreground="#F2F3F5" FontSize="14" FontWeight="SemiBold"/>
+                                            <TextBlock Text="King of the Kill · Solo / Duos / Fives" Foreground="#72889A" FontSize="11"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"><Ellipse Width="8" Height="8" Fill="#52B84A" Margin="0,0,6,0"/><TextBlock Text="EU" Foreground="#52B84A" FontSize="11" FontWeight="Bold"/></StackPanel>
                                     </Grid>

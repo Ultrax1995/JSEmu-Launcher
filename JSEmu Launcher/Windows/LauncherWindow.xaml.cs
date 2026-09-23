@@ -756,6 +756,13 @@ namespace H1Emu_Launcher
                 playButton.SetResourceReference(ContentProperty, "item217");
             }
 
+            // KOTK mode: own game files from the KOTK server, played through the launcher's tunnel.
+            if (EditionKotK.Selected)
+            {
+                await LaunchKotK();
+                return;
+            }
+
             // 2018 mode: separate game folder, own LaunchPad, always the JSEmu 2018 server.
             if (Edition2018.Selected)
             {
@@ -1021,43 +1028,67 @@ namespace H1Emu_Launcher
         public void ShowEdition()
         {
             bool is2018 = Edition2018.Selected;
+            bool isKotK = EditionKotK.Selected;
+            bool is2016 = !is2018 && !isKotK;
 
-            // Accent: JSEmu red for 2016, amber for 2018.
-            Color accent = is2018 ? Color.FromRgb(0xE8, 0xA3, 0x3D) : Color.FromRgb(0xE1, 0x1D, 0x27);
-            Color accentDark = is2018 ? Color.FromRgb(0xB8, 0x6A, 0x1A) : Color.FromRgb(0x9E, 0x10, 0x18);
+            // Accent: JSEmu red for 2016, amber for 2018, blue for KOTK.
+            Color accent = is2018 ? Color.FromRgb(0xE8, 0xA3, 0x3D) : isKotK ? Color.FromRgb(0x3D, 0x8E, 0xE8) : Color.FromRgb(0xE1, 0x1D, 0x27);
+            Color accentDark = is2018 ? Color.FromRgb(0xB8, 0x6A, 0x1A) : isKotK ? Color.FromRgb(0x1A, 0x4F, 0xB8) : Color.FromRgb(0x9E, 0x10, 0x18);
             SolidColorBrush accentBrush = new(accent);
-            edition2016Button.Background = is2018 ? Brushes.Transparent : accentBrush;
+            SolidColorBrush idleText = new(Color.FromRgb(0x9A, 0x9F, 0xA6));
+            SolidColorBrush idleSub = new(Color.FromRgb(0x6B, 0x70, 0x78));
+            edition2016Button.Background = is2016 ? accentBrush : Brushes.Transparent;
             edition2018Button.Background = is2018 ? accentBrush : Brushes.Transparent;
-            edition2016Button.Foreground = is2018 ? new SolidColorBrush(Color.FromRgb(0x9A, 0x9F, 0xA6)) : Brushes.White;
-            edition2016Button.BorderBrush = is2018 ? Brushes.Transparent : new SolidColorBrush(Color.FromRgb(0xFF, 0x4A, 0x52));
+            editionKotKButton.Background = isKotK ? accentBrush : Brushes.Transparent;
+            edition2016Button.Foreground = is2016 ? Brushes.White : idleText;
+            edition2018Button.Foreground = is2018 ? new SolidColorBrush(Color.FromRgb(0x1A, 0x12, 0x08)) : idleText;
+            editionKotKButton.Foreground = isKotK ? Brushes.White : idleText;
+            edition2016Button.BorderBrush = is2016 ? new SolidColorBrush(Color.FromRgb(0xFF, 0x4A, 0x52)) : Brushes.Transparent;
             edition2018Button.BorderBrush = is2018 ? new SolidColorBrush(Color.FromRgb(0xFF, 0xD0, 0x80)) : Brushes.Transparent;
-            edition2018Button.Foreground = is2018 ? new SolidColorBrush(Color.FromRgb(0x1A, 0x12, 0x08)) : new SolidColorBrush(Color.FromRgb(0x9A, 0x9F, 0xA6));
-            edition2016Sub.Foreground = is2018 ? new SolidColorBrush(Color.FromRgb(0x6B, 0x70, 0x78)) : new SolidColorBrush(Color.FromArgb(0xCC, 0xFF, 0xFF, 0xFF));
-            edition2018Sub.Foreground = is2018 ? new SolidColorBrush(Color.FromArgb(0xCC, 0x1A, 0x12, 0x08)) : new SolidColorBrush(Color.FromRgb(0x6B, 0x70, 0x78));
+            editionKotKButton.BorderBrush = isKotK ? new SolidColorBrush(Color.FromRgb(0x8F, 0xC6, 0xFF)) : Brushes.Transparent;
+            edition2016Sub.Foreground = is2016 ? new SolidColorBrush(Color.FromArgb(0xCC, 0xFF, 0xFF, 0xFF)) : idleSub;
+            edition2018Sub.Foreground = is2018 ? new SolidColorBrush(Color.FromArgb(0xCC, 0x1A, 0x12, 0x08)) : idleSub;
+            editionKotKSub.Foreground = isKotK ? new SolidColorBrush(Color.FromArgb(0xCC, 0xFF, 0xFF, 0xFF)) : idleSub;
 
             playButton.BorderBrush = accentBrush;
-            if (is2018)
+            if (!is2016)
             {
                 playButton.Background = new LinearGradientBrush(accent, accentDark, 90);
-                playButton.Foreground = new SolidColorBrush(Color.FromRgb(0x1A, 0x12, 0x08));
+                playButton.Foreground = is2018 ? new SolidColorBrush(Color.FromRgb(0x1A, 0x12, 0x08)) : Brushes.White;
             }
             else
             {
                 playButton.ClearValue(Button.BackgroundProperty);   // back to the PrimaryButton style
                 playButton.ClearValue(Button.ForegroundProperty);
             }
-            directoryBox.BorderBrush = new SolidColorBrush(is2018 ? Color.FromRgb(0x8A, 0x5A, 0x1E) : Color.FromRgb(0x7F, 0x25, 0x2A));
+            directoryBox.BorderBrush = new SolidColorBrush(is2018 ? Color.FromRgb(0x8A, 0x5A, 0x1E)
+                : isKotK ? Color.FromRgb(0x1E, 0x5A, 0x8A) : Color.FromRgb(0x7F, 0x25, 0x2A));
 
-            // 2018 gets a warm banner, an edition badge and a fixed server card instead of the list.
+            // 2018 and KOTK get a tinted banner, an edition badge and a fixed server card instead of the list.
             tint2018.Visibility = is2018 ? Visibility.Visible : Visibility.Collapsed;
             badge2018.Visibility = is2018 ? Visibility.Visible : Visibility.Collapsed;
             server2018Info.Visibility = is2018 ? Visibility.Visible : Visibility.Collapsed;
-            serverSelector.Visibility = is2018 ? Visibility.Hidden : Visibility.Visible;
-            serverSelectorIcon.Visibility = is2018 ? Visibility.Hidden : Visibility.Visible;
-            serverSelector.IsEnabled = !is2018;
+            tintKotK.Visibility = isKotK ? Visibility.Visible : Visibility.Collapsed;
+            badgeKotK.Visibility = isKotK ? Visibility.Visible : Visibility.Collapsed;
+            serverKotKInfo.Visibility = isKotK ? Visibility.Visible : Visibility.Collapsed;
+            serverSelector.Visibility = is2016 ? Visibility.Visible : Visibility.Hidden;
+            serverSelectorIcon.Visibility = is2016 ? Visibility.Visible : Visibility.Hidden;
+            serverSelector.IsEnabled = is2016;
             directoryButton.IsEnabled = !is2018;
+            // KOTK downloads from its own server, not through a Steam login.
+            steamFramePanel.Visibility = isKotK ? Visibility.Collapsed : Visibility.Visible;
+            kotkPanel.Visibility = isKotK ? Visibility.Visible : Visibility.Collapsed;
+            ShowKotKPanel(isKotK);
 
-            if (!is2018)
+            if (isKotK)
+            {
+                string kotkDir = EditionKotK.GameDirectory;
+                directoryBox.Text = kotkDir;
+                currentGame.Text = EditionKotK.IsInstalled(kotkDir) ? "Current Game Version: KOTK Pre-Season 5" : "Game Version: KOTK not installed";
+                return;
+            }
+
+            if (is2016)
             {
                 directoryBox.Text = string.IsNullOrEmpty(Properties.Settings.Default.activeDirectory)
                     ? FindResource("item75").ToString() : Properties.Settings.Default.activeDirectory;
@@ -1245,6 +1276,12 @@ namespace H1Emu_Launcher
             if (!(bool)selectDirectory.ShowDialog())
                 return;
 
+            if (EditionKotK.Selected)
+            {
+                SelectKotKDirectory(selectDirectory.FolderName);
+                return;
+            }
+
             Properties.Settings.Default.activeDirectory = selectDirectory.FolderName;
             Properties.Settings.Default.Save();
 
@@ -1256,12 +1293,13 @@ namespace H1Emu_Launcher
 
         public void OpenDirectory(object sender, RoutedEventArgs e)
         {
-            if (!Directory.Exists(Properties.Settings.Default.activeDirectory))
+            string openDir = EditionKotK.Selected ? EditionKotK.GameDirectory : Properties.Settings.Default.activeDirectory;
+            if (!Directory.Exists(openDir))
                 return;
 
             Process.Start(new ProcessStartInfo
             {
-                FileName = Properties.Settings.Default.activeDirectory,
+                FileName = openDir,
                 UseShellExecute = true
             });
         }

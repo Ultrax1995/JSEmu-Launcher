@@ -1,0 +1,2 @@
+Source: https://github.com/Mixcria/h1z1-pre-season-5-project (launcher/src/Cranberry.Launcher.Core), MIT License - see LICENSE.
+Retargeted to net9.0-windows; Contracts.cs adds KeyCredentials for JSEmu account-key sign-in.

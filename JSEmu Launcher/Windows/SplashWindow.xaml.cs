@@ -174,7 +174,8 @@ namespace H1Emu_Launcher
                         System.Windows.Shell.TaskbarItemProgressState.None;
                 }
 
-                if (localVersion < latestVersion)
+                // Developer mode runs test builds: never replace them with the released launcher.
+                if (localVersion < latestVersion && !Properties.Settings.Default.developerMode)
                 {
                     owner.Hide();
                     UpdateWindow uw = new();
@@ -267,7 +268,7 @@ namespace H1Emu_Launcher
         {
             Hide();
 
-            if (localVersion < latestVersion)
+            if (localVersion < latestVersion && !Properties.Settings.Default.developerMode)
             {
                 UpdateWindow uw = new();
                 uw.Show();

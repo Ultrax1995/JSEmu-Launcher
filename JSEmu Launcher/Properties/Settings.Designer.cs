@@ -46,7 +46,31 @@ namespace H1Emu_Launcher.Properties {
                 this["activeDirectory2018"] = value;
             }
         }
-        
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string activeDirectoryKotK {
+            get {
+                return ((string)(this["activeDirectoryKotK"]));
+            }
+            set {
+                this["activeDirectoryKotK"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string kotkName {
+            get {
+                return ((string)(this["kotkName"]));
+            }
+            set {
+                this["kotkName"] = value;
+            }
+        }
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]

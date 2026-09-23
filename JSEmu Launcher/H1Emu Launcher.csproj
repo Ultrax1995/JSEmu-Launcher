@@ -216,4 +216,8 @@
     </Page>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Cranberry.Launcher.Core\Cranberry.Launcher.Core.csproj" />
+  </ItemGroup>
+
 </Project>

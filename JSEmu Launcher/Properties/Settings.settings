@@ -8,6 +8,12 @@
     <Setting Name="activeDirectory2018" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="activeDirectoryKotK" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="kotkName" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
     <Setting Name="activeDirectory" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
