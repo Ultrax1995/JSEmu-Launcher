@@ -217,6 +217,8 @@ namespace H1Emu_Launcher.SteamFramePages
                         {
                             try { Edition2018.WriteAppManifest(ContentDownloader.DEFAULT_DOWNLOAD_DIR); } catch { }
                         }
+                        // Ready to play straight from Steam, without pressing Play here first.
+                        Edition2018.EnsureGameDirReady(ContentDownloader.DEFAULT_DOWNLOAD_DIR);
                     }
                     else
                         Properties.Settings.Default.activeDirectory = ContentDownloader.DEFAULT_DOWNLOAD_DIR;

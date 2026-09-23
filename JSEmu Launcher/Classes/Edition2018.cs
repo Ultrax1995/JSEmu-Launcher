@@ -159,6 +159,14 @@ $@"""AppState""
         // because a Steam "verify files" restores the original Daybreak LaunchPad.
         public static void PrepareGameDir(string gameDir)
         {
+            lock (prepareGate)
+                PrepareGameDirLocked(gameDir);
+        }
+
+        private static readonly object prepareGate = new();
+
+        private static void PrepareGameDirLocked(string gameDir)
+        {
             string launchPad = Path.Combine(gameDir, "LaunchPad.exe");
             string original = Path.Combine(gameDir, "LaunchPad.exe.daybreak-oryginal");
 
@@ -172,8 +180,10 @@ $@"""AppState""
                 ours = ms.ToArray();
             }
 
-            bool same = File.Exists(launchPad) && new FileInfo(launchPad).Length == ours.Length && File.ReadAllBytes(launchPad).SequenceEqual(ours);
-            if (!same)
+            // Our LaunchPad updates itself when the game starts, so a player can already have a
+            // newer one than we carry. Only write ours over a Daybreak LaunchPad (or an older
+            // build of ours) - otherwise we would undo that update on every launcher start.
+            if (!File.Exists(launchPad) || Older(LaunchPadVersion(launchPad), ResourceVersion(ours)))
             {
                 if (File.Exists(launchPad) && !File.Exists(original))
                     File.Copy(launchPad, original);
@@ -188,6 +198,38 @@ $@"""AppState""
             File.WriteAllLines(ini, lines);
         }
 
+        // Version of a LaunchPad.exe that is ours, or null for Daybreak's (no such product name).
+        private static Version LaunchPadVersion(string file)
+        {
+            try
+            {
+                FileVersionInfo info = FileVersionInfo.GetVersionInfo(file);
+                if (info.ProductName != "JSEmu LaunchPad")
+                    return null;
+                return new Version(info.FileMajorPart, info.FileMinorPart, info.FileBuildPart, info.FilePrivatePart);
+            }
+            catch { return null; }
+        }
+
+        // The same for the copy we carry in our resources (written to a temp file once).
+        private static Version resourceVersion;
+        private static Version ResourceVersion(byte[] ours)
+        {
+            if (resourceVersion != null)
+                return resourceVersion;
+            string tmp = Path.Combine(Path.GetTempPath(), "JSEmu-LaunchPad-wersja.exe");
+            try
+            {
+                File.WriteAllBytes(tmp, ours);
+                resourceVersion = LaunchPadVersion(tmp) ?? new Version(0, 0, 0, 0);
+            }
+            catch { resourceVersion = new Version(0, 0, 0, 0); }
+            finally { try { File.Delete(tmp); } catch { } }
+            return resourceVersion;
+        }
+
+        private static bool Older(Version installed, Version ours) => installed == null || installed < ours;
+
         private static void SetIniValue(List<string> lines, string key, string value)
         {
             int i = lines.FindIndex(l => l.TrimStart().StartsWith(key + "=", StringComparison.OrdinalIgnoreCase));
@@ -195,6 +237,33 @@ $@"""AppState""
                 lines[i] = $"{key}={value}";
             else
                 lines.Add($"{key}={value}");
+        }
+
+        // The installed 2018 folder: what Steam knows about first, then the folder saved after
+        // a download. Null when there is no 2018 build on the disk.
+        public static string ResolveGameDir()
+        {
+            string dir = FindInSteam();
+            if (!IsValidInstall(dir))
+                dir = Properties.Settings.Default.activeDirectory2018;
+            return IsValidInstall(dir) ? dir : null;
+        }
+
+        // Keeps our LaunchPad and its ini in place without waiting for the Play button, so the
+        // game also works when it is started from Steam. Quiet: runs on startup and in the
+        // background, so a locked file or a missing folder must never break the launcher.
+        public static string EnsureGameDirReady(string gameDir = null)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(gameDir))
+                    gameDir = ResolveGameDir();
+                if (!IsValidInstall(gameDir))
+                    return null;
+                PrepareGameDir(gameDir);
+                return gameDir;
+            }
+            catch { return null; }
         }
 
         // Through Steam when the game is registered there, otherwise LaunchPad.exe directly.

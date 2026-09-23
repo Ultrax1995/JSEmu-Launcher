@@ -1107,6 +1107,10 @@ namespace H1Emu_Launcher
             directoryBox.Text = dir ?? "Just Survive 2018: not installed - log in with Steam below to download it";
             currentGame.Text = dir == null ? "Game Version: 2018 not installed"
                 : Edition2018.IsValidInstall(dir) ? "Current Game Version: 2018" : "Game Version: not the 2018 build";
+
+            // Put our LaunchPad and its settings in place right away - Steam's own Play button
+            // never goes through this launcher.
+            Task.Run(() => Edition2018.EnsureGameDirReady(dir));
         }
 
         // Play in 2018 mode. Returns when the game was started (or an error was shown).
@@ -1159,6 +1163,9 @@ namespace H1Emu_Launcher
             LoadServers();
             CheckGameVersionAndPath(this, false, false);
             ShowEdition();
+            // Also when the 2016 tab is the active one: a Steam "verify files" puts the Daybreak
+            // LaunchPad back, and players start the game from Steam without opening us.
+            Task.Run(() => Edition2018.EnsureGameDirReady());
             Carousel.BeginImageCarousel();
             if (!Properties.Settings.Default.imageCarouselVisibility)
             {
