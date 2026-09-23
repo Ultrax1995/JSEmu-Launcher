@@ -61,6 +61,18 @@ namespace H1Emu_Launcher.Properties {
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool kotkDoorFix {
+            get {
+                return ((bool)(this["kotkDoorFix"]));
+            }
+            set {
+                this["kotkDoorFix"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool kotkClientFixes {
             get {
