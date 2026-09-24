@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -234,19 +235,10 @@ namespace H1Emu_Launcher.Classes
                 _game = Process.Start(info) ?? throw new InvalidOperationException("Could not start the game.");
                 var game = _game;
 
-                // The door fix is required: the server holds players out of matches without it.
-                // The four gameplay fixes rewrite code in the running client once the player is in
-                // the world; both crashes seen on 23.09.2026 (H1Z1.exe+0xE427E3, inside the client's
-                // integrity guard FUN_140e427e0) came at the next zone change after they applied,
-                // so they stay off unless the player opts in.
-                if (Properties.Settings.Default.kotkClientFixes)
-                {
-                    _ = Task.Run(() => LootReloadFix.ApplyAfterStartup(game, dir, Log));
-                    _ = Task.Run(() => ThrowableCleanupFix.ApplyAfterStartup(game, dir, Log));
-                    _ = Task.Run(() => BinocularScopeFix.ApplyAfterStartup(game, dir, Log));
-                    _ = Task.Run(() => OwnBulletTracers.ApplyAfterStartup(game, dir, Log));
-                }
-                _ = Task.Run(() => DoorsReady(game, dir, launch));
+                // The server holds players out of matches until the launcher confirms the door fix.
+                // The fix itself (and the opt-in gameplay fixes) is applied only inside a loaded
+                // world: see KeepPatchesInWorld.
+                _ = Task.Run(() => DoorsReady(launch));
 
                 // Raw input, Shift+Tab overlay and proximity voice need this (UI) thread's message loop.
                 _gameInput = new GameInput(game.Id);
@@ -256,8 +248,12 @@ namespace H1Emu_Launcher.Classes
                 StartVoice(game.Id);
 
                 game.EnableRaisingEvents = true;
-                game.Exited += (_, _) => dispatcher.BeginInvoke(async () => await Shutdown());
-                _ = Task.Run(() => WatchForRelogin(game, dir, dispatcher));
+                game.Exited += (_, _) =>
+                {
+                    try { Log($"game exited, code 0x{game.ExitCode:X8}"); } catch (InvalidOperationException) { }
+                    dispatcher.BeginInvoke(async () => await Shutdown());
+                };
+                _ = Task.Run(() => KeepPatchesInWorld(game, dir, dispatcher));
                 Status?.Invoke("KOTK started. Keep the launcher open while you play - Shift+Tab in game opens friends.");
             }
             catch
@@ -270,20 +266,25 @@ namespace H1Emu_Launcher.Classes
         /// <summary>Raised on the UI thread after the game was closed to return to the menu.</summary>
         public static event Action RestartRequested;
 
-        // Leaving a match (Main Menu, Play Again, death, logout) makes the client log out and log
-        // back in inside the same process. On 23.09.2026 that in-process re-login reached the menu
-        // 5 times in 62 (H1Z1.exe+0xE427E3 in WaitForFirstZone), while a freshly started client
-        // reached it 155 times in 155. So the moment the client starts that re-login, close it
-        // and start a fresh one, which logs straight into the menu.
-        private static async Task WatchForRelogin(Process game, string dir, System.Windows.Threading.Dispatcher dispatcher)
+        // The client checks its own code during loading screens and crashes (H1Z1.exe+0xE427E3) or
+        // quits (exit code 0xBAADF00D) when a launcher fix is in it: every time on the re-login after
+        // a match, sometimes when joining a lobby or dropping into a match. Seen 23-24.09.2026 with
+        // the doors alone and with each gameplay fix alone; without any fix every load succeeded.
+        // So fixes are applied only once a world (lobby or match) has loaded, and the original code
+        // is put back the moment the next load starts. The main menu needs none of them. If the code
+        // cannot be restored for a re-login, the game is restarted instead, which always reaches it.
+        private static async Task KeepPatchesInWorld(Process game, string dir, System.Windows.Threading.Dispatcher dispatcher)
         {
             string path = Path.Combine(dir, "Logs", "H1Z1 KOTK PlayClient (Live).log");
+            string exe = Path.Combine(dir, "H1Z1.exe");
+            var generation = new StrongBox<int>(0); // bumped by every load and every world
             long position = -1;
             DateTime started;
             try { started = game.StartTime.ToUniversalTime(); } catch { return; }
             while (!game.HasExited)
             {
-                await Task.Delay(500);
+                await Task.Delay(100);
+                string text;
                 try
                 {
                     var info = new FileInfo(path);
@@ -293,33 +294,69 @@ namespace H1Emu_Launcher.Classes
                         position = 0;
                     if (info.Length == position)
                         continue;
-                    string text;
-                    using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
-                    {
-                        stream.Seek(position, SeekOrigin.Begin);
-                        using var reader = new StreamReader(stream);
-                        text = await reader.ReadToEndAsync();
-                        position = stream.Position;
-                    }
-                    if (!text.Contains("newState=cClientRunStateWaitingForReloginSession"))
-                        continue;
-
-                    Log("client started an in-process re-login after a match: restarting the game for the menu");
-                    Status?.Invoke("Returning to the menu - restarting KOTK...");
-                    try { game.Kill(); } catch (InvalidOperationException) { }
-                    try { game.WaitForExit(15000); } catch { }
-                    await dispatcher.InvokeAsync(async () =>
-                    {
-                        await Shutdown();
-                        RestartRequested?.Invoke();
-                    }).Task.Unwrap();
-                    return;
+                    using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+                    stream.Seek(position, SeekOrigin.Begin);
+                    using var reader = new StreamReader(stream);
+                    text = await reader.ReadToEndAsync();
+                    position = stream.Position;
                 }
                 catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                 {
-                    // The game may hold the log exclusively for a moment; try again next tick.
+                    continue; // the game may hold the log exclusively for a moment
+                }
+
+                foreach (string line in text.Split('\n'))
+                {
+                    bool relogin = line.Contains("newState=cClientRunStateWaitingForReloginSession");
+                    if (relogin || line.Contains("newState=cClientRunStateWaitForZoneLoad")
+                        || line.Contains("newState=cClientRunStateWaitForTeleport"))
+                    {
+                        Interlocked.Increment(ref generation.Value);
+                        if (!ClientCodeRestore.Restore(game, exe, ClientCodeRestore.PatchedFunctions, Log) && relogin)
+                        {
+                            await RestartForMenu(game, dispatcher);
+                            return;
+                        }
+                    }
+                    else if (line.Contains("newState=GAMESTATE_INGAME"))
+                    {
+                        int world = Interlocked.Increment(ref generation.Value);
+                        _ = Task.Run(() => ApplyInWorld(game, dir, exe, world, generation));
+                    }
                 }
             }
+        }
+
+        private static async Task ApplyInWorld(Process game, string dir, string exe, int world, StrongBox<int> generation)
+        {
+            // Let the world settle; a lobby left within seconds needs no fixes.
+            await Task.Delay(3000);
+            if (Volatile.Read(ref generation.Value) != world || game.HasExited) return;
+            var fixes = new List<Task> { BidirectionalDoors.ApplyAfterStartup(game, dir, Log) };
+            if (Properties.Settings.Default.kotkClientFixes)
+            {
+                fixes.Add(LootReloadFix.ApplyAfterStartup(game, dir, Log));
+                fixes.Add(ThrowableCleanupFix.ApplyAfterStartup(game, dir, Log));
+                fixes.Add(BinocularScopeFix.ApplyAfterStartup(game, dir, Log));
+                fixes.Add(OwnBulletTracers.ApplyAfterStartup(game, dir, Log));
+            }
+            await Task.WhenAll(fixes);
+            // A load that began while a fix was still being written must not keep it.
+            if (Volatile.Read(ref generation.Value) != world && !game.HasExited)
+                ClientCodeRestore.Restore(game, exe, ClientCodeRestore.PatchedFunctions, Log);
+        }
+
+        private static async Task RestartForMenu(Process game, System.Windows.Threading.Dispatcher dispatcher)
+        {
+            Log("client code could not be restored: restarting the game for the menu");
+            Status?.Invoke("Returning to the menu - restarting KOTK...");
+            try { game.Kill(); } catch (InvalidOperationException) { }
+            try { game.WaitForExit(15000); } catch { }
+            await dispatcher.InvokeAsync(async () =>
+            {
+                await Shutdown();
+                RestartRequested?.Invoke();
+            }).Task.Unwrap();
         }
 
         // GameInstaller writes .cranberry-install.json with the build id after hashing every file.
@@ -348,28 +385,27 @@ namespace H1Emu_Launcher.Classes
         }
 
         // The server holds players out of matches until the door patch is confirmed.
-        private static async Task DoorsReady(Process game, string dir, GameLaunch launch)
+        private static async Task DoorsReady(GameLaunch launch)
         {
-            try
+            for (int attempt = 0; ; attempt++)
             {
-                if (!await BidirectionalDoors.ApplyAfterStartup(game, dir, Log))
-                    throw new InvalidOperationException("the game update could not initialize. Close the game and press Play again.");
-                for (int attempt = 0; ; attempt++)
+                try
                 {
-                    if (game.HasExited) return;
-                    try
-                    {
-                        await Post("api/client/doors-ready", new DoorClientReadyRequest(launch.Ticket, BidirectionalDoors.ProtocolVersion));
-                        Log("doors ready");
-                        return;
-                    }
-                    catch when (attempt < 2) { await Task.Delay(1000); }
+                    await Post("api/client/doors-ready", new DoorClientReadyRequest(launch.Ticket, BidirectionalDoors.ProtocolVersion));
+                    Log("doors ready");
+                    return;
                 }
-            }
-            catch (Exception ex)
-            {
-                Log("doors: " + ex.Message);
-                Status?.Invoke("KOTK: " + ex.Message);
+                catch (Exception ex) when (attempt < 2)
+                {
+                    Log("doors: " + ex.Message);
+                    await Task.Delay(1000);
+                }
+                catch (Exception ex)
+                {
+                    Log("doors: " + ex.Message);
+                    Status?.Invoke("KOTK: " + ex.Message);
+                    return;
+                }
             }
         }
 
