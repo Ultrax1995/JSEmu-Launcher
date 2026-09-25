@@ -8,206 +8,196 @@
         WindowStartupLocation="CenterOwner"
         Width="1100" Height="700"
         UseLayoutRounding="True"
-        FontFamily="Bahnschrift Light"
-        Foreground="#DDE3E8"
+        FontFamily="Bahnschrift"
+        Foreground="#EEEAE2"
+        Title="KOTK Hub"
         Loaded="WindowLoaded" Closed="WindowClosed">
 
     <!-- KOTK hub: everything the Cranberry launcher offers besides Play - friends, party,
-         leaderboard, profile picture and proximity voice. Same look as the JSEmu hub, KOTK blue. -->
+         leaderboard, profile picture and proximity voice. KOTK black and gold, like the KOTK
+         layout of the launcher window. -->
     <Window.Resources>
-        <SolidColorBrush x:Key="Accent" Color="#3D8EE8"/>
-        <Style x:Key="KotKButton" TargetType="Button">
-            <Setter Property="Foreground" Value="#DDE3E8"/>
-            <Setter Property="Background" Value="#151A20"/>
-            <Setter Property="BorderBrush" Value="#2C3540"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Padding" Value="14,0"/>
-            <Setter Property="Height" Value="34"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bd" Property="BorderBrush" Value="#3D8EE8"/></Trigger>
-                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Bd" Property="Opacity" Value="0.4"/></Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="KotKField" TargetType="TextBox">
-            <Setter Property="Background" Value="#11151A"/>
-            <Setter Property="Foreground" Value="#E7E9ED"/>
-            <Setter Property="BorderBrush" Value="#1E5A8A"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CaretBrush" Value="#E7E9ED"/>
-            <Setter Property="Padding" Value="8,0"/>
-            <Setter Property="Height" Value="34"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-        <Style x:Key="KotKList" TargetType="ListBox">
-            <Setter Property="Background" Value="#0B1016"/>
-            <Setter Property="BorderBrush" Value="#1E2A36"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="#DDE3E8"/>
-            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
-        </Style>
-        <Style x:Key="Heading" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#72889A"/>
-            <Setter Property="Margin" Value="0,0,0,8"/>
-        </Style>
-
-        <!-- friend / member row: avatar, name, status -->
-        <DataTemplate x:Key="PersonRow">
-            <Grid Margin="4,5">
-                <Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <Border Width="34" Height="34" CornerRadius="6" Background="#1A222C" ClipToBounds="True">
-                    <Grid>
-                        <TextBlock Text="{Binding Initial}" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Foreground="#6FB2F5"/>
-                        <Image Source="{Binding Avatar}" Stretch="UniformToFill"/>
-                    </Grid>
-                </Border>
-                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="#F2F3F5"/>
-                    <TextBlock Text="{Binding Detail}" FontSize="11" Foreground="#8A96A2"/>
-                </StackPanel>
-                <Ellipse Grid.Column="2" Width="9" Height="9" Fill="{Binding Dot}" VerticalAlignment="Center" Margin="0,0,6,0"/>
-            </Grid>
-        </DataTemplate>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="KotKTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <!-- leaderboard tables -->
+            <Style x:Key="KotK.GridHeader" TargetType="GridViewColumnHeader">
+                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="GridViewColumnHeader">
+                            <Border Background="#141416" BorderBrush="#2B2823" BorderThickness="0,0,0,1" Padding="10,8">
+                                <TextBlock Text="{TemplateBinding Content}" FontFamily="{StaticResource KotK.Display}" FontSize="13" Foreground="#F2B233"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="KotK.GridRow" TargetType="ListViewItem">
+                <Setter Property="Foreground" Value="#EEEAE2"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListViewItem">
+                            <Border x:Name="Bd" Background="Transparent" BorderBrush="Transparent" BorderThickness="2,0,0,0" Padding="4,6">
+                                <GridViewRowPresenter/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bd" Property="Background" Value="#16FFFFFF"/></Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="#22F2B233"/>
+                                    <Setter TargetName="Bd" Property="BorderBrush" Value="#F2B233"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <!-- the launcher's thin scroll bars instead of the system ones in the leaderboard -->
+            <Style TargetType="ScrollBar" BasedOn="{StaticResource ScrollBarStyle}"/>
+            <Style x:Key="KotK.Grid" TargetType="ListView">
+                <Setter Property="Background" Value="#990B0B0D"/>
+                <Setter Property="BorderBrush" Value="#2B2823"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Foreground" Value="#EEEAE2"/>
+                <Setter Property="ItemContainerStyle" Value="{StaticResource KotK.GridRow}"/>
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+            </Style>
+        </ResourceDictionary>
     </Window.Resources>
 
-    <Border Background="#080B0E" BorderBrush="#1E2A36" BorderThickness="1" CornerRadius="15" ClipToBounds="True">
+    <Border Background="#0B0B0D" BorderBrush="#3A3222" BorderThickness="1" CornerRadius="10" ClipToBounds="True">
         <Grid>
             <Grid.Background>
-                <RadialGradientBrush Center="0.2,0" GradientOrigin="0.2,0" RadiusX="0.9" RadiusY="0.9">
-                    <GradientStop Color="#0F2238" Offset="0"/>
-                    <GradientStop Color="#0A0D10" Offset="0.55"/>
-                    <GradientStop Color="#050709" Offset="1"/>
+                <RadialGradientBrush Center="0.12,0" GradientOrigin="0.12,0" RadiusX="0.8" RadiusY="0.9">
+                    <GradientStop Color="#2A1F0C" Offset="0"/>
+                    <GradientStop Color="#110F0D" Offset="0.5"/>
+                    <GradientStop Color="#0B0B0D" Offset="1"/>
                 </RadialGradientBrush>
             </Grid.Background>
             <Grid.RowDefinitions>
-                <RowDefinition Height="84"/>
+                <RowDefinition Height="88"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="36"/>
+                <RowDefinition Height="38"/>
             </Grid.RowDefinitions>
 
             <!-- header -->
             <Grid Grid.Row="0" Background="Transparent" MouseLeftButtonDown="DragWindow" Margin="30,0,20,0">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <StackPanel VerticalAlignment="Center" Margin="0,0,30,0">
-                        <TextBlock Text="KING OF THE KILL" FontSize="11" FontWeight="Bold" Foreground="#3D8EE8"/>
-                        <TextBlock FontSize="28" FontWeight="Bold"><Run Text="KOTK "/><Run Text="Hub" Foreground="#3D8EE8"/></TextBlock>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,34,0">
+                    <Path Data="{StaticResource KotK.CrownIcon}" Fill="{StaticResource KotK.GoldGradient}" Width="34" Height="34" Stretch="Uniform" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="KING OF THE KILL" FontFamily="{StaticResource KotK.Display}" FontSize="12" Foreground="{StaticResource KotK.Gold}"/>
+                        <TextBlock FontFamily="{StaticResource KotK.DisplayBold}" FontSize="30" Margin="0,-4,0,0"><Run Text="KOTK "/><Run Text="HUB" Foreground="{StaticResource KotK.Gold}"/></TextBlock>
                     </StackPanel>
-                    <Button x:Name="tabFriends" Content="Friends" Tag="friends" Click="TabClick" Height="40" Margin="0,0,10,0" Style="{StaticResource KotKButton}"/>
-                    <Button x:Name="tabParty" Content="Party" Tag="party" Click="TabClick" Height="40" Margin="0,0,10,0" Style="{StaticResource KotKButton}"/>
-                    <Button x:Name="tabLeaderboard" Content="Leaderboard" Tag="leaderboard" Click="TabClick" Height="40" Margin="0,0,10,0" Style="{StaticResource KotKButton}"/>
-                    <Button x:Name="tabProfile" Content="Profile" Tag="profile" Click="TabClick" Height="40" Margin="0,0,10,0" Style="{StaticResource KotKButton}"/>
-                    <Button x:Name="tabVoice" Content="Settings" Tag="voice" Click="TabClick" Height="40" Style="{StaticResource KotKButton}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Stretch">
+                    <Button x:Name="tabFriends" Content="FRIENDS" Tag="friends" Click="TabClick" FontSize="17" Padding="10,0" Margin="0,0,14,0" Style="{StaticResource KotK.TabButton}"/>
+                    <Button x:Name="tabParty" Content="PARTY" Tag="party" Click="TabClick" FontSize="17" Padding="10,0" Margin="0,0,14,0" Style="{StaticResource KotK.TabButton}"/>
+                    <Button x:Name="tabLeaderboard" Content="LEADERBOARD" Tag="leaderboard" Click="TabClick" FontSize="17" Padding="10,0" Margin="0,0,14,0" Style="{StaticResource KotK.TabButton}"/>
+                    <Button x:Name="tabProfile" Content="PROFILE" Tag="profile" Click="TabClick" FontSize="17" Padding="10,0" Margin="0,0,14,0" Style="{StaticResource KotK.TabButton}"/>
+                    <Button x:Name="tabVoice" Content="SETTINGS" Tag="voice" Click="TabClick" FontSize="17" Padding="10,0" Style="{StaticResource KotK.TabButton}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Background="#0B1622" BorderBrush="#1E5A8A" BorderThickness="1" CornerRadius="9" Padding="14,0" Height="40" Margin="0,0,10,0">
+                    <Border Background="#141416" BorderBrush="{StaticResource KotK.BorderStrong}" BorderThickness="1" CornerRadius="3" Padding="14,0" Height="38" Margin="0,0,10,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Ellipse x:Name="meDot" Width="9" Height="9" Fill="#52B84A" Margin="0,0,8,0"/>
-                            <TextBlock x:Name="meName" Text="Signing in..." FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <Ellipse x:Name="meDot" Width="9" Height="9" Fill="{StaticResource KotK.Online}" Margin="0,0,9,0"/>
+                            <TextBlock x:Name="meName" Text="Signing in..." FontFamily="{StaticResource KotK.Display}" FontSize="16" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
-                    <Button Content="✕" Width="40" Height="40" Padding="0" Click="CloseClick" Style="{StaticResource KotKButton}"/>
+                    <Button Width="38" Height="38" Padding="0" Click="CloseClick" Style="{StaticResource KotK.DangerButton}" ToolTip="Close">
+                        <Path Data="{DynamicResource XIcon}" Width="13" Height="13" Stretch="Uniform" Fill="#F0A39E"/>
+                    </Button>
                 </StackPanel>
             </Grid>
+            <Rectangle Grid.Row="0" Height="1" VerticalAlignment="Bottom" Fill="{StaticResource KotK.GoldLine}" Margin="30,0"/>
 
             <!-- FRIENDS -->
-            <Grid x:Name="pageFriends" Grid.Row="1" Margin="30,4,30,0">
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/><ColumnDefinition Width="360"/></Grid.ColumnDefinitions>
+            <Grid x:Name="pageFriends" Grid.Row="1" Margin="30,20,30,0">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="28"/><ColumnDefinition Width="370"/></Grid.ColumnDefinitions>
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                    <TextBlock x:Name="friendsHeading" Text="YOUR FRIENDS" Style="{StaticResource Heading}"/>
-                    <ListBox x:Name="friendsList" Grid.Row="1" Style="{StaticResource KotKList}" ItemTemplate="{StaticResource PersonRow}"
+                    <TextBlock x:Name="friendsHeading" Text="YOUR FRIENDS" Style="{StaticResource KotK.Heading}"/>
+                    <ListBox x:Name="friendsList" Grid.Row="1" Style="{StaticResource KotK.List}" ItemTemplate="{StaticResource KotK.PersonRow}"
                              SelectionChanged="FriendSelectionChanged" MouseDoubleClick="MessageFriendClick"/>
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
-                        <Button x:Name="messageButton" Content="MESSAGE" Click="MessageFriendClick" Margin="0,0,8,0" Style="{StaticResource KotKButton}" IsEnabled="False"/>
-                        <Button x:Name="inviteButton" Content="INVITE TO PARTY" Click="InviteFriendClick" Margin="0,0,8,0" Style="{StaticResource KotKButton}" IsEnabled="False"/>
-                        <Button x:Name="removeButton" Content="REMOVE" Click="RemoveFriendClick" Style="{StaticResource KotKButton}" IsEnabled="False"/>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,12,0,0">
+                        <Button x:Name="messageButton" Content="MESSAGE" Click="MessageFriendClick" Height="38" Margin="0,0,8,0" Style="{StaticResource KotK.Button}" IsEnabled="False"/>
+                        <Button x:Name="inviteButton" Content="INVITE TO PARTY" Click="InviteFriendClick" Height="38" Margin="0,0,8,0" Style="{StaticResource KotK.GoldButton}" IsEnabled="False"/>
+                        <Button x:Name="removeButton" Content="REMOVE" Click="RemoveFriendClick" Height="38" Style="{StaticResource KotK.DangerButton}" IsEnabled="False"/>
                     </StackPanel>
                 </Grid>
                 <Grid Grid.Column="2">
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                    <TextBlock Text="ADD A FRIEND" Style="{StaticResource Heading}"/>
-                    <Grid Grid.Row="1" Margin="0,0,0,20">
+                    <TextBlock Text="ADD A FRIEND" Style="{StaticResource KotK.Heading}"/>
+                    <Grid Grid.Row="1" Margin="0,0,0,22">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                        <TextBox x:Name="addFriendBox" Style="{StaticResource KotKField}" MaxLength="24" KeyDown="AddFriendKeyDown"/>
-                        <Button Grid.Column="1" Content="ADD" Click="AddFriendClick" Margin="8,0,0,0" Style="{StaticResource KotKButton}"/>
+                        <TextBox x:Name="addFriendBox" Style="{StaticResource KotK.Field}" Height="38" MaxLength="24" KeyDown="AddFriendKeyDown"/>
+                        <Button Grid.Column="1" Content="ADD" Click="AddFriendClick" Height="38" Margin="8,0,0,0" Style="{StaticResource KotK.GoldButton}"/>
                     </Grid>
-                    <TextBlock Grid.Row="2" x:Name="invitesHeading" Text="REQUESTS AND INVITATIONS" Style="{StaticResource Heading}"/>
-                    <ListBox x:Name="invitesList" Grid.Row="3" Style="{StaticResource KotKList}" ItemTemplate="{StaticResource PersonRow}" SelectionChanged="InviteSelectionChanged"/>
-                    <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,10,0,0">
-                        <Button x:Name="acceptButton" Content="ACCEPT" Click="AcceptInviteClick" Margin="0,0,8,0" Style="{StaticResource KotKButton}" IsEnabled="False"/>
-                        <Button x:Name="declineButton" Content="DECLINE" Click="DeclineInviteClick" Style="{StaticResource KotKButton}" IsEnabled="False"/>
+                    <TextBlock Grid.Row="2" x:Name="invitesHeading" Text="REQUESTS AND INVITATIONS" Style="{StaticResource KotK.Heading}"/>
+                    <ListBox x:Name="invitesList" Grid.Row="3" Style="{StaticResource KotK.List}" ItemTemplate="{StaticResource KotK.PersonRow}" SelectionChanged="InviteSelectionChanged"/>
+                    <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,12,0,0">
+                        <Button x:Name="acceptButton" Content="ACCEPT" Click="AcceptInviteClick" Height="38" Margin="0,0,8,0" Style="{StaticResource KotK.GoldButton}" IsEnabled="False"/>
+                        <Button x:Name="declineButton" Content="DECLINE" Click="DeclineInviteClick" Height="38" Style="{StaticResource KotK.DangerButton}" IsEnabled="False"/>
                     </StackPanel>
                 </Grid>
             </Grid>
 
             <!-- PARTY -->
-            <Grid x:Name="pageParty" Grid.Row="1" Margin="30,4,30,0" Visibility="Collapsed">
+            <Grid x:Name="pageParty" Grid.Row="1" Margin="30,20,30,0" Visibility="Collapsed">
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                <TextBlock x:Name="partyHeading" Text="YOUR PARTY" Style="{StaticResource Heading}"/>
+                <TextBlock x:Name="partyHeading" Text="YOUR PARTY" Style="{StaticResource KotK.Heading}"/>
                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
-                    <TextBlock Text="MODE" Foreground="#72889A" FontSize="12" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                    <Button x:Name="modeSolo" Content="SOLO" Tag="Solo" Click="ModeClick" Margin="0,0,6,0" Style="{StaticResource KotKButton}"/>
-                    <Button x:Name="modeDuos" Content="DUOS" Tag="Duos" Click="ModeClick" Margin="0,0,6,0" Style="{StaticResource KotKButton}"/>
-                    <Button x:Name="modeFives" Content="FIVES" Tag="Fives" Click="ModeClick" Style="{StaticResource KotKButton}"/>
+                    <TextBlock Text="MODE" Style="{StaticResource KotK.Heading}" Margin="0,0,14,0" VerticalAlignment="Center"/>
+                    <Button x:Name="modeSolo" Content="SOLO" Tag="Solo" Click="ModeClick" Margin="0,0,6,0" MinWidth="70" Style="{StaticResource KotK.ChipButton}"/>
+                    <Button x:Name="modeDuos" Content="DUOS" Tag="Duos" Click="ModeClick" Margin="0,0,6,0" MinWidth="70" Style="{StaticResource KotK.ChipButton}"/>
+                    <Button x:Name="modeFives" Content="FIVES" Tag="Fives" Click="ModeClick" MinWidth="70" Style="{StaticResource KotK.ChipButton}"/>
                 </StackPanel>
-                <ListBox x:Name="partyList" Grid.Row="2" Style="{StaticResource KotKList}" ItemTemplate="{StaticResource PersonRow}"/>
-                <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,10,0,0">
-                    <Button x:Name="readyButton" Content="READY" Click="ReadyClick" Margin="0,0,8,0" Style="{StaticResource KotKButton}"/>
-                    <Button x:Name="queueButton" Content="JOIN QUEUE" Click="QueueClick" Margin="0,0,8,0" Style="{StaticResource KotKButton}"/>
-                    <Button x:Name="leaveButton" Content="LEAVE PARTY" Click="LeaveClick" Margin="0,0,8,0" Style="{StaticResource KotKButton}"/>
-                    <Button Content="IN-GAME OVERLAY" Click="OverlayClick" Style="{StaticResource KotKButton}" ToolTip="Same as Shift+Tab in the game"/>
+                <ListBox x:Name="partyList" Grid.Row="2" Style="{StaticResource KotK.List}" ItemTemplate="{StaticResource KotK.PersonRow}"/>
+                <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,12,0,0">
+                    <Button x:Name="readyButton" Content="READY" Click="ReadyClick" Height="38" MinWidth="120" Margin="0,0,8,0" Style="{StaticResource KotK.GoldButton}"/>
+                    <Button x:Name="queueButton" Content="JOIN QUEUE" Click="QueueClick" Height="38" Margin="0,0,8,0" Style="{StaticResource KotK.Button}"/>
+                    <Button x:Name="leaveButton" Content="LEAVE PARTY" Click="LeaveClick" Height="38" Margin="0,0,8,0" Style="{StaticResource KotK.DangerButton}"/>
+                    <Button Content="IN-GAME OVERLAY" Click="OverlayClick" Height="38" Style="{StaticResource KotK.Button}" ToolTip="Same as Shift+Tab in the game"/>
                 </StackPanel>
             </Grid>
 
             <!-- LEADERBOARD -->
-            <Grid x:Name="pageLeaderboard" Grid.Row="1" Margin="30,4,30,0" Visibility="Collapsed">
+            <Grid x:Name="pageLeaderboard" Grid.Row="1" Margin="30,20,30,0" Visibility="Collapsed">
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                 <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal">
-                        <Button x:Name="boardSolo" Content="SOLO" Tag="Solo" Click="BoardModeClick" Margin="0,0,6,0" Style="{StaticResource KotKButton}"/>
-                        <Button x:Name="boardDuos" Content="DUOS" Tag="Duos" Click="BoardModeClick" Margin="0,0,6,0" Style="{StaticResource KotKButton}"/>
-                        <Button x:Name="boardFives" Content="FIVES" Tag="Fives" Click="BoardModeClick" Margin="0,0,12,0" Style="{StaticResource KotKButton}"/>
-                        <Button Content="REFRESH" Click="BoardRefreshClick" Style="{StaticResource KotKButton}"/>
+                        <Button x:Name="boardSolo" Content="SOLO" Tag="Solo" Click="BoardModeClick" Margin="0,0,6,0" MinWidth="70" Style="{StaticResource KotK.ChipButton}"/>
+                        <Button x:Name="boardDuos" Content="DUOS" Tag="Duos" Click="BoardModeClick" Margin="0,0,6,0" MinWidth="70" Style="{StaticResource KotK.ChipButton}"/>
+                        <Button x:Name="boardFives" Content="FIVES" Tag="Fives" Click="BoardModeClick" Margin="0,0,12,0" MinWidth="70" Style="{StaticResource KotK.ChipButton}"/>
+                        <Button Content="REFRESH" Click="BoardRefreshClick" Style="{StaticResource KotK.ChipButton}"/>
                     </StackPanel>
-                    <TextBlock x:Name="boardMe" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="13" Foreground="#6FB2F5"/>
+                    <TextBlock x:Name="boardMe" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" FontFamily="{StaticResource KotK.Display}" FontSize="15" Foreground="{StaticResource KotK.Gold}"/>
                 </Grid>
                 <Grid Grid.Row="1">
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/><ColumnDefinition Width="340"/></Grid.ColumnDefinitions>
-                    <ListView x:Name="boardList" Background="#0B1016" BorderBrush="#1E2A36" Foreground="#DDE3E8" SelectionChanged="BoardSelectionChanged">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="28"/><ColumnDefinition Width="340"/></Grid.ColumnDefinitions>
+                    <ListView x:Name="boardList" Style="{StaticResource KotK.Grid}" SelectionChanged="BoardSelectionChanged">
                         <ListView.View>
-                            <GridView>
-                                <GridViewColumn Header="#" Width="50" DisplayMemberBinding="{Binding Position}"/>
+                            <GridView ColumnHeaderContainerStyle="{StaticResource KotK.GridHeader}">
+                                <GridViewColumn Header="#" Width="60" DisplayMemberBinding="{Binding Position}"/>
                                 <GridViewColumn Header="PLAYER" Width="300" DisplayMemberBinding="{Binding Name}"/>
-                                <GridViewColumn Header="BEST 10 TOTAL" Width="130" DisplayMemberBinding="{Binding TotalScore}"/>
-                                <GridViewColumn Header="K/D" Width="80" DisplayMemberBinding="{Binding Kd}"/>
+                                <GridViewColumn Header="BEST 10 TOTAL" Width="140" DisplayMemberBinding="{Binding TotalScore}"/>
+                                <GridViewColumn Header="K/D" Width="90" DisplayMemberBinding="{Binding Kd}"/>
                             </GridView>
                         </ListView.View>
                     </ListView>
                     <StackPanel Grid.Column="2">
-                        <TextBlock x:Name="boardPlayer" Text="SELECT A PLAYER" FontSize="20" FontWeight="Bold" Margin="0,0,0,6"/>
-                        <TextBlock x:Name="boardStats" Text="See their ten highest scores." Foreground="#8A96A2" TextWrapping="Wrap" Margin="0,0,0,12"/>
-                        <ListView x:Name="boardBest" Height="330" Background="#0B1016" BorderBrush="#1E2A36" Foreground="#DDE3E8">
+                        <TextBlock x:Name="boardPlayer" Text="SELECT A PLAYER" FontFamily="{StaticResource KotK.DisplayBold}" FontSize="26" Margin="0,0,0,4" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock x:Name="boardStats" Text="See their ten highest scores." Foreground="{StaticResource KotK.Muted}" TextWrapping="Wrap" Margin="0,0,0,14"/>
+                        <ListView x:Name="boardBest" Height="330" Style="{StaticResource KotK.Grid}">
                             <ListView.View>
-                                <GridView>
-                                    <GridViewColumn Header="POINTS" Width="100" DisplayMemberBinding="{Binding Points}"/>
-                                    <GridViewColumn Header="PLACE" Width="100" DisplayMemberBinding="{Binding Placement}"/>
-                                    <GridViewColumn Header="KILLS" Width="100" DisplayMemberBinding="{Binding Kills}"/>
+                                <GridView ColumnHeaderContainerStyle="{StaticResource KotK.GridHeader}">
+                                    <GridViewColumn Header="POINTS" Width="105" DisplayMemberBinding="{Binding Points}"/>
+                                    <GridViewColumn Header="PLACE" Width="105" DisplayMemberBinding="{Binding Placement}"/>
+                                    <GridViewColumn Header="KILLS" Width="105" DisplayMemberBinding="{Binding Kills}"/>
                                 </GridView>
                             </ListView.View>
                         </ListView>
@@ -216,60 +206,64 @@
             </Grid>
 
             <!-- PROFILE -->
-            <StackPanel x:Name="pageProfile" Grid.Row="1" Margin="30,4,30,0" Visibility="Collapsed" Width="520" HorizontalAlignment="Left">
-                <TextBlock Text="ACCOUNT NAME" Style="{StaticResource Heading}"/>
-                <TextBlock x:Name="profileName" FontSize="22" FontWeight="Bold" Margin="0,0,0,10"/>
-                <Grid Margin="0,0,0,6">
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                    <TextBox x:Name="renameBox" Style="{StaticResource KotKField}" MaxLength="24" KeyDown="RenameKeyDown"/>
-                    <Button Grid.Column="1" Content="CHANGE NAME" Click="RenameClick" Margin="8,0,0,0" Style="{StaticResource KotKButton}"/>
-                </Grid>
-                <TextBlock Foreground="#8A96A2" TextWrapping="Wrap" Margin="0,0,0,24"
-                           Text="Shown to your friends, in your party and on the leaderboard. 3-24 letters, digits or _. Your character's in-game name is chosen in the game. The account belongs to your JSEmu account key."/>
-                <TextBlock Text="PROFILE PICTURE" Style="{StaticResource Heading}"/>
+            <StackPanel x:Name="pageProfile" Grid.Row="1" Margin="30,20,30,0" Visibility="Collapsed" Width="540" HorizontalAlignment="Left">
+                <TextBlock Text="ACCOUNT NAME" Style="{StaticResource KotK.Heading}"/>
+                <TextBlock x:Name="profileName" FontFamily="{StaticResource KotK.DisplayBold}" FontSize="30" Margin="0,-4,0,6"/>
+                <TextBlock Foreground="{StaticResource KotK.Muted}" TextWrapping="Wrap" Margin="0,0,0,28" FontSize="13"
+                           Text="Your name is your in-game character name. It is shown to your friends, in your party and on the leaderboard. The account belongs to your JSEmu account key."/>
+                <TextBlock Text="PROFILE PICTURE" Style="{StaticResource KotK.Heading}"/>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                    <Border Width="96" Height="96" CornerRadius="10" Background="#1A222C" ClipToBounds="True" Margin="0,0,16,0">
-                        <Image x:Name="profilePicture" Stretch="UniformToFill"/>
+                    <Border Width="100" Height="100" CornerRadius="3" Background="#1D1A14" BorderBrush="{StaticResource KotK.Gold}" BorderThickness="1" ClipToBounds="True" Margin="0,0,18,0">
+                        <Grid>
+                            <Path Data="{StaticResource KotK.PersonIcon}" Fill="#3A3222" Width="46" Height="46" Stretch="Uniform"/>
+                            <Image x:Name="profilePicture" Stretch="UniformToFill"/>
+                        </Grid>
                     </Border>
                     <StackPanel VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <Button Content="CHOOSE PICTURE" Click="ChoosePictureClick" Margin="0,0,8,0" Style="{StaticResource KotKButton}"/>
-                            <Button Content="REMOVE" Click="RemovePictureClick" Style="{StaticResource KotKButton}"/>
+                            <Button Content="CHOOSE PICTURE" Click="ChoosePictureClick" Margin="0,0,8,0" Style="{StaticResource KotK.Button}"/>
+                            <Button Content="REMOVE" Click="RemovePictureClick" Style="{StaticResource KotK.DangerButton}"/>
                         </StackPanel>
-                        <Button x:Name="savePictureButton" Content="SAVE PICTURE" Click="SavePictureClick" HorizontalAlignment="Left" IsEnabled="False" Style="{StaticResource KotKButton}"/>
+                        <Button x:Name="savePictureButton" Content="SAVE PICTURE" Click="SavePictureClick" HorizontalAlignment="Left" IsEnabled="False" Style="{StaticResource KotK.GoldButton}"/>
                     </StackPanel>
                 </StackPanel>
-                <TextBlock Foreground="#8A96A2" Text="PNG or JPEG, up to 8 MB. A square crop is shown to your friends and in your lobby."/>
+                <TextBlock Foreground="{StaticResource KotK.Muted}" FontSize="13" Text="PNG or JPEG, up to 8 MB. A square crop is shown to your friends and in your lobby."/>
             </StackPanel>
 
             <!-- VOICE -->
-            <StackPanel x:Name="pageVoice" Grid.Row="1" Margin="30,4,30,0" Visibility="Collapsed" Width="620" HorizontalAlignment="Left">
-                <CheckBox x:Name="voiceEnabled" Content="Enable proximity voice" Foreground="#DDE3E8" FontSize="14" Margin="0,0,0,16"/>
-                <TextBlock Text="MICROPHONE" Style="{StaticResource Heading}"/>
-                <ComboBox x:Name="voiceInput" Height="34" Margin="0,0,0,14" Style="{DynamicResource ComboBoxStyle}" Background="#11151A" BorderBrush="#1E5A8A" Foreground="#E7E9ED"/>
-                <TextBlock Text="SPEAKERS / HEADPHONES" Style="{StaticResource Heading}"/>
-                <ComboBox x:Name="voiceOutput" Height="34" Margin="0,0,0,14" Style="{DynamicResource ComboBoxStyle}" Background="#11151A" BorderBrush="#1E5A8A" Foreground="#E7E9ED"/>
-                <TextBlock Text="PUSH-TO-TALK OVERRIDE (OPTIONAL, E.G. KP_4, MOUSE_2 OR ALT+V)" Style="{StaticResource Heading}"/>
-                <TextBox x:Name="voiceKey" Style="{StaticResource KotKField}" Margin="0,0,0,14"/>
-                <TextBlock x:Name="voiceVolumeLabel" Text="VOICE VOLUME" Style="{StaticResource Heading}"/>
-                <Slider x:Name="voiceVolume" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Margin="0,0,0,14" ValueChanged="VoiceVolumeChanged"/>
-                <TextBlock Foreground="#8A96A2" TextWrapping="Wrap" Margin="0,0,0,12"
-                           Text="Hold your proximity key while in the game. Default: middle mouse / numpad 4. Alt+M mutes voice."/>
-                <TextBlock Text="GAME FIXES" Style="{StaticResource Heading}" Margin="0,4,0,8"/>
-                <CheckBox x:Name="hideOwnTracers" Foreground="#DDE3E8" FontSize="14" Margin="0,0,0,4"
-                          Content="Hide my own bullet tracers (enemy tracers stay visible)"/>
-                <TextBlock Foreground="#8A96A2" TextWrapping="Wrap" Margin="0,0,0,10" FontSize="12"
-                           Text="Applies from the next match you enter."/>
-                <CheckBox x:Name="clientFixes" Foreground="#DDE3E8" FontSize="14" Margin="0,0,0,4"
-                          Content="Experimental client fixes (loot during reload, binocular scope, throwables)"/>
-                <TextBlock Foreground="#E8A33D" TextWrapping="Wrap" Margin="0,0,0,14" FontSize="12"
-                           Text="Off by default: with them on, the game has crashed when entering a match or logging out. Applies from the next Play."/>
-                <Button Content="SAVE SETTINGS" Click="SaveVoiceClick" HorizontalAlignment="Left" Style="{StaticResource KotKButton}" Margin="0,0,0,12"/>
-                <TextBlock x:Name="voiceStatus" Foreground="#6FB2F5" TextWrapping="Wrap"/>
-            </StackPanel>
+            <ScrollViewer x:Name="pageVoice" Grid.Row="1" Margin="30,20,30,0" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" Style="{DynamicResource CustomScrollViewer}">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="520"/><ColumnDefinition Width="40"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="PROXIMITY VOICE" FontFamily="{StaticResource KotK.DisplayBold}" FontSize="20" Foreground="{StaticResource KotK.Gold}" Margin="0,0,0,12"/>
+                        <CheckBox x:Name="voiceEnabled" Content="Enable proximity voice" Style="{StaticResource KotK.CheckBox}" Margin="0,0,0,16"/>
+                        <TextBlock Text="MICROPHONE" Style="{StaticResource KotK.Heading}"/>
+                        <ComboBox x:Name="voiceInput" Margin="0,0,0,14" Style="{StaticResource KotK.ComboBox}"/>
+                        <TextBlock Text="SPEAKERS / HEADPHONES" Style="{StaticResource KotK.Heading}"/>
+                        <ComboBox x:Name="voiceOutput" Margin="0,0,0,14" Style="{StaticResource KotK.ComboBox}"/>
+                        <TextBlock Text="PUSH-TO-TALK OVERRIDE (OPTIONAL, E.G. KP_4, MOUSE_2 OR ALT+V)" Style="{StaticResource KotK.Heading}"/>
+                        <TextBox x:Name="voiceKey" Style="{StaticResource KotK.Field}" Height="36" Margin="0,0,0,14"/>
+                        <TextBlock x:Name="voiceVolumeLabel" Text="VOICE VOLUME" Style="{StaticResource KotK.Heading}"/>
+                        <Slider x:Name="voiceVolume" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Margin="0,0,0,14" ValueChanged="VoiceVolumeChanged"/>
+                        <TextBlock Foreground="{StaticResource KotK.Muted}" TextWrapping="Wrap" FontSize="13"
+                                   Text="Hold your proximity key while in the game. Default: middle mouse / numpad 4. Alt+M mutes voice."/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="GAME FIXES" FontFamily="{StaticResource KotK.DisplayBold}" FontSize="20" Foreground="{StaticResource KotK.Gold}" Margin="0,0,0,12"/>
+                        <TextBlock Foreground="{StaticResource KotK.Muted}" TextWrapping="Wrap" Margin="0,0,0,10" FontSize="13" LineHeight="19"
+                                   Text="The launcher always applies the door, loot during reload, binocular scope and throwable fixes once you are in a lobby or match."/>
+                        <TextBlock Foreground="{StaticResource KotK.Muted}" TextWrapping="Wrap" Margin="0,0,0,22" FontSize="13" LineHeight="19"
+                                   Text="Your own bullet tracers are switched in the game: SHOW / HIDE MY TRACERS in the game's settings, or /tracers in chat."/>
+                        <Button Content="SAVE SETTINGS" Click="SaveVoiceClick" HorizontalAlignment="Left" Height="40" Padding="24,0" FontSize="16" Style="{StaticResource KotK.GoldButton}" Margin="0,0,0,14"/>
+                        <TextBlock x:Name="voiceStatus" Foreground="{StaticResource KotK.Gold}" TextWrapping="Wrap" FontSize="13"/>
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
 
             <!-- status line -->
-            <TextBlock x:Name="statusText" Grid.Row="2" Margin="30,0" VerticalAlignment="Center" Foreground="#8A96A2" FontSize="12" TextTrimming="CharacterEllipsis"/>
+            <Border Grid.Row="2" BorderBrush="#2B2823" BorderThickness="0,1,0,0" Margin="30,0">
+                <TextBlock x:Name="statusText" VerticalAlignment="Center" Foreground="{StaticResource KotK.Muted}" FontSize="12" TextTrimming="CharacterEllipsis"/>
+            </Border>
         </Grid>
     </Border>
 </Window>

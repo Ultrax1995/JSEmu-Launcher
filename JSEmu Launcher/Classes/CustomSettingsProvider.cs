@@ -255,7 +255,15 @@ namespace H1Emu_Launcher.Classes
         {
             get
             {
-                return $"{Info.APPLICATION_DATA_PATH}\\JSEmu Launcher\\user.config";
+                string path = $"{Info.APPLICATION_DATA_PATH}\\JSEmu Launcher\\user.config";
+                // UI preview next to a running launcher (development only): work on a copy so the
+                // preview never overwrites the player's real settings.
+                if (Environment.GetEnvironmentVariable("JSEMU_UI_PREVIEW") != "1")
+                    return path;
+                string preview = $"{Info.APPLICATION_DATA_PATH}\\JSEmu Launcher\\user.preview.config";
+                if (!File.Exists(preview) && File.Exists(path))
+                    File.Copy(path, preview);
+                return preview;
             }
 
         }

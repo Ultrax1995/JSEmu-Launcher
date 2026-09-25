@@ -14,8 +14,8 @@ namespace H1Emu_Launcher
     {
         public sealed record Line(string Author, Brush AuthorBrush, string When, string Text);
 
-        private static readonly Brush Mine = new SolidColorBrush(Color.FromRgb(0x6F, 0xB2, 0xF5));
-        private static readonly Brush Theirs = new SolidColorBrush(Color.FromRgb(0xE8, 0xA3, 0x3D));
+        private static readonly Brush Mine = new SolidColorBrush(Color.FromRgb(0xF2, 0xB2, 0x33));
+        private static readonly Brush Theirs = new SolidColorBrush(Color.FromRgb(0xE8, 0xE2, 0xD6));
 
         private readonly string friendId;
         private readonly string friendDisplayName;

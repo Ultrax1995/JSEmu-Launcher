@@ -8,48 +8,59 @@
         WindowStartupLocation="CenterOwner"
         Width="520" Height="520"
         UseLayoutRounding="True"
-        FontFamily="Bahnschrift Light"
-        Foreground="#DDE3E8"
+        FontFamily="Bahnschrift"
+        Foreground="#EEEAE2"
         Loaded="WindowLoaded" Activated="WindowActivated" Closed="WindowClosed">
 
     <!-- KOTK private messages with one friend. Saved on the server; offline friends read them later. -->
-    <Border Background="#080B0E" BorderBrush="#1E2A36" BorderThickness="1" CornerRadius="15" ClipToBounds="True">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="KotKTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border Background="#0B0B0D" BorderBrush="#3A3222" BorderThickness="1" CornerRadius="10" ClipToBounds="True">
         <Grid Margin="20,0,20,14">
             <Grid.RowDefinitions>
-                <RowDefinition Height="60"/>
+                <RowDefinition Height="66"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid Background="Transparent" MouseLeftButtonDown="DragWindow">
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="KOTK MESSAGES" FontSize="10" FontWeight="Bold" Foreground="#3D8EE8"/>
-                    <TextBlock x:Name="friendName" FontSize="20" FontWeight="Bold"/>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <Path Data="{StaticResource KotK.ChatIcon}" Fill="{StaticResource KotK.GoldGradient}" Width="24" Height="24" Stretch="Uniform" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="KOTK MESSAGES" FontFamily="{StaticResource KotK.Display}" FontSize="11" Foreground="{StaticResource KotK.Gold}"/>
+                    <TextBlock x:Name="friendName" FontFamily="{StaticResource KotK.DisplayBold}" FontSize="24" Margin="0,-3,0,0" TextTrimming="CharacterEllipsis"/>
                 </StackPanel>
-                <Button Grid.Column="1" Content="✕" Width="34" Height="34" Click="CloseClick" Cursor="Hand"
-                        Background="#151A20" Foreground="#DDE3E8" BorderBrush="#2C3540" VerticalAlignment="Center"/>
+                <Button Grid.Column="2" Width="34" Height="34" Padding="0" Click="CloseClick" VerticalAlignment="Center" Style="{StaticResource KotK.DangerButton}" ToolTip="Close">
+                    <Path Data="{DynamicResource XIcon}" Width="12" Height="12" Stretch="Uniform" Fill="#F0A39E"/>
+                </Button>
             </Grid>
-            <ScrollViewer x:Name="historyScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" Background="#0B1016">
-                <ItemsControl x:Name="history" Margin="10">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Margin="0,0,0,12">
-                                <TextBlock FontSize="11" Foreground="#72889A"><Run Text="{Binding Author, Mode=OneWay}" Foreground="{Binding AuthorBrush, Mode=OneWay}" FontWeight="Bold"/><Run Text="  ·  "/><Run Text="{Binding When, Mode=OneWay}"/></TextBlock>
-                                <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="14" Foreground="#E7E9ED"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+            <Rectangle Height="1" VerticalAlignment="Bottom" Fill="{StaticResource KotK.GoldLine}"/>
+            <Border Grid.Row="1" Margin="0,12,0,0" Background="#990B0B0D" BorderBrush="{StaticResource KotK.Border}" BorderThickness="1" CornerRadius="3">
+                <ScrollViewer x:Name="historyScroll" VerticalScrollBarVisibility="Auto" Style="{DynamicResource CustomScrollViewer}">
+                    <ItemsControl x:Name="history" Margin="12">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,12">
+                                    <TextBlock FontSize="11" Foreground="#8E877B"><Run Text="{Binding Author, Mode=OneWay}" Foreground="{Binding AuthorBrush, Mode=OneWay}" FontFamily="Bahnschrift SemiBold Condensed" FontSize="13"/><Run Text="  ·  "/><Run Text="{Binding When, Mode=OneWay}"/></TextBlock>
+                                    <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="14" Foreground="#EEEAE2"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
             <Grid Grid.Row="2" Margin="0,10,0,0">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <TextBox x:Name="input" Height="36" MaxLength="1000" Padding="8,0" VerticalContentAlignment="Center"
-                         Background="#11151A" Foreground="#E7E9ED" BorderBrush="#1E5A8A" CaretBrush="#E7E9ED" KeyDown="InputKeyDown"/>
-                <Button Grid.Column="1" Content="SEND" Width="80" Height="36" Margin="8,0,0,0" Click="SendClick" Cursor="Hand"
-                        Background="#1A4FB8" Foreground="White" BorderBrush="#3D8EE8" FontWeight="SemiBold"/>
+                <TextBox x:Name="input" Height="38" MaxLength="1000" Style="{StaticResource KotK.Field}" KeyDown="InputKeyDown"/>
+                <Button Grid.Column="1" Content="SEND" Width="90" Height="38" Margin="8,0,0,0" Click="SendClick" FontSize="16" Style="{StaticResource KotK.GoldButton}"/>
             </Grid>
-            <TextBlock x:Name="status" Grid.Row="3" Margin="0,8,0,0" FontSize="12" Foreground="#8A96A2" TextTrimming="CharacterEllipsis"
+            <TextBlock x:Name="status" Grid.Row="3" Margin="0,8,0,0" FontSize="12" Foreground="{StaticResource KotK.Muted}" TextTrimming="CharacterEllipsis"
                        Text="Private messages are saved. Offline friends can read them when they return."/>
         </Grid>
     </Border>

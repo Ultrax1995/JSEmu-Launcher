@@ -196,6 +196,9 @@ namespace H1Emu_Launcher
 
         private void StartPipeServer()
         {
+            // UI preview next to a running launcher (development only): no argument pipe.
+            if (Environment.GetEnvironmentVariable("JSEMU_UI_PREVIEW") == "1")
+                return;
             new Thread(() =>
             {
                 while (true)
@@ -257,6 +260,13 @@ namespace H1Emu_Launcher
 
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
+            // UI preview next to a running launcher (development only): the application data belongs
+            // to the player's real launcher - never offer to delete it, just log and quit.
+            if (Environment.GetEnvironmentVariable("JSEMU_UI_PREVIEW") == "1")
+            {
+                try { File.WriteAllText(Path.Combine(Path.GetTempPath(), "jsemu-ui-preview-crash.txt"), e.ExceptionObject.ToString()); } catch { }
+                Environment.Exit(1);
+            }
             {
                 if (LauncherWindow.launcherInstance == null)
                 {

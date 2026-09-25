@@ -17,21 +17,11 @@ using NAudio.Wave;
 namespace H1Emu_Launcher
 {
     // KOTK hub: friends, party, leaderboard, profile picture and proximity voice - the Cranberry
-    // launcher's pages, driven by EditionKotK's shared session and 3 s state poll.
+    // launcher's pages, driven by EditionKotK's shared session and 3 s state poll. Friends, party
+    // and invitations are also in the launcher window (KotKSocialPanel); both use KotKSocial.
     public partial class KotKHubWindow : Window
     {
         public static KotKHubWindow Instance { get; private set; }
-
-        public sealed class PersonItem
-        {
-            public string Id { get; init; }
-            public string Name { get; init; }
-            public string Detail { get; init; }
-            public Brush Dot { get; init; }
-            public ImageSource Avatar { get; init; }
-            public string Initial => string.IsNullOrEmpty(Name) ? "?" : Name[..1].ToUpperInvariant();
-            public object Tag { get; init; }
-        }
 
         public sealed class BoardRow
         {
@@ -44,16 +34,9 @@ namespace H1Emu_Launcher
 
         private sealed record AudioDevice(int Id, string Name) { public override string ToString() => Name; }
 
-        private static readonly Brush Online = new SolidColorBrush(Color.FromRgb(0x52, 0xB8, 0x4A));
-        private static readonly Brush Offline = new SolidColorBrush(Color.FromRgb(0x4A, 0x52, 0x5A));
-        private static readonly Brush Pending = new SolidColorBrush(Color.FromRgb(0xE8, 0xA3, 0x3D));
-        private static readonly Dictionary<string, (string Version, ImageSource Image)> avatars = new();
-
-        private readonly Dictionary<string, KotKChatWindow> chats = new();
         private string boardMode = "Solo";
         private DateTime boardNextRefresh;
         private string pendingPicture;
-        private bool refreshingAvatars;
 
         public KotKHubWindow()
         {
@@ -77,6 +60,7 @@ namespace H1Emu_Launcher
             EditionKotK.StateChanged += ApplyState;
             EditionKotK.Status += ShowStatus;
             EditionKotK.VoiceStatusChanged += ShowVoiceStatus;
+            KotKSocial.AvatarsChanged += ApplyState;
             LoadVoiceSettings();
             ShowVoiceStatus();
             ShowPage("friends");
@@ -89,7 +73,7 @@ namespace H1Emu_Launcher
             catch (Exception ex)
             {
                 meName.Text = "Not signed in";
-                meDot.Fill = Offline;
+                meDot.Fill = KotKSocial.Offline;
                 ShowStatus(ex.Message);
             }
             ApplyState();
@@ -101,7 +85,7 @@ namespace H1Emu_Launcher
             EditionKotK.StateChanged -= ApplyState;
             EditionKotK.Status -= ShowStatus;
             EditionKotK.VoiceStatusChanged -= ShowVoiceStatus;
-            foreach (var chat in chats.Values.ToArray()) chat.Close();
+            KotKSocial.AvatarsChanged -= ApplyState;
             Instance = null;
         }
 
@@ -124,7 +108,7 @@ namespace H1Emu_Launcher
             pageProfile.Visibility = page == "profile" ? Visibility.Visible : Visibility.Collapsed;
             pageVoice.Visibility = page == "voice" ? Visibility.Visible : Visibility.Collapsed;
             foreach (var (button, tag) in new[] { (tabFriends, "friends"), (tabParty, "party"), (tabLeaderboard, "leaderboard"), (tabProfile, "profile"), (tabVoice, "voice") })
-                button.BorderBrush = tag == page ? (Brush)FindResource("Accent") : new SolidColorBrush(Color.FromRgb(0x2C, 0x35, 0x40));
+                KotKSocial.MarkTab(button, tag == page);
             if (page == "leaderboard")
                 await RefreshBoard(false);
         }
@@ -137,87 +121,26 @@ namespace H1Emu_Launcher
                 return;
             meName.Text = state.Me.Name;
             profileName.Text = state.Me.Name;
-            meDot.Fill = Online;
+            meDot.Fill = KotKSocial.Online;
 
-            string selectedFriend = (friendsList.SelectedItem as PersonItem)?.Id;
-            friendsList.ItemsSource = state.Friends.Select(p => new PersonItem
-            {
-                Id = p.AccountId,
-                Name = p.Name,
-                Detail = (p.Online ? p.GameStatus : "Offline")
-                    + (EditionKotK.Unread.TryGetValue(p.AccountId, out int unread) && unread > 0 ? $" · {unread} unread" : ""),
-                Dot = p.Online ? Online : Offline,
-                Avatar = AvatarOf(p.AccountId),
-                Tag = p
-            }).ToList();
-            friendsList.SelectedItem = ((List<PersonItem>)friendsList.ItemsSource).FirstOrDefault(i => i.Id == selectedFriend);
+            KotKSocial.Fill(friendsList, KotKSocial.Friends(state));
             friendsHeading.Text = $"YOUR FRIENDS  ({state.Friends.Count(p => p.Online)}/{state.Friends.Count})";
 
-            string selectedInvite = (invitesList.SelectedItem as PersonItem)?.Id;
-            invitesList.ItemsSource = state.Invites.Select(i => new PersonItem
-            {
-                Id = i.Id,
-                Name = i.FromName,
-                Detail = i.Kind.Equals("Friend", StringComparison.OrdinalIgnoreCase) ? "Friend request" : "Party invitation",
-                Dot = Pending,
-                Tag = i
-            }).ToList();
-            invitesList.SelectedItem = ((List<PersonItem>)invitesList.ItemsSource).FirstOrDefault(i => i.Id == selectedInvite);
+            KotKSocial.Fill(invitesList, KotKSocial.Invites(state));
             invitesHeading.Text = state.Invites.Count == 0 ? "REQUESTS AND INVITATIONS" : $"REQUESTS AND INVITATIONS ({state.Invites.Count})";
-            tabFriends.Content = state.Invites.Count == 0 ? "Friends" : $"Friends ({state.Invites.Count})";
+            tabFriends.Content = state.Invites.Count == 0 ? "FRIENDS" : $"FRIENDS ({state.Invites.Count})";
 
             ApplyParty(state);
             UpdateFriendButtons();
-            _ = RefreshAvatars(state);
-            foreach (var chat in chats.Values) chat.Refresh();
-        }
-
-        private static ImageSource AvatarOf(string accountId) =>
-            avatars.TryGetValue(accountId, out var avatar) ? avatar.Image : null;
-
-        // Pictures are fetched only when a person's avatar version changes.
-        private async Task RefreshAvatars(LauncherState state)
-        {
-            if (refreshingAvatars) return;
-            refreshingAvatars = true;
-            bool changed = false;
-            try
-            {
-                foreach (var person in state.Friends.Prepend(state.Me))
-                {
-                    if (avatars.TryGetValue(person.AccountId, out var old) && old.Version == person.AvatarVersion) continue;
-                    var view = person.AvatarVersion.Length == 0 ? new AvatarView("", "")
-                        : await EditionKotK.Get<AvatarView>("api/profile/" + Uri.EscapeDataString(person.AccountId) + "/avatar");
-                    avatars[person.AccountId] = (view.Version, ToImage(view.Pixels));
-                    changed = true;
-                }
-            }
-            catch (Exception ex) { EditionKotK.Log("avatars: " + ex.Message); }
-            finally { refreshingAvatars = false; }
             if (pendingPicture == null)
-                profilePicture.Source = AvatarOf(state.Me.AccountId);
-            if (changed) ApplyState();
+                profilePicture.Source = KotKSocial.AvatarOf(state.Me.AccountId);
+            _ = KotKSocial.RefreshAvatars(state);
         }
 
-        public static ImageSource ToImage(string pixels)
+        private async Task Run(Task<string> action)
         {
-            if (string.IsNullOrEmpty(pixels)) return null;
-            AvatarPixels.Validate(pixels);
-            byte[] rgb = Convert.FromHexString(pixels);
-            var bitmap = BitmapSource.Create(AvatarPixels.Size, AvatarPixels.Size, 96, 96, PixelFormats.Rgb24, null, rgb, AvatarPixels.Size * 3);
-            bitmap.Freeze();
-            return bitmap;
-        }
-
-        private async Task Run(Func<Task> action, string done = null)
-        {
-            try
-            {
-                await action();
-                if (done != null) ShowStatus(done);
-                await EditionKotK.Poll();
-            }
-            catch (Exception ex) { ShowStatus(ex.Message); }
+            string text = await action;
+            if (text != null) ShowStatus(text);
         }
 
         // ---- friends ----------------------------------------------------------------------------
@@ -226,7 +149,7 @@ namespace H1Emu_Launcher
 
         private void UpdateFriendButtons()
         {
-            var friend = (friendsList.SelectedItem as PersonItem)?.Tag as Person;
+            var friend = (friendsList.SelectedItem as KotKSocial.PersonItem)?.Tag as Person;
             messageButton.IsEnabled = friend != null;
             removeButton.IsEnabled = friend != null;
             inviteButton.IsEnabled = friend?.Online == true;
@@ -239,8 +162,7 @@ namespace H1Emu_Launcher
         {
             string name = addFriendBox.Text.Trim();
             if (name.Length == 0) return;
-            await Run(async () => { await EditionKotK.Post("api/friends", new TargetRequest(name)); addFriendBox.Text = ""; },
-                $"Friend request sent to {name}.");
+            await Run(KotKSocial.AddFriend(name, () => addFriendBox.Text = ""));
         }
 
         private void AddFriendKeyDown(object sender, KeyEventArgs e)
@@ -250,15 +172,15 @@ namespace H1Emu_Launcher
 
         private async void RemoveFriendClick(object sender, RoutedEventArgs e)
         {
-            if ((friendsList.SelectedItem as PersonItem)?.Tag is not Person friend) return;
+            if ((friendsList.SelectedItem as KotKSocial.PersonItem)?.Tag is not Person friend) return;
             if (CustomMessageBox.Show($"Remove {friend.Name} from your KOTK friends?", this, false, true, true) != MessageBoxResult.Yes) return;
-            await Run(() => EditionKotK.Post("api/friends/remove", new TargetRequest(friend.AccountId)), $"{friend.Name} removed.");
+            await Run(KotKSocial.RemoveFriend(friend));
         }
 
         private async void InviteFriendClick(object sender, RoutedEventArgs e)
         {
-            if ((friendsList.SelectedItem as PersonItem)?.Tag is not Person friend) return;
-            await Run(() => EditionKotK.Post("api/party/invite", new TargetRequest(friend.AccountId)), $"Party invitation sent to {friend.Name}.");
+            if ((friendsList.SelectedItem as KotKSocial.PersonItem)?.Tag is not Person friend) return;
+            await Run(KotKSocial.InviteToParty(friend));
         }
 
         private async void AcceptInviteClick(object sender, RoutedEventArgs e) => await RespondInvite(true);
@@ -266,75 +188,51 @@ namespace H1Emu_Launcher
 
         private async Task RespondInvite(bool accept)
         {
-            if ((invitesList.SelectedItem as PersonItem)?.Tag is not SocialInvite invite) return;
-            bool party = !invite.Kind.Equals("Friend", StringComparison.OrdinalIgnoreCase);
-            await Run(() => EditionKotK.Post("api/invites/respond", new RespondRequest(invite.Id, accept)),
-                !accept ? "Declined." : party ? $"You joined {invite.FromName}'s party." : $"{invite.FromName} is now your friend.");
-            if (accept && party) ShowPage("party");
+            if ((invitesList.SelectedItem as KotKSocial.PersonItem)?.Tag is not SocialInvite invite) return;
+            await Run(KotKSocial.Respond(invite, accept));
+            if (accept && !KotKSocial.IsFriendRequest(invite)) ShowPage("party");
         }
 
         private void MessageFriendClick(object sender, RoutedEventArgs e)
         {
-            if ((friendsList.SelectedItem as PersonItem)?.Tag is not Person friend) return;
-            if (chats.TryGetValue(friend.AccountId, out var open))
-            {
-                open.Activate();
-                return;
-            }
-            var chat = new KotKChatWindow(friend.AccountId, friend.Name) { Owner = this };
-            chats[friend.AccountId] = chat;
-            chat.Closed += (_, _) => chats.Remove(friend.AccountId);
-            chat.Show();
+            if ((friendsList.SelectedItem as KotKSocial.PersonItem)?.Tag is Person friend)
+                KotKSocial.OpenChat(friend);
         }
 
         // ---- party ------------------------------------------------------------------------------
-        private bool IsReady(LauncherState state) =>
-            state.Lobby?.Members.Any(m => m.AccountId == state.Me.AccountId && m.Ready) == true;
-
         private void ApplyParty(LauncherState state)
         {
             var lobby = state.Lobby;
-            bool leader = lobby == null || lobby.LeaderId == state.Me.AccountId;
+            bool leader = KotKSocial.IsLeader(state);
             string mode = lobby?.Mode ?? "Duos";
             foreach (var button in new[] { modeSolo, modeDuos, modeFives })
             {
                 button.IsEnabled = leader && lobby?.InGame != true;
-                button.BorderBrush = (string)button.Tag == mode ? (Brush)FindResource("Accent") : new SolidColorBrush(Color.FromRgb(0x2C, 0x35, 0x40));
+                KotKSocial.MarkChoice(button, (string)button.Tag == mode);
             }
-            var members = lobby?.Members.ToList() ?? new List<LobbyMember> { new(state.Me.AccountId, state.Me.Name, false, true, state.Me.GameStatus) };
-            partyList.ItemsSource = members.Select(m => new PersonItem
-            {
-                Id = m.AccountId,
-                Name = m.Name + (lobby != null && m.AccountId == lobby.LeaderId ? "  (leader)" : ""),
-                Detail = (m.Ready ? "Ready" : "Not ready") + "  ·  " + (m.Online ? m.GameStatus : "Offline"),
-                Dot = m.Ready ? Online : m.Online ? Pending : Offline,
-                Avatar = AvatarOf(m.AccountId)
-            }).ToList();
+            var members = KotKSocial.PartyMembers(state);
+            partyList.ItemsSource = members;
             partyHeading.Text = lobby == null ? "YOUR PARTY - invite friends from the Friends tab" : $"YOUR PARTY  ({members.Count})";
-            readyButton.Content = IsReady(state) ? "UNREADY" : "READY";
+            readyButton.Content = KotKSocial.IsReady(state) ? "UNREADY" : "READY";
             readyButton.IsEnabled = lobby?.InGame != true;
-            queueButton.IsEnabled = leader && lobby != null && !lobby.InGame && lobby.Members.All(m => m.Ready && m.Online && m.GameStatus == "Menu");
+            queueButton.IsEnabled = KotKSocial.CanQueue(state);
             leaveButton.IsEnabled = lobby != null;
-            tabParty.Content = lobby == null ? "Party" : $"Party ({members.Count})";
+            tabParty.Content = lobby == null ? "PARTY" : $"PARTY ({members.Count})";
             if (lobby?.InGame == true)
                 ShowStatus("You are in the same game lobby. The leader can select Duos or Fives and queue from the game menu.");
         }
 
         private async void ModeClick(object sender, RoutedEventArgs e) =>
-            await Run(() => EditionKotK.Post("api/party/mode", new ModeRequest((string)((Button)sender).Tag)), "Party mode changed.");
+            await Run(KotKSocial.SetMode((string)((Button)sender).Tag));
 
         private async void ReadyClick(object sender, RoutedEventArgs e)
         {
-            var state = EditionKotK.State;
-            if (state == null) return;
-            await Run(() => EditionKotK.Post("api/party/ready", new ReadyRequest(!IsReady(state))), "Party updated.");
+            if (EditionKotK.State is { } state) await Run(KotKSocial.ToggleReady(state));
         }
 
-        private async void QueueClick(object sender, RoutedEventArgs e) =>
-            await Run(() => EditionKotK.Post("api/party/queue", new { }), "Queued. Return to the game to join when it is ready.");
+        private async void QueueClick(object sender, RoutedEventArgs e) => await Run(KotKSocial.Queue());
 
-        private async void LeaveClick(object sender, RoutedEventArgs e) =>
-            await Run(() => EditionKotK.Post("api/party/leave", new { }), "Party left.");
+        private async void LeaveClick(object sender, RoutedEventArgs e) => await Run(KotKSocial.Leave());
 
         private async void OverlayClick(object sender, RoutedEventArgs e) => await EditionKotK.ToggleOverlay();
 
@@ -350,7 +248,7 @@ namespace H1Emu_Launcher
         private async Task RefreshBoard(bool force)
         {
             foreach (var button in new[] { boardSolo, boardDuos, boardFives })
-                button.BorderBrush = (string)button.Tag == boardMode ? (Brush)FindResource("Accent") : new SolidColorBrush(Color.FromRgb(0x2C, 0x35, 0x40));
+                KotKSocial.MarkChoice(button, (string)button.Tag == boardMode);
             if (!force && DateTime.UtcNow < boardNextRefresh) return;
             boardNextRefresh = DateTime.UtcNow.AddSeconds(15);
             try
@@ -392,23 +290,6 @@ namespace H1Emu_Launcher
         }
 
         // ---- account name -----------------------------------------------------------------------
-        private async void RenameClick(object sender, RoutedEventArgs e)
-        {
-            string name = renameBox.Text.Trim();
-            if (name.Length == 0) return;
-            if (!System.Text.RegularExpressions.Regex.IsMatch(name, "^[a-zA-Z0-9_]{3,24}$"))
-            {
-                ShowStatus("The name must be 3-24 letters, digits or _.");
-                return;
-            }
-            await Run(async () => { await EditionKotK.Rename(name); renameBox.Text = ""; }, $"Your name is now {name}.");
-        }
-
-        private void RenameKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter) RenameClick(sender, e);
-        }
-
         // ---- profile picture --------------------------------------------------------------------
         private void ChoosePictureClick(object sender, RoutedEventArgs e)
         {
@@ -417,7 +298,7 @@ namespace H1Emu_Launcher
             try
             {
                 pendingPicture = ProfilePictures.Load(dialog.FileName);
-                profilePicture.Source = ToImage(pendingPicture);
+                profilePicture.Source = KotKSocial.ToImage(pendingPicture);
                 savePictureButton.IsEnabled = true;
             }
             catch (Exception ex) when (ex is ArgumentException or OutOfMemoryException or System.IO.IOException or InvalidOperationException)
@@ -436,12 +317,12 @@ namespace H1Emu_Launcher
         private async void SavePictureClick(object sender, RoutedEventArgs e)
         {
             if (pendingPicture == null) return;
-            await Run(async () =>
+            await Run(KotKSocial.Run(async () =>
             {
                 await EditionKotK.Post<AvatarView>("api/profile/avatar", new AvatarRequest(pendingPicture));
                 pendingPicture = null;
                 savePictureButton.IsEnabled = false;
-            }, "Profile picture saved. Your friends see it automatically.");
+            }, "Profile picture saved. Your friends see it automatically."));
         }
 
         // ---- voice ------------------------------------------------------------------------------
@@ -449,8 +330,6 @@ namespace H1Emu_Launcher
         {
             var settings = Properties.Settings.Default;
             voiceEnabled.IsChecked = settings.kotkVoiceEnabled;
-            clientFixes.IsChecked = settings.kotkClientFixes;
-            hideOwnTracers.IsChecked = settings.kotkHideOwnTracers;
             voiceKey.Text = settings.kotkVoiceKey ?? "";
             voiceVolume.Value = Math.Clamp(settings.kotkVoiceVolume, 0, 100);
             voiceInput.Items.Clear();
@@ -480,8 +359,6 @@ namespace H1Emu_Launcher
             settings.kotkVoiceOutput = (voiceOutput.SelectedItem as AudioDevice)?.Id ?? -1;
             settings.kotkVoiceVolume = (int)voiceVolume.Value;
             settings.kotkVoiceKey = voiceKey.Text.Trim();
-            settings.kotkClientFixes = clientFixes.IsChecked == true;
-            settings.kotkHideOwnTracers = hideOwnTracers.IsChecked == true;
             settings.Save();
             ShowStatus("Settings saved.");
             await EditionKotK.RestartVoice();

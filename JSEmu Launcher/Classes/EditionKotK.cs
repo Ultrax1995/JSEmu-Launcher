@@ -66,6 +66,8 @@ namespace H1Emu_Launcher.Classes
         public static event Action StateChanged;
         public static event Action<SocialInvite> InviteReceived;
         public static event Action<string> Status;
+        /// <summary>Raised on the UI thread when a state poll could not reach the server.</summary>
+        public static event Action<string> PollFailed;
 
         private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
         private static readonly HashSet<string> notifiedInvites = new();
@@ -108,14 +110,8 @@ namespace H1Emu_Launcher.Classes
             finally { _signingIn = null; }
         }
 
-        // The account name friends, party and the leaderboard show. A new account starts as Player_xxxxxx.
-        public static async Task Rename(string name)
-        {
-            var renamed = await Post<AuthSession>("api/account/name", new NameRequest(name));
-            if (Session != null)
-                Session = Session with { Name = renamed.Name };
-            await Poll();
-        }
+        // The account name friends, party and the leaderboard show is the player's in-game character
+        // name, set by the server; the launcher does not rename accounts.
 
         public static void SignOut()
         {
@@ -145,6 +141,16 @@ namespace H1Emu_Launcher.Classes
         public static Task<T> Post<T>(string route, object body) => Api<T>(HttpMethod.Post, route, body);
         public static Task Post(string route, object body) => Api<JsonElement>(HttpMethod.Post, route, body);
 
+#if DEBUG
+        // UI preview only (Debug, JSEMU_UI_PREVIEW=1 and JSEMU_UI_SAMPLE_DATA=1): shows a sample
+        // state without the server. See LauncherWindow.ShowKotKPreviewSample.
+        internal static void ShowPreviewState(LauncherState state)
+        {
+            State = state;
+            StateChanged?.Invoke();
+        }
+
+#endif
         // Called every 3 s by the launcher window while the KOTK edition is selected.
         public static async Task Poll()
         {
@@ -170,6 +176,7 @@ namespace H1Emu_Launcher.Classes
             {
                 // Offline server or a network hiccup: keep the last state, retry on the next tick.
                 Log("poll: " + ex.Message);
+                PollFailed?.Invoke(ex.Message);
             }
             finally { _polling = false; }
         }
@@ -334,15 +341,9 @@ namespace H1Emu_Launcher.Classes
         private static (Process Game, string Dir, string Exe)? _world;
         private static bool _tracersHidden;
 
-        // A choice made in game (SHOW / HIDE MY TRACERS, /tracers) wins; until there is one, the
-        // hub checkbox and the experimental fixes decide, as before.
-        private static bool WantHideOwnTracers => State?.OwnTracers switch
-        {
-            "off" => true,
-            "on" => false,
-            _ => Properties.Settings.Default.kotkHideOwnTracers || Properties.Settings.Default.kotkClientFixes
-                || (State?.HideOwnTracers ?? false),
-        };
+        // Own tracers are switched only in game (SHOW / HIDE MY TRACERS, /tracers): hidden only
+        // when the player chose HIDE there, shown otherwise.
+        private static bool WantHideOwnTracers => State?.OwnTracers == "off";
 
         private static void SyncOwnTracers()
         {
@@ -366,14 +367,14 @@ namespace H1Emu_Launcher.Classes
             // Let the world settle; a lobby left within seconds needs no fixes.
             await Task.Delay(3000);
             if (Volatile.Read(ref generation.Value) != world || game.HasExited) return;
-            var fixes = new List<Task> { BidirectionalDoors.ApplyAfterStartup(game, dir, Log) };
-            if (Properties.Settings.Default.kotkClientFixes)
+            var fixes = new List<Task>
             {
-                fixes.Add(LootReloadFix.ApplyAfterStartup(game, dir, Log));
-                fixes.Add(ThrowableCleanupFix.ApplyAfterStartup(game, dir, Log));
-                fixes.Add(BinocularScopeFix.ApplyAfterStartup(game, dir, Log));
-            }
-            // Its own switch: hiding one's own tracers is wanted without the experimental fixes.
+                BidirectionalDoors.ApplyAfterStartup(game, dir, Log),
+                LootReloadFix.ApplyAfterStartup(game, dir, Log),
+                ThrowableCleanupFix.ApplyAfterStartup(game, dir, Log),
+                BinocularScopeFix.ApplyAfterStartup(game, dir, Log)
+            };
+            // Own tracers follow the in-game switch (see WantHideOwnTracers).
             _world = (game, dir, exe);
             if (WantHideOwnTracers)
             {
