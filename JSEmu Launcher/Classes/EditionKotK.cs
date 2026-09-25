@@ -156,6 +156,7 @@ namespace H1Emu_Launcher.Classes
                 var state = await Get<LauncherState>("api/state");
                 var unread = await Get<MessageUnread[]>("api/messages/unread");
                 State = state;
+                SyncOwnTracers();
                 Unread.Clear();
                 foreach (var item in unread)
                     Unread[item.AccountId] = item.Count;
@@ -312,6 +313,7 @@ namespace H1Emu_Launcher.Classes
                         || line.Contains("newState=cClientRunStateWaitForTeleport"))
                     {
                         Interlocked.Increment(ref generation.Value);
+                        _world = null; _tracersHidden = false;
                         if (!ClientCodeRestore.Restore(game, exe, ClientCodeRestore.PatchedFunctions, Log) && relogin)
                         {
                             await RestartForMenu(game, dispatcher);
@@ -324,6 +326,31 @@ namespace H1Emu_Launcher.Classes
                         _ = Task.Run(() => ApplyInWorld(game, dir, exe, world, generation));
                     }
                 }
+            }
+        }
+
+        // The loaded world the launcher patched, and whether own tracers are hidden in it: the
+        // in-game switch (/tracers, the settings checkbox) is applied live from the polled state.
+        private static (Process Game, string Dir, string Exe)? _world;
+        private static bool _tracersHidden;
+
+        private static bool WantHideOwnTracers => Properties.Settings.Default.kotkHideOwnTracers
+            || Properties.Settings.Default.kotkClientFixes || (State?.HideOwnTracers ?? false);
+
+        private static void SyncOwnTracers()
+        {
+            if (_world is not { } world || world.Game.HasExited) return;
+            bool want = WantHideOwnTracers;
+            if (want && !_tracersHidden)
+            {
+                _tracersHidden = true;
+                _ = Task.Run(() => OwnBulletTracers.ApplyAfterStartup(world.Game, world.Dir, Log));
+            }
+            else if (!want && _tracersHidden)
+            {
+                _tracersHidden = false;
+                ClientCodeRestore.Restore(world.Game, world.Exe,
+                    ClientCodeRestore.PatchedFunctions.Where(f => f.Name == "own tracers"), Log);
             }
         }
 
@@ -340,8 +367,12 @@ namespace H1Emu_Launcher.Classes
                 fixes.Add(BinocularScopeFix.ApplyAfterStartup(game, dir, Log));
             }
             // Its own switch: hiding one's own tracers is wanted without the experimental fixes.
-            if (Properties.Settings.Default.kotkHideOwnTracers || Properties.Settings.Default.kotkClientFixes)
+            _world = (game, dir, exe);
+            if (WantHideOwnTracers)
+            {
+                _tracersHidden = true;
                 fixes.Add(OwnBulletTracers.ApplyAfterStartup(game, dir, Log));
+            }
             await Task.WhenAll(fixes);
             // A load that began while a fix was still being written must not keep it.
             if (Volatile.Read(ref generation.Value) != world && !game.HasExited)

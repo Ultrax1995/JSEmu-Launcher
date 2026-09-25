@@ -12,7 +12,7 @@ public sealed record SocialInvite(string Id, string FromId, string FromName, str
 public sealed record LobbyMember(string AccountId, string Name, bool Ready, bool Online, string GameStatus);
 public sealed record LobbyView(string Id, string LeaderId, string Mode, IReadOnlyList<LobbyMember> Members, bool InGame = false);
 public sealed record LauncherState(Person Me, IReadOnlyList<Person> Friends, IReadOnlyList<SocialInvite> Invites,
-    LobbyView? Lobby);
+    LobbyView? Lobby, bool HideOwnTracers = false);
 public sealed record TargetRequest(string Target);
 public sealed record AvatarRequest(string Pixels);
 public sealed record AvatarView(string Version, string Pixels);
