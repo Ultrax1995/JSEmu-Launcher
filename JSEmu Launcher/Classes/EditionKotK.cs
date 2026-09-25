@@ -334,8 +334,15 @@ namespace H1Emu_Launcher.Classes
         private static (Process Game, string Dir, string Exe)? _world;
         private static bool _tracersHidden;
 
-        private static bool WantHideOwnTracers => Properties.Settings.Default.kotkHideOwnTracers
-            || Properties.Settings.Default.kotkClientFixes || (State?.HideOwnTracers ?? false);
+        // A choice made in game (SHOW / HIDE MY TRACERS, /tracers) wins; until there is one, the
+        // hub checkbox and the experimental fixes decide, as before.
+        private static bool WantHideOwnTracers => State?.OwnTracers switch
+        {
+            "off" => true,
+            "on" => false,
+            _ => Properties.Settings.Default.kotkHideOwnTracers || Properties.Settings.Default.kotkClientFixes
+                || (State?.HideOwnTracers ?? false),
+        };
 
         private static void SyncOwnTracers()
         {
