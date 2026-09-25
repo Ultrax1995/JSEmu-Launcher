@@ -74,6 +74,13 @@ namespace H1Emu_Launcher
             {
                 kotkPoll.Start();
                 _ = EditionKotK.Poll();
+                if (kotkTicketPoll == null)
+                {
+                    kotkTicketPoll = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+                    kotkTicketPoll.Tick += async (_, _) => await RefreshKotKTickets();
+                }
+                kotkTicketPoll.Start();
+                _ = RefreshKotKTickets();
             }
             else
             {
@@ -98,6 +105,45 @@ namespace H1Emu_Launcher
 
         private const string KotKNotInstalledText = "Press Play - the launcher downloads KOTK (about 14.6 GB) and signs you in with your account key.";
         private const string KotKReadyText = "Ready to drop. Press Play - the launcher signs you in with your account key and starts KOTK.";
+
+        private DispatcherTimer kotkTicketPoll;
+
+        private async Task RefreshKotKTickets()
+        {
+            if (!EditionKotK.HasAccountKey) return;
+            try { ShowKotKTickets(await EditionKotK.Tickets()); }
+            catch (Exception ex) { EditionKotK.Log("tickets: " + ex.Message); }
+        }
+
+        private void ShowKotKTickets(TicketStatus t)
+        {
+            bool capped = t.EarnedToday >= t.DailyCap;
+            int minutes = t.SecondsToday % t.SecondsPerTicket / 60, perTicket = t.SecondsPerTicket / 60;
+            kotkTicketToday.Text = $"TODAY {t.EarnedToday}/{t.DailyCap}" + (t.WinTickets > 0 ? $"   ·   WIN BONUS {t.WinTickets}" : "");
+            kotkTicketProgress.Maximum = t.SecondsPerTicket;
+            kotkTicketProgress.Value = capped ? t.SecondsPerTicket : t.SecondsToday % t.SecondsPerTicket;
+            kotkTicketText.Text = capped
+                ? "Daily play-time tickets done - a win with 6+ players still earns one."
+                : $"{minutes} / {perTicket} min in matches toward the next ticket  ·  +1 for a win with 6+ players";
+            kotkTicketClaim.IsEnabled = t.Available > 0;
+            kotkTicketClaim.Content = t.Available > 0 ? $"CLAIM {t.Available}" : "CLAIM";
+        }
+
+        private async void KotKClaimTickets(object sender, RoutedEventArgs e)
+        {
+            kotkTicketClaim.IsEnabled = false;
+            try
+            {
+                var result = await EditionKotK.ClaimTickets();
+                ShowKotKTickets(result.Status);
+                kotkStatus.Text = $"Claimed {result.Claimed} event ticket{(result.Claimed == 1 ? "" : "s")} - they are on your jsemu.eu account.";
+            }
+            catch (Exception ex)
+            {
+                kotkStatus.Text = ex.Message;
+                await RefreshKotKTickets();
+            }
+        }
 
         private void ShowKotKSocial()
         {
@@ -169,6 +215,13 @@ namespace H1Emu_Launcher
 
         private async Task RunKotK(bool installOnly)
         {
+            // UI previews next to the player's own launcher never install or start the game (a
+            // click in a preview window started a 14 GB download to the default folder, 25.09).
+            if (Environment.GetEnvironmentVariable("JSEMU_UI_PREVIEW") == "1")
+            {
+                kotkStatus.Text = "UI preview: install and play are disabled.";
+                return;
+            }
             try
             {
                 if (kotkCancel != null || !EnsureKotKKey())

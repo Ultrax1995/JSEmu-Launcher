@@ -14,6 +14,11 @@ public sealed record LobbyView(string Id, string LeaderId, string Mode, IReadOnl
 public sealed record LauncherState(Person Me, IReadOnlyList<Person> Friends, IReadOnlyList<SocialInvite> Invites,
     LobbyView? Lobby, bool HideOwnTracers = false, string OwnTracers = "");
 public sealed record TargetRequest(string Target);
+/// <summary>KOTK event tickets: play time today (landed, alive, in a match), the daily play-time cap, pending win tickets.</summary>
+public sealed record TicketStatus(int SecondsToday, int SecondsPerTicket, int DailyCap, int EarnedToday, int ClaimedToday,
+    int WinTickets, int Available);
+public sealed record TicketClaimRequest(string KeyHash);
+public sealed record TicketClaimResult(int Claimed, TicketStatus Status);
 public sealed record AvatarRequest(string Pixels);
 public sealed record AvatarView(string Version, string Pixels);
 public sealed record MessageRequest(string Target, string Text, string ClientId);

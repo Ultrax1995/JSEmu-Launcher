@@ -299,6 +299,25 @@
                         <TextBlock Margin="0,18,0,0" MaxWidth="560" HorizontalAlignment="Left" TextWrapping="Wrap" FontSize="15" LineHeight="22" Foreground="#B5AE9F"
                                    Text="The 2017 King of the Kill client on the JSEmu KOTK server. Drop in with your party, loot fast, stay inside the zone and be the last one standing."/>
                     </StackPanel>
+                    <!-- JSEmu event tickets: an hour played in matches = 1 (max 3 a day), a win with 6+ players = 1 -->
+                    <Border x:Name="kotkTicketCard" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="560" Margin="0,0,0,14"
+                            Background="#E80D0D0F" BorderBrush="{StaticResource KotK.Border}" BorderThickness="1" CornerRadius="4" Padding="18,12,14,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Text="EVENT TICKETS" FontFamily="{StaticResource KotK.DisplayBold}" FontSize="16" Foreground="{StaticResource KotK.Gold}"/>
+                                    <TextBlock x:Name="kotkTicketToday" Grid.Column="1" HorizontalAlignment="Right" FontFamily="{StaticResource KotK.Display}" FontSize="13" Foreground="#D8D1C4" Margin="12,1,0,0"/>
+                                </Grid>
+                                <ProgressBar x:Name="kotkTicketProgress" Margin="0,8,0,6" Height="6" Minimum="0" Maximum="3600" Value="0" Style="{StaticResource KotK.Progress}"/>
+                                <TextBlock x:Name="kotkTicketText" FontSize="12" Foreground="{StaticResource KotK.Muted}" TextTrimming="CharacterEllipsis"
+                                           Text="Play matches to earn tickets: 1 per hour in game (max 3 a day), +1 for a win with 6+ players."/>
+                            </StackPanel>
+                            <Button x:Name="kotkTicketClaim" Grid.Column="1" Content="CLAIM" Click="KotKClaimTickets" Height="44" MinWidth="112" Padding="16,0" Margin="16,0,0,0"
+                                    FontSize="16" IsEnabled="False" Style="{StaticResource KotK.GoldButton}"/>
+                        </Grid>
+                    </Border>
 
                     <Border Grid.Row="1" Background="#E80D0D0F" BorderBrush="{StaticResource KotK.Border}" BorderThickness="1" CornerRadius="4" Padding="24,20,24,22">
                         <Grid>

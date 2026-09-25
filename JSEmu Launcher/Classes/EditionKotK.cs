@@ -138,6 +138,11 @@ namespace H1Emu_Launcher.Classes
         }
 
         public static Task<T> Get<T>(string route) => Api<T>(HttpMethod.Get, route);
+
+        // JSEmu event tickets earned in KOTK matches; a claim proves the key like the sign-in does.
+        public static Task<TicketStatus> Tickets() => Get<TicketStatus>("api/tickets");
+        public static Task<TicketClaimResult> ClaimTickets() =>
+            Post<TicketClaimResult>("api/tickets/claim", new TicketClaimRequest(AccountKeyUtil.EncryptStringSHA256(AccountKey)));
         public static Task<T> Post<T>(string route, object body) => Api<T>(HttpMethod.Post, route, body);
         public static Task Post(string route, object body) => Api<JsonElement>(HttpMethod.Post, route, body);
 
