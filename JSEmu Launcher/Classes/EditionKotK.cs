@@ -338,8 +338,10 @@ namespace H1Emu_Launcher.Classes
                 fixes.Add(LootReloadFix.ApplyAfterStartup(game, dir, Log));
                 fixes.Add(ThrowableCleanupFix.ApplyAfterStartup(game, dir, Log));
                 fixes.Add(BinocularScopeFix.ApplyAfterStartup(game, dir, Log));
-                fixes.Add(OwnBulletTracers.ApplyAfterStartup(game, dir, Log));
             }
+            // Its own switch: hiding one's own tracers is wanted without the experimental fixes.
+            if (Properties.Settings.Default.kotkHideOwnTracers || Properties.Settings.Default.kotkClientFixes)
+                fixes.Add(OwnBulletTracers.ApplyAfterStartup(game, dir, Log));
             await Task.WhenAll(fixes);
             // A load that began while a fix was still being written must not keep it.
             if (Volatile.Read(ref generation.Value) != world && !game.HasExited)

@@ -256,8 +256,12 @@
                 <TextBlock Foreground="#8A96A2" TextWrapping="Wrap" Margin="0,0,0,12"
                            Text="Hold your proximity key while in the game. Default: middle mouse / numpad 4. Alt+M mutes voice."/>
                 <TextBlock Text="GAME FIXES" Style="{StaticResource Heading}" Margin="0,4,0,8"/>
+                <CheckBox x:Name="hideOwnTracers" Foreground="#DDE3E8" FontSize="14" Margin="0,0,0,4"
+                          Content="Hide my own bullet tracers (enemy tracers stay visible)"/>
+                <TextBlock Foreground="#8A96A2" TextWrapping="Wrap" Margin="0,0,0,10" FontSize="12"
+                           Text="Applies from the next match you enter."/>
                 <CheckBox x:Name="clientFixes" Foreground="#DDE3E8" FontSize="14" Margin="0,0,0,4"
-                          Content="Experimental client fixes (loot during reload, binocular scope, hide own tracers, throwables)"/>
+                          Content="Experimental client fixes (loot during reload, binocular scope, throwables)"/>
                 <TextBlock Foreground="#E8A33D" TextWrapping="Wrap" Margin="0,0,0,14" FontSize="12"
                            Text="Off by default: with them on, the game has crashed when entering a match or logging out. Applies from the next Play."/>
                 <Button Content="SAVE SETTINGS" Click="SaveVoiceClick" HorizontalAlignment="Left" Style="{StaticResource KotKButton}" Margin="0,0,0,12"/>
