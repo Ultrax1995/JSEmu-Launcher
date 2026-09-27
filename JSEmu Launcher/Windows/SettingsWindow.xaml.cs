@@ -101,10 +101,10 @@ namespace H1Emu_Launcher
                     Title = $"{FindResource("item206")} - {FindResource("item196")}";
                     break;
                 case 3:
-                    Title = $"{FindResource("item206")} - {FindResource("item197")}";
+                    Title = $"{FindResource("item206")} - {FindResource("itemVoice")}";
                     break;
                 case 4:
-                    Title = $"{FindResource("item206")} - {FindResource("item198")}";
+                    Title = $"{FindResource("item206")} - {FindResource("item197")}";
                     break;
                 case 5:
                     Title = $"{FindResource("item206")} - {FindResource("item199")}";

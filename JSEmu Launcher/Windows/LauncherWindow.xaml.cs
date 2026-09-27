@@ -948,12 +948,17 @@ namespace H1Emu_Launcher
 
                         playButton.IsEnabled = true;
                         playButton.SetResourceReference(ContentProperty, "item8");
+                        Voice2016.Stop();
                     }));
 
                     if (!Properties.Settings.Default.developerMode && startSingleplayerServerProcess != null)
                         startSingleplayerServerProcess.Kill(true);
                 };
                 h1Process.Start();
+
+                // Proximity voice on the JSEmu servers (the proximityVoice plugin of the zone servers).
+                if (serverIndex == 0)
+                    Voice2016.Start(h1Process);
 
                 if (serverSelector.SelectedIndex != 0 && serverSelector.SelectedIndex != 2 && serverSelector.SelectedIndex != 2 && serverSelector.SelectedIndex != serverSelector.Items.Count - 1 && serverSelector.SelectedItem is ComboBoxItem)
                     AddServerToRecentList(serverSelector.Text);
@@ -1175,6 +1180,12 @@ namespace H1Emu_Launcher
         private async void LauncherWindowContentRendered(object sender, EventArgs e)
         {
             _ = UpdateHubCoins();
+#if DEBUG
+            // UI preview only (Debug, JSEMU_UI_PREVIEW=1 and JSEMU_UI_VOICE_SAMPLE=1): the Voice settings tab
+            // and the talking list with made-up names over this window.
+            if (Environment.GetEnvironmentVariable("JSEMU_UI_PREVIEW") == "1" && Environment.GetEnvironmentVariable("JSEMU_UI_VOICE_SAMPLE") == "1")
+                Voice2016.ShowPreviewSample(this);
+#endif
 
             if (rawArgs != null)
                 await ExecuteArguments(rawArgs);

@@ -204,6 +204,7 @@
     <system:String x:Key="item222">Would you like to return to the login page?</system:String>
     <system:String x:Key="item223">Steam Enabled</system:String>
     <system:String x:Key="item224">Asset Packs</system:String>
+    <system:String x:Key="itemVoice">Голос</system:String>
     <system:String x:Key="item225">Select or add the asset pack required for the server you wish to play on.</system:String>
     <system:String x:Key="item226">JSEmu.eu - Assets Pack</system:String>
     <system:String x:Key="item226_h1emu">H1Emu.com - Assets Pack</system:String>

@@ -23,6 +23,15 @@ public sealed class ProximityVoiceClient : IAsyncDisposable
     public bool Connected => _connected;
     public bool CanTalk => _connected && _allowed && !_deafened && Environment.TickCount64 - Interlocked.Read(ref _stateAt) <= 500;
     public bool Deafened => _deafened;
+    /// <summary>The character the server says this connection speaks for; 0 while not in the world.</summary>
+    public ulong CharacterId => unchecked((ulong)Interlocked.Read(ref _stateCharacter));
+    private long _stateCharacter;
+    private VoiceTalker[] _talkers = [];
+    private long _talkersAt;
+    /// <summary>Who this player hears right now (and itself while transmitting), when the server reports it.
+    /// Empty when the list is older than a second, so a dropped connection cannot leave names up.</summary>
+    public VoiceTalker[] Talkers => Environment.TickCount64 - Interlocked.Read(ref _talkersAt) <= 1000 && CanTalk
+        ? Volatile.Read(ref _talkers) : [];
 
     public async Task Connect(LauncherSettings settings, string token, CancellationToken ct = default)
     {
@@ -87,7 +96,13 @@ public sealed class ProximityVoiceClient : IAsyncDisposable
                 ulong character = BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(4));
                 if (_character != character || bytes[12] == 0) Mixer.Clear();
                 _character = character; _allowed = character != 0 && bytes[12] == 1;
+                Interlocked.Exchange(ref _stateCharacter, unchecked((long)character));
                 Interlocked.Exchange(ref _stateAt, Environment.TickCount64);
+            }
+            else if (VoiceWire.TryTalking(bytes.AsSpan(0, size), out var talkers))
+            {
+                Volatile.Write(ref _talkers, talkers);
+                Interlocked.Exchange(ref _talkersAt, Environment.TickCount64);
             }
             else if (CanTalk) Mixer.Receive(bytes.AsSpan(0, size), Environment.TickCount64);
         }

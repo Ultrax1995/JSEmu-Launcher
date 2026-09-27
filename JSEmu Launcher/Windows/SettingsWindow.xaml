@@ -28,7 +28,7 @@
                 <Setter Property="FontFamily" Value="Segoe UI Semibold"/>
                 <Setter Property="FontSize" Value="13.5"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
-                <Setter Property="MinWidth" Value="150"/>
+                <Setter Property="MinWidth" Value="124"/>
                 <Setter Property="Height" Value="46"/>
                 <Setter Property="Margin" Value="2,0"/>
                 <Setter Property="BorderThickness" Value="0"/>
@@ -89,7 +89,7 @@
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
                                 <UniformGrid Grid.Row="0" IsItemsHost="True"
-                                             Rows="1" Columns="5"
+                                             Rows="1" Columns="6"
                                              Margin="0,6,10,10" Panel.ZIndex="2"
                                              Background="Transparent"
                                              KeyboardNavigation.TabIndex="1"/>
@@ -171,6 +171,9 @@
                     </TabItem>
                     <TabItem Header="{DynamicResource item196}" Style="{StaticResource SettingsTabItemStyle}">
                         <Frame Source="..\SettingsPages\AccountKey.xaml" NavigationUIVisibility="Hidden" Background="Transparent"/>
+                    </TabItem>
+                    <TabItem Header="{DynamicResource itemVoice}" Style="{StaticResource SettingsTabItemStyle}">
+                        <Frame Source="..\SettingsPages\Voice.xaml" NavigationUIVisibility="Hidden" Background="Transparent"/>
                     </TabItem>
                     <TabItem Header="{DynamicResource item197}" Style="{StaticResource SettingsTabItemStyle}">
                         <Frame Source="..\SettingsPages\Options.xaml" NavigationUIVisibility="Hidden" Background="Transparent"/>

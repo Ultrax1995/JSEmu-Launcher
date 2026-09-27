@@ -145,6 +145,78 @@ namespace H1Emu_Launcher.Properties {
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool voice2016Enabled {
+            get {
+                return ((bool)(this["voice2016Enabled"]));
+            }
+            set {
+                this["voice2016Enabled"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int voice2016Input {
+            get {
+                return ((int)(this["voice2016Input"]));
+            }
+            set {
+                this["voice2016Input"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int voice2016Output {
+            get {
+                return ((int)(this["voice2016Output"]));
+            }
+            set {
+                this["voice2016Output"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("80")]
+        public int voice2016Volume {
+            get {
+                return ((int)(this["voice2016Volume"]));
+            }
+            set {
+                this["voice2016Volume"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string voice2016Key {
+            get {
+                return ((string)(this["voice2016Key"]));
+            }
+            set {
+                this["voice2016Key"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool voice2016Indicator {
+            get {
+                return ((bool)(this["voice2016Indicator"]));
+            }
+            set {
+                this["voice2016Indicator"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string activeDirectory {
             get {
