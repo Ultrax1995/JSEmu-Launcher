@@ -24,7 +24,6 @@ namespace H1Emu_Launcher.SettingsPages
         {
             var settings = Properties.Settings.Default;
             enabledToggle.IsChecked = settings.voice2016Enabled;
-            indicatorToggle.IsChecked = settings.voice2016Indicator;
             keyBox.Text = settings.voice2016Key ?? "";
             volumeSlider.Value = Math.Clamp(settings.voice2016Volume, 0, 100);
             volumeLabel.Text = $"Voice volume  {(int)volumeSlider.Value}%";
@@ -67,7 +66,6 @@ namespace H1Emu_Launcher.SettingsPages
             }
             var settings = Properties.Settings.Default;
             settings.voice2016Enabled = enabledToggle.IsChecked == true;
-            settings.voice2016Indicator = indicatorToggle.IsChecked == true;
             settings.voice2016Input = (inputBox.SelectedItem as AudioDevice)?.Id ?? -1;
             settings.voice2016Output = (outputBox.SelectedItem as AudioDevice)?.Id ?? -1;
             settings.voice2016Volume = (int)volumeSlider.Value;

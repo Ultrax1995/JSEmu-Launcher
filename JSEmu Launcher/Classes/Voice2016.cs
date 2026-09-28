@@ -89,7 +89,6 @@ namespace H1Emu_Launcher.Classes
         private static ProximityAudio _audio;
         private static Link _active;
         private static string _talkersKey = "";
-        private static VoiceTalkingOverlay _overlay;
 
         private static void SetStatus(string text)
         {
@@ -145,7 +144,6 @@ namespace H1Emu_Launcher.Classes
             links.Clear();
             _game = null;
             PublishTalkers(Array.Empty<VoiceTalker>(), 0);
-            _overlay?.Close(); _overlay = null;
             stop?.Dispose();
             SetStatus("Voice connects when you play on a JSEmu server.");
         }
@@ -302,12 +300,6 @@ namespace H1Emu_Launcher.Classes
                 Start(Process.GetCurrentProcess());
                 return;
             }
-            var overlay = new VoiceTalkingOverlay();
-            int pid = Environment.ProcessId;
-            overlay.Show([new VoiceTalker(1, "Kowalski"), new VoiceTalker(2, "SurvivorPL"), new VoiceTalker(3, "Zażółć")], 1, pid);
-            var follow = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200) };
-            follow.Tick += (_, _) => overlay.Follow(pid);
-            follow.Start();
         }
 
 #endif
@@ -317,16 +309,10 @@ namespace H1Emu_Launcher.Classes
         private static void PublishTalkers(VoiceTalker[] talkers, ulong self)
         {
             string key = string.Join(",", talkers.Select(t => t.CharacterId));
-            if (key == _talkersKey) { _overlay?.Follow(_inputPid); return; }
+            if (key == _talkersKey) return;
             _talkersKey = key;
+            // Settings > Voice only; the in-game "who is talking" widget comes from the patched HUD (Assets_263).
             TalkersChanged?.Invoke(talkers, self);
-            if (!Properties.Settings.Default.voice2016Indicator || talkers.Length == 0)
-            {
-                _overlay?.Hide();
-                return;
-            }
-            _overlay ??= new VoiceTalkingOverlay();
-            _overlay.Show(talkers, self, _inputPid);
         }
     }
 }
