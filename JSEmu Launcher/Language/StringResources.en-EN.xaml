@@ -218,4 +218,10 @@
     <system:String x:Key="item234">The asset pack URL is not valid.</system:String>
     <system:String x:Key="item235">This asset pack name already exists in the asset pack list.</system:String>
 	<system:String x:Key="item236">H1Emu.com - Assets Pack</system:String>
+    <system:String x:Key="item237">JOIN DISCORD</system:String>
+    <system:String x:Key="item238" xml:space="preserve">Your AuthKey is not registered yet.&#10;&#10;Join our Discord (discord.gg/yeDTjJHrQV) and get the Member role, then register your AuthKey: press the "Auth Key" button on Discord or paste it at jsemu.eu/authkey. After that, press Play again.</system:String>
+    <system:String x:Key="item239" xml:space="preserve">Your account is banned.&#10;&#10;Reason: {0}&#10;Duration: {1}&#10;&#10;To appeal, open a ticket on our Discord: discord.gg/yeDTjJHrQV</system:String>
+    <system:String x:Key="item240">not specified</system:String>
+    <system:String x:Key="item241">permanent</system:String>
+    <system:String x:Key="item242">until {0}</system:String>
 </ResourceDictionary>

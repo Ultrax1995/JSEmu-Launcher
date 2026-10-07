@@ -42,6 +42,29 @@ namespace H1Emu_Launcher.Classes
             return buttonPressed;
         }
 
+        // Message box with an OK button and a "Join Discord" button (returns Yes when that one is pressed).
+        public static MessageBoxResult ShowWithJoinDiscord(string text, string joinButtonText, Window owner = null)
+        {
+            buttonPressed = MessageBoxResult.OK;
+            MessageBoxWindow messageBox = new();
+            messageBox.text.Text = text;
+            messageBox.confirmYesButton.Content = joinButtonText;
+            messageBox.confirmYesButton.Visibility = Visibility.Visible;
+
+            if (owner != null && owner.IsVisible)
+                messageBox.Owner = owner;
+            else
+                messageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+
+            SystemSounds.Beep.Play();
+            messageBox.ShowDialog();
+
+            if (owner != null)
+                owner.Activate();
+
+            return buttonPressed;
+        }
+
         public static MessageBoxResult InstallServerInline(string text, Window owner = null)
         {
             buttonPressed = MessageBoxResult.OK;

@@ -804,6 +804,12 @@ namespace H1Emu_Launcher
                         else
                             throw new Exception("createAccountKey");
                     }
+                    // Banned / unregistered keys are rejected silently by the login server, so tell the player here.
+                    // Developer mode skips it, and a site outage never blocks the launch.
+                    if (!Properties.Settings.Default.developerMode &&
+                        !await AccountStatusApi.AllowLaunchAsync(this, Properties.Settings.Default.sessionIdKey))
+                        throw new Exception("accountBlocked");
+
                     sessionId = $"{{\"sessionId\":\"{AccountKeyUtil.EncryptStringSHA256(Properties.Settings.Default.sessionIdKey)}\",\"gameVersion\":2}}";
                     serverIp = Info.H1EMU_SERVER_IP;
 
@@ -884,6 +890,7 @@ namespace H1Emu_Launcher
                 {
                     case "emptyAccountKey":
                     case "launchLocalServerFailed":
+                    case "accountBlocked":
                         break;
 
                     case "createAccountKey":
