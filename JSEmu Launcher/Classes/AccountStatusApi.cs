@@ -89,9 +89,7 @@ namespace H1Emu_Launcher.Classes
             else if (!status.Registered)
             {
                 message = Text(owner, "item238",
-                    "Your AuthKey is not registered yet.\n\n1. Join our Discord: discord.gg/yeDTjJHrQV\n2. Get the Member role.\n3. Go to the #support channel, click the Auth Key button and paste the AuthKey generated in the launcher.\n\nAfter that you can join the game.
-
-Already registered? Then the AuthKey in your launcher is not the one you registered. Go to #support, click the Auth Key button and paste the correct AuthKey from the launcher.");
+                    "Your AuthKey is not registered yet.\n\n1. Join our Discord: discord.gg/yeDTjJHrQV\n2. Get the Member role.\n3. Go to the #support channel, click the Auth Key button and paste the AuthKey generated in the launcher.\n\nAfter that you can join the game.\n\nAlready registered? Then the AuthKey in your launcher is not the one you registered. Go to #support, click the Auth Key button and paste the correct AuthKey from the launcher.");
             }
             else
             {
