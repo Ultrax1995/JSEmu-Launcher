@@ -53,7 +53,7 @@
     <system:String x:Key="item55">Using app branch: {0}</system:String>
     <system:String x:Key="item56">Processing depot: {0}</system:String>
     <system:String x:Key="item57">Pre-allocating space...</system:String>
-    <system:String x:Key="item58">Game version not supported by H1Emu.\n\nPlease remember to use the game version 22nd December 2016.\n\nYou can use this launcher to download the required version on the main page with your Steam account that has Just Survive ownership, or alternatively, source the game files from elsewhere.</system:String>
+    <system:String x:Key="item58">Game version not supported by JSEmu.\n\nPlease remember to use the game version 22nd December 2016.\n\nYou can use this launcher to download the required version on the main page with your Steam account that has Just Survive ownership, or alternatively, source the game files from elsewhere.</system:String>
     <system:String x:Key="item59">Username...</system:String>
     <system:String x:Key="item60">Password...</system:String>
     <system:String x:Key="item61">View updates on Discord...</system:String>
@@ -104,7 +104,7 @@
     <system:String x:Key="item121">H1Z1.exe is currently being used.\n\nPlease close any open instances of H1Z1.\n\nYou can use the button below to kill all processes of H1Z1.</system:String>
     <system:String x:Key="item122">Current Game Version: 2016</system:String>
     <system:String x:Key="item124">Launcher Version</system:String>
-    <system:String x:Key="item125">Copyright © 2026 | H1Emu Project</system:String>
+    <system:String x:Key="item125">Copyright © 2026 | JSEmu Project</system:String>
     <system:String x:Key="item126">Lead Development</system:String>
     <system:String x:Key="item127">Developers</system:String>
     <system:String x:Key="item128">Administrators</system:String>
@@ -138,7 +138,7 @@
     <system:String x:Key="item155">Account Key</system:String>
     <system:String x:Key="item156">When connecting to JSEmu Servers you must set an Account Key. Generate a key here, then link it to your Discord account:</system:String>
     <system:String x:Key="item157">The latest version of the server is an in development build, be warned that it may be unstable and cause crashes.\n\nWould you like to continue?</system:String>
-    <system:String x:Key="item158">Welcome to H1Emu!</system:String>
+    <system:String x:Key="item158">Welcome to JSEmu!</system:String>
     <system:String x:Key="item159">BEFORE YOU BEGIN, please note that this project only supports the following game version:</system:String>
     <system:String x:Key="item160">.</system:String>
     <system:String x:Key="item161">The server IP is not valid.</system:String>
@@ -159,7 +159,7 @@
     <system:String x:Key="item177">No singleplayer data found.</system:String>
     <system:String x:Key="item178">Deleting your singleplayer data may fix any issues you are facing, be warned that you will lose all progress.\n\nWould you like to continue?</system:String>
     <system:String x:Key="item179">Successfully deleted singleplayer data.</system:String>
-    <system:String x:Key="item180">The Account Key you are using is not verified on the H1Emu database.\n\nPlease verify your key by linking it to your Discord account at:</system:String>
+    <system:String x:Key="item180">The Account Key you are using is not verified on the JSEmu database.\n\nPlease verify your key by linking it to your Discord account at:</system:String>
     <system:String x:Key="item181">The Account Key you are using is banned.</system:String>
     <system:String x:Key="item182">Unknown response code while checking your Account Key validity:</system:String>
     <system:String x:Key="item183">There was an error validating your Account Key:</system:String>
@@ -170,7 +170,7 @@
     <system:String x:Key="item188">RE-PATCHING...</system:String>
     <system:String x:Key="item189">KILL</system:String>
     <system:String x:Key="item190">Game version detected: 23rd February 2017 (King of the Kill).</system:String>
-    <system:String x:Key="item191">Your H1Emu Launcher has been minimised to the system tray.</system:String>
+    <system:String x:Key="item191">Your JSEmu Launcher has been minimised to the system tray.</system:String>
     <system:String x:Key="item192">Delete</system:String>
     <system:String x:Key="item193">Copy</system:String>
     <system:String x:Key="item194">Exit</system:String>

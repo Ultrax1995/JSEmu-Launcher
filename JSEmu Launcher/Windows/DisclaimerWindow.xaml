@@ -172,7 +172,7 @@
 
                                 <TextBlock FontWeight="Light"
                                            TextWrapping="Wrap"
-                                           Text="By launching this launcher, creating an account, or otherwise accessing and playing on H1Emu / JSEmu servers, you agree to follow these Terms of Service. If you do not agree to these terms, you must discontinue your use of the game, services or code."
+                                           Text="By launching this launcher, creating an account, or otherwise accessing and playing on JSEmu servers, you agree to follow these Terms of Service. If you do not agree to these terms, you must discontinue your use of the game, services or code."
                                            Style="{DynamicResource TextBlockStyle}"/>
 
                                 <TextBlock Margin="0,30,0,5"
@@ -185,7 +185,7 @@
 
                                 <TextBlock FontWeight="Light"
                                            TextWrapping="Wrap"
-                                           Text="H1Emu / JSEmu is a free, non-profit, fan-made continuation of H1Z1: Just Survive, built and maintained by community volunteers. It is not affiliated with, endorsed by, or sponsored by Daybreak Game Company or any other past or present rights holder of H1Z1. All original game assets remain the property of their respective owners."
+                                           Text="JSEmu is a free, non-profit, fan-made continuation of H1Z1: Just Survive, built and maintained by community volunteers. It is not affiliated with, endorsed by, or sponsored by Daybreak Game Company or any other past or present rights holder of H1Z1. All original game assets remain the property of their respective owners."
                                            Style="{DynamicResource TextBlockStyle}"/>
 
                                 <TextBlock Margin="0,30,0,5"
@@ -224,7 +224,7 @@
 
                                 <TextBlock FontWeight="Light"
                                            TextWrapping="Wrap"
-                                           Text="To maintain a fair and enjoyable environment for all players, H1Emu Servers use the Fairplay anti-cheat software. Fairplay runs concurrently with the game to prevent and detect the use of unauthorized third-party programs that provide unfair advantages. By playing the game, you acknowledge and agree that Fairplay may collect, process, and store the following information:"
+                                           Text="To maintain a fair and enjoyable environment for all players, JSEmu servers use the Fairplay anti-cheat software. Fairplay runs concurrently with the game to prevent and detect the use of unauthorized third-party programs that provide unfair advantages. By playing the game, you acknowledge and agree that Fairplay may collect, process, and store the following information:"
                                            Style="{DynamicResource TextBlockStyle}"/>
 
                                 <TextBlock Margin="0,20,0,0"
