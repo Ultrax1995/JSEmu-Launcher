@@ -37,10 +37,10 @@
 
             <Run Text="{DynamicResource item26}"/>
             <Run
-                        Foreground="#FFCA1420" Text="{DynamicResource item135}"/>
+                        Foreground="{DynamicResource Accent.LightBrush}" Text="{DynamicResource item135}"/>
             <Run Text="{DynamicResource item27}"/>
             <Run x:Name="gameDownloadText"
-                         Foreground="#FFCA1420" Text="2016:"/>
+                         Foreground="{DynamicResource Accent.LightBrush}" Text="2016:"/>
         </TextBlock>
 
         <Grid Grid.Row="1">
@@ -55,7 +55,7 @@
                          Height="35"
                          Margin="0,0,10,0"
                          Background="{DynamicResource LighterColour}"
-                         Foreground="{DynamicResource DarkerColour}"
+                         Foreground="{DynamicResource Accent.GradientBrush}"
                          BorderBrush="{DynamicResource RedAccent}"
                          BorderThickness="2"
                          classes:ProgressBarCornerRadius.CornerRadius="5"

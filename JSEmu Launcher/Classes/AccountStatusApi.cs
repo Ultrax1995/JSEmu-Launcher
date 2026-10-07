@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Globalization;
 using System.Net.Http;
@@ -74,7 +74,12 @@ namespace H1Emu_Launcher.Classes
             Status? status = await CheckAsync(accountKey);
             if (status == null)
                 return true;
+            return !ShowBlockedWindow(owner, status);
+        }
 
+        // The ban / not-registered window. Returns false (nothing shown) for an account that may play.
+        public static bool ShowBlockedWindow(Window owner, Status status)
+        {
             string message;
             if (status.Banned)
             {
@@ -93,7 +98,7 @@ namespace H1Emu_Launcher.Classes
             }
             else
             {
-                return true;
+                return false;
             }
 
             if (CustomMessageBox.ShowWithJoinDiscord(message, Text(owner, "item237", "JOIN DISCORD"), owner) == MessageBoxResult.Yes)
@@ -105,7 +110,7 @@ namespace H1Emu_Launcher.Classes
                 catch { }
             }
 
-            return false;
+            return true;
         }
 
         // Language files other than en/pl may not have these keys yet - fall back to English.

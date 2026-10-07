@@ -54,7 +54,10 @@
     <None Remove="Resources\Grain.png" />
     <None Remove="Resources\H1EmuIcon.png" />
     <None Remove="Resources\HeroBanner-v2.png" />
-    <None Remove="Resources\KotKBackground.png" />
+    <None Remove="Resources\Backdrop2016.png" />
+    <None Remove="Resources\Backdrop2018.png" />
+    <None Remove="Resources\LogoWordmark.png" />
+    <None Remove="Resources\LogoMark.png" />
     <None Remove="Resources\UserHeroBanner.png" />
     <Resource Include="Language\StringResources.fr-FR.xaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -162,7 +165,16 @@
     <Resource Include="Resources\HeroBanner-v2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\KotKBackground.png">
+    <Resource Include="Resources\Backdrop2016.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Backdrop2018.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\LogoWordmark.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\LogoMark.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\UserHeroBanner.png">

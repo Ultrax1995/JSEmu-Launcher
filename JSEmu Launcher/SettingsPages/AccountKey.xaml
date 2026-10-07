@@ -23,7 +23,7 @@
         </ResourceDictionary>
     </Page.Resources>
 
-    <Border Background="#06090D"
+    <Border Background="Transparent"
             UseLayoutRounding="True"
             CornerRadius="0">
 

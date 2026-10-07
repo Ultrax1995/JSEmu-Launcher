@@ -24,9 +24,9 @@
 
             <Style x:Key="SettingsTabItemStyle" TargetType="TabItem">
                 <Setter Property="Foreground" Value="#858C95"/>
-                <Setter Property="Background" Value="#090C10"/>
-                <Setter Property="FontFamily" Value="Segoe UI Semibold"/>
-                <Setter Property="FontSize" Value="13.5"/>
+                <Setter Property="Background" Value="#CC0D1013"/>
+                <Setter Property="FontFamily" Value="{StaticResource Signika}"/>
+                <Setter Property="FontSize" Value="14"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
                 <Setter Property="MinWidth" Value="124"/>
                 <Setter Property="Height" Value="46"/>
@@ -39,34 +39,27 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="TabItem">
                             <Border x:Name="TabSurface" Background="{TemplateBinding Background}"
-                                    BorderBrush="#343B43" BorderThickness="1"
-                                    CornerRadius="8" SnapsToDevicePixels="True">
+                                    BorderBrush="#2A2E33" BorderThickness="1"
+                                    CornerRadius="6" SnapsToDevicePixels="True">
                                 <Grid>
                                     <ContentPresenter ContentSource="Header"
                                                       Margin="12,0"
                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     <Border x:Name="ActiveMarker" Height="3"
                                             VerticalAlignment="Bottom" Margin="9,0,9,0"
-                                            Background="#ED1C2A" CornerRadius="2,2,0,0" Opacity="0"/>
+                                            Background="{DynamicResource Accent.Brush}" CornerRadius="2,2,0,0" Opacity="0"/>
                                 </Grid>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter Property="Foreground" Value="#E0E3E7"/>
-                                    <Setter TargetName="TabSurface" Property="Background" Value="#10141A"/>
-                                    <Setter TargetName="TabSurface" Property="BorderBrush" Value="#39414A"/>
+                                    <Setter TargetName="TabSurface" Property="Background" Value="#E6161A1E"/>
+                                    <Setter TargetName="TabSurface" Property="BorderBrush" Value="#3A4046"/>
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Foreground" Value="White"/>
-                                    <Setter TargetName="TabSurface" Property="Background">
-                                        <Setter.Value>
-                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                                <GradientStop Color="#291015" Offset="0"/>
-                                                <GradientStop Color="#120C10" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Setter TargetName="TabSurface" Property="BorderBrush" Value="#85212A"/>
+                                    <Setter TargetName="TabSurface" Property="Background" Value="{DynamicResource Accent.SoftBrush}"/>
+                                    <Setter TargetName="TabSurface" Property="BorderBrush" Value="{DynamicResource Accent.BorderBrush}"/>
                                     <Setter TargetName="ActiveMarker" Property="Opacity" Value="1"/>
                                 </Trigger>
                                 <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4"/></Trigger>
@@ -77,7 +70,7 @@
             </Style>
 
             <Style x:Key="SettingsTabControlStyle" TargetType="TabControl">
-                <Setter Property="Background" Value="#05070A"/>
+                <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="Padding" Value="0"/>
                 <Setter Property="Template">
@@ -90,7 +83,7 @@
                                 </Grid.RowDefinitions>
                                 <UniformGrid Grid.Row="0" IsItemsHost="True"
                                              Rows="1" Columns="6"
-                                             Margin="0,6,10,10" Panel.ZIndex="2"
+                                             Margin="4,10,6,10" Panel.ZIndex="2"
                                              Background="Transparent"
                                              KeyboardNavigation.TabIndex="1"/>
                                 <ContentPresenter x:Name="PART_SelectedContentHost"
@@ -128,39 +121,40 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Border Background="#080B0F" BorderBrush="#343A41" BorderThickness="1"
+    <!-- Same look as the launcher window: edition backdrop, glass panels, accent line (Accent.* = 2016 red / 2018 ember). -->
+    <Border Background="#08090B" BorderBrush="#2A2E33" BorderThickness="1"
             CornerRadius="14" ClipToBounds="True"
             MouseLeftButtonDown="MoveSettingsWindow">
         <Grid>
-            <Grid.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#10151D" Offset="0"/>
-                    <GradientStop Color="#090C11" Offset="0.64"/>
-                    <GradientStop Color="#0D0A0D" Offset="1"/>
-                </LinearGradientBrush>
-            </Grid.Background>
-            <Grid.RowDefinitions><RowDefinition Height="88"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+            <Image x:Name="backdrop" Source="..\Resources\Backdrop2016.png" Stretch="UniformToFill" Opacity="0.75" RenderOptions.BitmapScalingMode="HighQuality" IsHitTestVisible="False"/>
+            <Rectangle IsHitTestVisible="False" Opacity="0.06">
+                <Rectangle.Fill><ImageBrush ImageSource="..\Resources\Grain.png" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/></Rectangle.Fill>
+            </Rectangle>
+            <Grid>
+            <Grid.RowDefinitions><RowDefinition Height="84"/><RowDefinition Height="*"/></Grid.RowDefinitions>
 
             <Grid Grid.Row="0" Background="Transparent">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <StackPanel Margin="26,18,0,0" VerticalAlignment="Top">
-                    <TextBlock FontSize="29" FontWeight="Bold" FontFamily="Segoe UI Semibold">
-                        <Run Text="JSE" Foreground="#ED1C2A"/><Run Text="mu.eu" Foreground="#F2F3F5"/>
-                    </TextBlock>
-                    <TextBlock Margin="2,2,0,0" Text="LAUNCHER SETTINGS" Foreground="#747C85"
-                               FontSize="10" FontWeight="SemiBold"/>
+                <StackPanel Margin="26,0,0,0" VerticalAlignment="Center">
+                    <Grid Height="28" HorizontalAlignment="Left">
+                        <Image Source="..\Resources\LogoWordmark.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <Rectangle Fill="{DynamicResource Accent.Brush}">
+                            <Rectangle.OpacityMask><ImageBrush ImageSource="..\Resources\LogoMark.png" Stretch="Uniform"/></Rectangle.OpacityMask>
+                        </Rectangle>
+                    </Grid>
+                    <TextBlock x:Name="settingsSubtitle" Margin="1,8,0,0" FontFamily="{StaticResource Signika}" FontSize="11" FontWeight="SemiBold" Foreground="#80868D"><Run Text="L A U N C H E R   S E T T I N G S   ·   "/><Run x:Name="settingsEdition" Text="2 0 1 6" Foreground="{DynamicResource Accent.LightBrush}"/></TextBlock>
                 </StackPanel>
                 <Button x:Name="ExitButton" Grid.Column="1" Click="CloseSettingsWindow"
-                        Width="46" Height="38" Margin="0,18,18,0" VerticalAlignment="Top"
+                        Width="46" Height="38" Margin="0,0,20,0" VerticalAlignment="Center"
                         Style="{StaticResource SettingsCloseButtonStyle}">
                     <Path Data="{DynamicResource XIcon}" Stretch="Uniform" Fill="White" Width="12" Height="12"/>
                 </Button>
-                <Rectangle Height="1" Fill="#252B31" VerticalAlignment="Bottom"/>
+                <Rectangle Grid.ColumnSpan="2" Height="1" Margin="22,0" Fill="{DynamicResource Accent.LineBrush}" Opacity="0.8" VerticalAlignment="Bottom"/>
             </Grid>
 
-            <Border Grid.Row="1" Margin="22,0,22,22" Background="#05070A"
-                    BorderBrush="#2D333A" BorderThickness="1" CornerRadius="10" ClipToBounds="True">
-                <TabControl x:Name="settingsTabControl" Background="#05070A" BorderThickness="0"
+            <Border Grid.Row="1" Margin="22,16,22,22" Background="#E60C0E11"
+                    BorderBrush="#2A2E33" BorderThickness="1" CornerRadius="8" ClipToBounds="True">
+                <TabControl x:Name="settingsTabControl" Background="Transparent" BorderThickness="0"
                             Style="{StaticResource SettingsTabControlStyle}"
                             Padding="0" Margin="5,2,5,5" SelectionChanged="SettingsTabControlSelectionChanged">
                     <TabItem Header="{DynamicResource item195}" Style="{StaticResource SettingsTabItemStyle}">
@@ -183,6 +177,7 @@
                     </TabItem>
                 </TabControl>
             </Border>
+            </Grid>
         </Grid>
     </Border>
 </Window>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
@@ -21,7 +21,9 @@ namespace H1Emu_Launcher.Classes
             };
 
             Grid mainGrid = GetChildOfType<Grid>(owner);
-            Grid childGrid = GetChildOfType<Grid>(mainGrid);
+            Grid childGrid = mainGrid == null ? null : GetChildOfType<Grid>(mainGrid);
+            if (childGrid == null)
+                return;
             childGrid.Effect = be;
 
             DoubleAnimation a = new(0.7, new Duration(TimeSpan.FromMilliseconds(200)))
@@ -43,7 +45,7 @@ namespace H1Emu_Launcher.Classes
                 return;
 
             Grid mainGrid = GetChildOfType<Grid>(owner);
-            Grid childGrid = GetChildOfType<Grid>(mainGrid);
+            Grid childGrid = mainGrid == null ? null : GetChildOfType<Grid>(mainGrid);
 
             DoubleAnimation a = new(1, new Duration(TimeSpan.FromMilliseconds(200)))
             {
@@ -55,12 +57,12 @@ namespace H1Emu_Launcher.Classes
             {
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
             };
-            childGrid.Effect.BeginAnimation(BlurEffect.RadiusProperty, b);
+            childGrid?.Effect?.BeginAnimation(BlurEffect.RadiusProperty, b);
         }
 
         public static T GetChildOfType<T>(DependencyObject depObj) where T : DependencyObject
         {
-            for (int i = 0; i <= VisualTreeHelper.GetChildrenCount(depObj); i++)
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
             {
                 var child = VisualTreeHelper.GetChild(depObj, i);
                 if (child is T typedChild)

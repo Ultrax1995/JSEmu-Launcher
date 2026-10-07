@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -28,8 +28,20 @@ namespace H1Emu_Launcher
             Resources.MergedDictionaries.Add(SetLanguageFile.LoadFile());
         }
 
+#if DEBUG
+        // UI preview only (JSEMU_UI_DIALOG=update): show the window without downloading anything.
+        internal bool previewOnly;
+#endif
+
         private async void UpdateWindowLoaded(object sender, RoutedEventArgs e)
         {
+#if DEBUG
+            if (previewOnly)
+            {
+                downloadSetupProgress.Value = 42;
+                return;
+            }
+#endif
             SystemSounds.Beep.Play();
             await UpdateLauncher();
         }

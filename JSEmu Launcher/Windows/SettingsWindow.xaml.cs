@@ -23,6 +23,13 @@ namespace H1Emu_Launcher
             // Adds the correct language file to the resource dictionary and then loads it
             Resources.MergedDictionaries.Clear();
             Resources.MergedDictionaries.Add(SetLanguageFile.LoadFile());
+
+            // Edition look: backdrop and label follow the 2016 / 2018 switch of the launcher.
+            if (Edition2018.Selected)
+            {
+                backdrop.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("pack://application:,,,/Resources/Backdrop2018.png"));
+                settingsEdition.Text = "2 0 1 8";
+            }
         }
 
         public void MoveSettingsWindow(object sender, MouseButtonEventArgs e)

@@ -254,6 +254,11 @@ $@"""AppState""
         // background, so a locked file or a missing folder must never break the launcher.
         public static string EnsureGameDirReady(string gameDir = null)
         {
+#if DEBUG
+            // UI preview next to the player's real launcher: never touch the real game folder.
+            if (Environment.GetEnvironmentVariable("JSEMU_UI_PREVIEW") == "1")
+                return null;
+#endif
             try
             {
                 if (string.IsNullOrEmpty(gameDir))

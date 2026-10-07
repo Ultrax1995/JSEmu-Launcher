@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
@@ -27,6 +27,9 @@ namespace H1Emu_Launcher
 
             Resources.MergedDictionaries.Clear();
             Resources.MergedDictionaries.Add(SetLanguageFile.LoadFile());
+
+            // Accent brushes (2016 red / 2018 ember) for every window, before the first one opens.
+            EditionTheme.ApplyToApplication(H1Emu_Launcher.Properties.Settings.Default.gameEdition == "2018");
 
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
@@ -264,7 +267,15 @@ namespace H1Emu_Launcher
             // to the player's real launcher - never offer to delete it, just log and quit.
             if (Environment.GetEnvironmentVariable("JSEMU_UI_PREVIEW") == "1")
             {
-                try { File.WriteAllText(Path.Combine(Path.GetTempPath(), "jsemu-ui-preview-crash.txt"), e.ExceptionObject.ToString()); } catch { }
+                string over = "";
+                try
+                {
+                    // which element the mouse was over: most preview crashes come from a hover animation
+                    if (Mouse.DirectlyOver is FrameworkElement fe)
+                        over = $"mouse over: {fe.GetType().Name} '{fe.Name}' in {(fe.TemplatedParent as FrameworkElement)?.GetType().Name} '{(fe.TemplatedParent as FrameworkElement)?.Name}'{Environment.NewLine}";
+                }
+                catch { }
+                try { File.WriteAllText(Path.Combine(Path.GetTempPath(), "jsemu-ui-preview-crash.txt"), over + e.ExceptionObject.ToString()); } catch { }
                 Environment.Exit(1);
             }
             {

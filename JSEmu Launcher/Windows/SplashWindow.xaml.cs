@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -36,11 +36,21 @@ namespace H1Emu_Launcher
             if (!httpClient.DefaultRequestHeaders.Accept.Any())
                 httpClient.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
 
-            httpClient.Timeout = TimeSpan.FromMinutes(5);
+            // The client is shared; once something has sent a request its timeout can no longer change.
+            try { httpClient.Timeout = TimeSpan.FromMinutes(5); } catch (InvalidOperationException) { }
         }
+
+#if DEBUG
+        // UI preview only (JSEMU_UI_DIALOG=splash): show the window without checking for updates.
+        internal bool previewOnly;
+#endif
 
         private async void SplashScreenWindowLoaded(object sender, RoutedEventArgs e)
         {
+#if DEBUG
+            if (previewOnly)
+                return;
+#endif
             if (checkForUpdates)
                 await CheckVersion(this);
             else

@@ -37,7 +37,7 @@
                    TextAlignment="Center"
                    Style="{DynamicResource TextBlockStyle}">
             
-            <Run Foreground="#FFCA1420"
+            <Run Foreground="{DynamicResource Accent.LightBrush}"
                  Text="{DynamicResource item23}"/>
             <LineBreak/>
             <Run Text="{DynamicResource item24}"/>

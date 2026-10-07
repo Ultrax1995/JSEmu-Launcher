@@ -57,6 +57,9 @@ namespace H1Emu_Launcher
             Resources.MergedDictionaries.Clear();
             Resources.MergedDictionaries.Add(SetLanguageFile.LoadFile());
 
+            // Animatable accent brushes for this window (2016 red / 2018 ember).
+            EditionTheme.AttachWindow(Resources, Properties.Settings.Default.gameEdition == "2018");
+
             CarouselNextAnimation = FindResource("CarouselNextImageAnimation") as Storyboard;
             CarouselNextAnimationFollow = FindResource("CarouselNextImageAnimationFollow") as Storyboard;
             CarouselPreviousAnimation = FindResource("CarouselPrevImageAnimation") as Storyboard;
@@ -1029,48 +1032,52 @@ namespace H1Emu_Launcher
                 CheckGameVersionAndPath(this, false, false);
         }
 
-        // Highlights the active edition and shows its game folder.
+        // Shows the active edition: accent colours, backdrop, hero texts, server area and game folder.
+        // The first call (window load) jumps straight to the edition; switches are animated.
+        private bool editionShown;
         public void ShowEdition()
         {
             bool is2018 = Edition2018.Selected;
             bool is2016 = !is2018;
+            bool animate = editionShown && IsLoaded;
+            editionShown = true;
 
-            // Accent: JSEmu red for 2016, amber for 2018.
-            Color accent = is2018 ? Color.FromRgb(0xE8, 0xA3, 0x3D) : Color.FromRgb(0xE1, 0x1D, 0x27);
-            Color accentDark = is2018 ? Color.FromRgb(0xB8, 0x6A, 0x1A) : Color.FromRgb(0x9E, 0x10, 0x18);
-            SolidColorBrush accentBrush = new(accent);
-            SolidColorBrush idleText = new(Color.FromRgb(0x9A, 0x9F, 0xA6));
-            SolidColorBrush idleSub = new(Color.FromRgb(0x6B, 0x70, 0x78));
-            edition2016Button.Background = is2016 ? accentBrush : Brushes.Transparent;
-            edition2018Button.Background = is2018 ? accentBrush : Brushes.Transparent;
-            edition2016Button.Foreground = is2016 ? Brushes.White : idleText;
-            edition2018Button.Foreground = is2018 ? new SolidColorBrush(Color.FromRgb(0x1A, 0x12, 0x08)) : idleText;
-            edition2016Button.BorderBrush = is2016 ? new SolidColorBrush(Color.FromRgb(0xFF, 0x4A, 0x52)) : Brushes.Transparent;
-            edition2018Button.BorderBrush = is2018 ? new SolidColorBrush(Color.FromRgb(0xFF, 0xD0, 0x80)) : Brushes.Transparent;
-            edition2016Sub.Foreground = is2016 ? new SolidColorBrush(Color.FromArgb(0xCC, 0xFF, 0xFF, 0xFF)) : idleSub;
-            edition2018Sub.Foreground = is2018 ? new SolidColorBrush(Color.FromArgb(0xCC, 0x1A, 0x12, 0x08)) : idleSub;
+            EditionTheme.Apply(is2018, animate);
 
-            playButton.BorderBrush = accentBrush;
-            if (!is2016)
+            // sliding pill behind the 2016 / 2018 tabs
+            Animate(editionIndicatorShift, TranslateTransform.XProperty, is2018 ? edition2016Button.Width : 0, animate ? 350 : 0);
+            if (is2016) edition2016Button.SetResourceReference(ForegroundProperty, "Accent.TextOnBrush"); else edition2016Button.ClearValue(ForegroundProperty);
+            if (is2018) edition2018Button.SetResourceReference(ForegroundProperty, "Accent.TextOnBrush"); else edition2018Button.ClearValue(ForegroundProperty);
+
+            // backdrop cross-fade
+            Animate(backdrop2016, OpacityProperty, is2016 ? 1 : 0, animate ? 600 : 0);
+            Animate(backdrop2018, OpacityProperty, is2018 ? 1 : 0, animate ? 600 : 0);
+
+            // hero and labels
+            topEditionText.Text = is2018 ? "2 0 1 8" : "2 0 1 6";
+            heroKicker.Text = is2018 ? "STEAM BUILD   ·   JSEMU 2018 SERVER   ·   EU" : "SURVIVAL   ·   JSEMU SERVERS   ·   EU";
+            heroEdition.Text = is2018 ? "JUST SURVIVE 2018" : "JUST SURVIVE 2016";
+            heroModes.Text = is2018 ? "BUILD 2.1.886508   ·   SURVIVAL   ·   PVP" : "SURVIVAL   ·   PVP   ·   BASE BUILDING";
+            heroDescription.Text = is2018
+                ? "The 2018 Steam build of Just Survive on the JSEmu 2018 server. Install it with your Steam account and the launcher " +
+                  "sets up the JSEmu LaunchPad - after that the game also starts straight from Steam."
+                : "The classic December 2016 client on the JSEmu servers. Gather, craft and build, fight off the infected and " +
+                  "other survivors - and talk to the players around you with proximity voice.";
+            editionBadge.Text = is2018 ? "2018  ·  STEAM" : "2016  ·  CLASSIC";
+            steamBadge.Text = is2018 ? "STEAM  ·  2018" : "STEAM  ·  2016";
+            serverStatusText.Text = is2018 ? "JSEMU 2018 SERVER  ·  EU  ·  ONLINE" : "JSEMU SERVERS  ·  EU  ·  ONLINE";
+            if (animate)
             {
-                playButton.Background = new LinearGradientBrush(accent, accentDark, 90);
-                playButton.Foreground = is2018 ? new SolidColorBrush(Color.FromRgb(0x1A, 0x12, 0x08)) : Brushes.White;
+                Animate(heroPanel, OpacityProperty, 1, 450, 0);
+                Animate(heroShift, TranslateTransform.YProperty, 0, 450, 12);
             }
-            else
-            {
-                playButton.ClearValue(Button.BackgroundProperty);   // back to the PrimaryButton style
-                playButton.ClearValue(Button.ForegroundProperty);
-            }
-            directoryBox.BorderBrush = new SolidColorBrush(is2018 ? Color.FromRgb(0x8A, 0x5A, 0x1E) : Color.FromRgb(0x7F, 0x25, 0x2A));
 
-            // 2018 gets a tinted banner, an edition badge and a fixed server card instead of the list.
-            tint2018.Visibility = is2018 ? Visibility.Visible : Visibility.Collapsed;
-            badge2018.Visibility = is2018 ? Visibility.Visible : Visibility.Collapsed;
+            // 2018 has one fixed server instead of the list, and its folder comes from Steam.
             server2018Info.Visibility = is2018 ? Visibility.Visible : Visibility.Collapsed;
             serverSelector.Visibility = is2016 ? Visibility.Visible : Visibility.Hidden;
             serverSelectorIcon.Visibility = is2016 ? Visibility.Visible : Visibility.Hidden;
             serverSelector.IsEnabled = is2016;
-            directoryButton.IsEnabled = !is2018;
+            directoryButton.Visibility = is2016 ? Visibility.Visible : Visibility.Collapsed;
 
             if (is2016)
             {
@@ -1095,6 +1102,24 @@ namespace H1Emu_Launcher
             // Put our LaunchPad and its settings in place right away - Steam's own Play button
             // never goes through this launcher.
             Task.Run(() => Edition2018.EnsureGameDirReady(dir));
+        }
+
+        private static void Animate(IAnimatable target, DependencyProperty property, double to, double milliseconds, double? from = null)
+        {
+            if (milliseconds <= 0)
+            {
+                target.BeginAnimation(property, null);
+                ((DependencyObject)target).SetValue(property, to);
+                return;
+            }
+            var animation = new DoubleAnimation(to, new Duration(TimeSpan.FromMilliseconds(milliseconds)))
+            {
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
+            };
+            // From = the value on screen right now, unless the caller gives one.
+            animation.From = from ?? (double)((DependencyObject)target).GetValue(property);
+            ((DependencyObject)target).SetValue(property, to);
+            target.BeginAnimation(property, animation);
         }
 
         // Play in 2018 mode. Returns when the game was started (or an error was shown).
@@ -1150,6 +1175,11 @@ namespace H1Emu_Launcher
                 Properties.Settings.Default.Save();
             }
 
+            // The footer used to show a fixed "3.5.15"; show the real build.
+            Version launcherVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            if (launcherVersion != null)
+                copyrightNotice.Text = $"Launcher Version: {launcherVersion.ToString(3)}";
+
             DisplayVersionInformation();
             LoadServers();
             CheckGameVersionAndPath(this, false, false);
@@ -1175,11 +1205,50 @@ namespace H1Emu_Launcher
             // and the talking list with made-up names over this window.
             if (Environment.GetEnvironmentVariable("JSEMU_UI_PREVIEW") == "1" && Environment.GetEnvironmentVariable("JSEMU_UI_VOICE_SAMPLE") == "1")
                 Voice2016.ShowPreviewSample(this);
+            // UI preview only: JSEMU_UI_DIALOG=message|ban|unregistered|update|splash|disclaimer|additem|download opens that
+            // window with sample text - nothing is checked, downloaded or saved.
+            if (Environment.GetEnvironmentVariable("JSEMU_UI_PREVIEW") == "1")
+                ShowPreviewDialog(Environment.GetEnvironmentVariable("JSEMU_UI_DIALOG"));
 #endif
 
             if (rawArgs != null)
                 await ExecuteArguments(rawArgs);
         }
+
+#if DEBUG
+        private void ShowPreviewDialog(string dialog)
+        {
+            switch (dialog)
+            {
+                case "message":
+                    CustomMessageBox.Show("Sample message: the game folder could not be found.\n\nSelect the folder of Just Survive 2016 and try again.", this, false, true, true);
+                    break;
+                case "ban":
+                    AccountStatusApi.ShowBlockedWindow(this, new AccountStatusApi.Status { Registered = true, Banned = true, BanReason = "Cheating (sample)", ExpiresAt = DateTime.Now.AddDays(7) });
+                    break;
+                case "unregistered":
+                    AccountStatusApi.ShowBlockedWindow(this, new AccountStatusApi.Status { Registered = false });
+                    break;
+                case "update":
+                    new UpdateWindow { Owner = this, previewOnly = true }.Show();
+                    break;
+                case "splash":
+                    new SplashWindow { previewOnly = true }.Show();
+                    break;
+                case "disclaimer":
+                    new DisclaimerWindow { Owner = this }.Show();
+                    break;
+                case "download":
+                    var downloadPage = new SteamFramePages.DownloadStatus();
+                    downloadPage.downloadProgress.Value = 37;
+                    steamFramePanel.Navigate(downloadPage);
+                    break;
+                case "additem":
+                    new AddItemWindow { Owner = this, itemType = 1 }.Show();
+                    break;
+            }
+        }
+#endif
 
         public async void DisplayVersionInformation()
         {
@@ -1519,6 +1588,15 @@ namespace H1Emu_Launcher
             Process.Start(new ProcessStartInfo
             {
                 FileName = e.Uri.AbsoluteUri.ToString(),
+                UseShellExecute = true
+            });
+        }
+
+        private void OpenWebsite(object sender, RoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = Info.WEBSITE,
                 UseShellExecute = true
             });
         }

@@ -21,7 +21,7 @@
         </ResourceDictionary>
     </Page.Resources>
 
-    <Border Background="#06090D"
+    <Border Background="Transparent"
             UseLayoutRounding="True"
             VerticalAlignment="Top"
             CornerRadius="0">
@@ -50,7 +50,7 @@
                     <!-- Lead development -->
                     <TextBlock Margin="20"
                                FontSize="18"
-                               Foreground="#FFED1C24"
+                               Foreground="{DynamicResource Accent.Brush}"
                                TextDecorations="Underline"
                                HorizontalAlignment="Center"
                                TextWrapping="Wrap"
@@ -84,7 +84,7 @@
                     <!-- Developers -->
                     <TextBlock Margin="0,20,0,20"
                                FontSize="18"
-                               Foreground="#FFED1C24"
+                               Foreground="{DynamicResource Accent.Brush}"
                                TextDecorations="Underline"
                                HorizontalAlignment="Center"
                                TextWrapping="Wrap"

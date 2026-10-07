@@ -61,21 +61,13 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Logo -->
-                <Image Source="..\Resources\H1EmuIcon.png"
-                       Stretch="Uniform"
-                       Height="30"
-                       Margin="15"
-                       VerticalAlignment="Top"
-                       HorizontalAlignment="Left">
-
-                    <Image.Effect>
-                        <DropShadowEffect BlurRadius="15"
-                                              Direction="-90"
-                                              RenderingBias="Quality"
-                                              ShadowDepth="0"
-                                              Opacity="0.3"/>
-                    </Image.Effect>
-                </Image>
+                <!-- JSEmu logo: the slash follows the edition accent -->
+                <Grid Height="18" Margin="15,21,15,21" VerticalAlignment="Top" HorizontalAlignment="Left">
+                    <Image Source="..\Resources\LogoWordmark.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <Rectangle Fill="{DynamicResource Accent.Brush}">
+                        <Rectangle.OpacityMask><ImageBrush ImageSource="..\Resources\LogoMark.png" Stretch="Uniform"/></Rectangle.OpacityMask>
+                    </Rectangle>
+                </Grid>
 
                 <!-- Exit button -->
                 <Button x:Name="CloseButton"
@@ -245,7 +237,7 @@
                                              Margin="20"
                                              VerticalAlignment="Center"
                                              Background="{DynamicResource LighterColour}"
-                                             Foreground="{DynamicResource DarkerColour}"
+                                             Foreground="{DynamicResource Accent.GradientBrush}"
                                              BorderBrush="{DynamicResource RedAccent}"
                                              BorderThickness="2"
                                              classes:ProgressBarCornerRadius.CornerRadius="5"

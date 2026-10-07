@@ -23,7 +23,7 @@
         </ResourceDictionary>
     </Page.Resources>
 
-    <Border Background="#06090D"
+    <Border Background="Transparent"
             UseLayoutRounding="True"
             CornerRadius="0">
 
@@ -236,7 +236,7 @@
                                  Margin="20"
                                  VerticalAlignment="Center"
                                  Background="{DynamicResource LighterColour}"
-                                 Foreground="{DynamicResource DarkerColour}"
+                                 Foreground="{DynamicResource Accent.GradientBrush}"
                                  BorderBrush="{DynamicResource RedAccent}"
                                  BorderThickness="2"
                                  classes:ProgressBarCornerRadius.CornerRadius="5"
