@@ -50,7 +50,6 @@
     <None Remove="Resources\CustomClientConfig.ini" />
     <None Remove="Resources\DisplayImage.png" />
     <None Remove="Resources\Game-Patch-2016.zip" />
-    <None Remove="Resources\Game-Patch-KotK.zip" />
     <None Remove="Resources\Game_Patch_2016.zip" />
     <None Remove="Resources\Grain.png" />
     <None Remove="Resources\H1EmuIcon.png" />

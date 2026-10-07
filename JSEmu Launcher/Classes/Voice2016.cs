@@ -11,7 +11,7 @@ using Cranberry.Launcher.Core.Voice;
 
 namespace H1Emu_Launcher.Classes
 {
-    // Proximity voice for the 2016 game on the JSEmu servers, with the KOTK voice client
+    // Proximity voice for the 2016 game on the JSEmu servers, with the voice client of the Cranberry launcher
     // (Cranberry.Launcher.Core.Voice / Cranberry.Launcher.Client.ProximityAudio).
     //
     // The router is the proximityVoice plugin inside each 2016 zone server (JSEmu-Server repo,
@@ -180,15 +180,15 @@ namespace H1Emu_Launcher.Classes
                         stop.ThrowIfCancellationRequested();
                         failures = 0;
                         link.Client = client;
-                        EditionKotK.Log($"voice2016 {link.Endpoint.Name}: connected");
+                        LauncherLog.Write($"voice2016 {link.Endpoint.Name}: connected");
                         await client.Completion.WaitAsync(stop);
-                        EditionKotK.Log($"voice2016 {link.Endpoint.Name}: disconnected");
+                        LauncherLog.Write($"voice2016 {link.Endpoint.Name}: disconnected");
                     }
                     catch (Exception ex) when (ex is System.Net.WebSockets.WebSocketException or OperationCanceledException
                         or IOException or InvalidOperationException or InvalidDataException or System.Net.Http.HttpRequestException)
                     {
                         if (stop.IsCancellationRequested) break;
-                        if (failures++ == 0) EditionKotK.Log($"voice2016 {link.Endpoint.Name}: {ex.Message}");
+                        if (failures++ == 0) LauncherLog.Write($"voice2016 {link.Endpoint.Name}: {ex.Message}");
                     }
                     finally
                     {
@@ -280,7 +280,7 @@ namespace H1Emu_Launcher.Classes
             }
             catch (Exception ex) when (ex is NAudio.MmException or InvalidOperationException or System.ComponentModel.Win32Exception)
             {
-                EditionKotK.Log("voice2016 audio: " + ex.Message);
+                LauncherLog.Write("voice2016 audio: " + ex.Message);
                 SetStatus("Audio device unavailable. Choose your microphone and headphones in Settings > Voice.");
                 DropAudio();
                 _audioRetryAt = Environment.TickCount64 + 5000;

@@ -10,7 +10,7 @@
         WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize"
         FontFamily="Segoe UI" FontSize="15" Foreground="#E7E9ED" Background="Transparent"
         Loaded="LauncherWindowLoaded" ContentRendered="LauncherWindowContentRendered"
-        IsVisibleChanged="LauncherWindowIsVisibleChanged" Closing="LauncherWindowClosing" Closed="LauncherWindowClosed">
+        IsVisibleChanged="LauncherWindowIsVisibleChanged" Closed="LauncherWindowClosed">
 
     <WindowChrome.WindowChrome>
         <WindowChrome GlassFrameThickness="1" CaptionHeight="0" NonClientFrameEdges="Bottom, Left, Right"/>
@@ -82,7 +82,7 @@
     <Border Width="1440" Height="810" Background="#080B0E" BorderBrush="#252B30" BorderThickness="1" CornerRadius="15" ClipToBounds="True"
             MouseLeftButtonDown="MoveWindow">
         <Grid>
-        <!-- 2016 / 2018 layout. KOTK has its own layout (kotkLayout) under the same top chrome. -->
+        <!-- 2016 / 2018 layout -->
         <Grid x:Name="classicLayout">
             <Grid.Background><RadialGradientBrush Center="0.5,0" GradientOrigin="0.5,0" RadiusX="0.85" RadiusY="1.1">
                 <GradientStop Color="#14181C" Offset="0"/><GradientStop Color="#090C0F" Offset="0.55"/><GradientStop Color="#050709" Offset="1"/>
@@ -247,169 +247,12 @@
             </Grid>
         </Grid>
 
-        <!-- KOTK layout: King of the Kill launcher - install / play on the left, friends, party and
-             invitations on the right. Its theme lives here, not in Window.Resources, because the
-             language switch replaces the window's merged dictionaries. -->
-        <Grid x:Name="kotkLayout" Visibility="Collapsed" Background="#0B0B0D" TextElement.FontFamily="Bahnschrift">
-            <Grid.Resources>
-                <ResourceDictionary>
-                    <ResourceDictionary.MergedDictionaries>
-                        <ResourceDictionary Source="KotKTheme.xaml"/>
-                    </ResourceDictionary.MergedDictionaries>
-                </ResourceDictionary>
-            </Grid.Resources>
-            <Grid.RowDefinitions><RowDefinition Height="84"/><RowDefinition Height="*"/><RowDefinition Height="46"/></Grid.RowDefinitions>
-
-            <!-- Background art: Resources\KotKBackground.png is HeroBanner-v2.png mirrored (sunset behind
-                 the title) with the readability shading baked in. Shading it at runtime with
-                 semi-transparent layers left white specks over the near-black parts of the art. -->
-            <Image Grid.RowSpan="3" Source="..\Resources\KotKBackground.png" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="Linear" IsHitTestVisible="False"/>
-
-            <!-- top bar: the edition switcher and window controls are the shared chrome below -->
-            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,4,0,0" IsHitTestVisible="False">
-                <Path Data="{StaticResource KotK.CrownIcon}" Fill="{StaticResource KotK.GoldGradient}" Width="22" Height="20" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                <TextBlock Text="J S E M U   ·   K O T K" FontFamily="{StaticResource KotK.Display}" FontSize="15" Foreground="#C9C2B4" VerticalAlignment="Center"/>
-            </StackPanel>
-            <Button Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,16,236,0" Height="44" Padding="16,0" Click="OpenDiscord" Style="{StaticResource KotK.Button}" ToolTip="Join the JSEmu Discord">
-                <StackPanel Orientation="Horizontal">
-                    <Path Data="M3,6 C5,2.5 19,2.5 21,6 L23,13 C23.8,15.8 20,17.5 18,14.7 L16.5,12.8 C13.5,13.8 10.5,13.8 7.5,12.8 L6,14.7 C4,17.5 0.2,15.8 1,13 Z" Fill="#8C95FF" Width="20" Height="15" Stretch="Uniform" Margin="0,0,9,0"/>
-                    <TextBlock Text="DISCORD" VerticalAlignment="Center" FontSize="15"/>
-                </StackPanel>
-            </Button>
-            <Rectangle Grid.Row="0" Height="1" VerticalAlignment="Bottom" Margin="40,0" Fill="{StaticResource KotK.GoldLine}" Opacity="0.55"/>
-
-            <Grid Grid.Row="1" Margin="56,22,32,16">
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="28"/><ColumnDefinition Width="440"/></Grid.ColumnDefinitions>
-
-                <!-- title, status and play -->
-                <Grid>
-                    <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                    <StackPanel VerticalAlignment="Top" Margin="0,24,0,0">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Data="{StaticResource KotK.CrownIcon}" Fill="{StaticResource KotK.GoldGradient}" Width="30" Height="28" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                            <TextBlock Text="BATTLE ROYALE  ·  JSEMU KOTK SERVER  ·  EU" FontFamily="{StaticResource KotK.Display}" FontSize="16" Foreground="{StaticResource KotK.Gold}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <TextBlock Text="KING OF THE KILL" FontFamily="{StaticResource KotK.DisplayBold}" FontSize="108" Foreground="#F6F2EA" Margin="-4,-6,0,-14"/>
-                        <StackPanel Orientation="Horizontal">
-                            <Border Background="{StaticResource KotK.GoldGradient}" CornerRadius="2" Padding="12,2,12,3" VerticalAlignment="Center">
-                                <TextBlock Text="PRE-SEASON 5" FontFamily="{StaticResource KotK.DisplayBold}" FontSize="22" Foreground="#1A1305"/>
-                            </Border>
-                            <TextBlock Text="SOLO   ·   DUOS   ·   FIVES" FontFamily="{StaticResource KotK.Display}" FontSize="22" Foreground="#D8D1C4" VerticalAlignment="Center" Margin="18,0,0,0"/>
-                        </StackPanel>
-                        <TextBlock Margin="0,18,0,0" MaxWidth="560" HorizontalAlignment="Left" TextWrapping="Wrap" FontSize="15" LineHeight="22" Foreground="#B5AE9F"
-                                   Text="The 2017 King of the Kill client on the JSEmu KOTK server. Drop in with your party, loot fast, stay inside the zone and be the last one standing."/>
-                    </StackPanel>
-                    <!-- JSEmu event tickets: an hour played in matches = 1 (max 3 a day), a win with 6+ players = 1 -->
-                    <Border x:Name="kotkTicketCard" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="560" Margin="0,0,0,14"
-                            Background="#E80D0D0F" BorderBrush="{StaticResource KotK.Border}" BorderThickness="1" CornerRadius="4" Padding="18,12,14,12">
-                        <Grid>
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <StackPanel VerticalAlignment="Center">
-                                <Grid>
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                    <TextBlock Text="EVENT TICKETS" FontFamily="{StaticResource KotK.DisplayBold}" FontSize="16" Foreground="{StaticResource KotK.Gold}"/>
-                                    <TextBlock x:Name="kotkTicketToday" Grid.Column="1" HorizontalAlignment="Right" FontFamily="{StaticResource KotK.Display}" FontSize="13" Foreground="#D8D1C4" Margin="12,1,0,0"/>
-                                </Grid>
-                                <ProgressBar x:Name="kotkTicketProgress" Margin="0,8,0,6" Height="6" Minimum="0" Maximum="3600" Value="0" Style="{StaticResource KotK.Progress}"/>
-                                <TextBlock x:Name="kotkTicketText" FontSize="12" Foreground="{StaticResource KotK.Muted}" TextTrimming="CharacterEllipsis"
-                                           Text="Play matches to earn tickets: 1 per hour in game (max 3 a day), +1 for a win with 6+ players."/>
-                            </StackPanel>
-                            <Button x:Name="kotkTicketClaim" Grid.Column="1" Content="CLAIM" Click="KotKClaimTickets" Height="44" MinWidth="112" Padding="16,0" Margin="16,0,0,0"
-                                    FontSize="16" IsEnabled="False" Style="{StaticResource KotK.GoldButton}"/>
-                        </Grid>
-                    </Border>
-
-                    <Border Grid.Row="1" Background="#E80D0D0F" BorderBrush="{StaticResource KotK.Border}" BorderThickness="1" CornerRadius="4" Padding="24,20,24,22">
-                        <Grid>
-                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <Rectangle Height="2" VerticalAlignment="Top" Margin="-24,-21,-24,0" Fill="{StaticResource KotK.GoldLine}"/>
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <StackPanel>
-                                    <TextBlock Text="GAME STATUS" Style="{StaticResource KotK.Heading}" Margin="0,0,0,4"/>
-                                    <TextBlock x:Name="kotkStatus" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxHeight="42" FontSize="15" LineHeight="21" Foreground="#EEEAE2"
-                                               Text="Press Play - the launcher downloads KOTK (about 14.6 GB) and signs you in with your account key."/>
-                                </StackPanel>
-                                <Border Grid.Column="1" VerticalAlignment="Top" Margin="16,0,0,0" Padding="10,4" CornerRadius="2" Background="#141416" BorderBrush="{StaticResource KotK.BorderStrong}" BorderThickness="1">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Ellipse x:Name="kotkVersionDot" Width="8" Height="8" Fill="{StaticResource KotK.Dim}" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                        <TextBlock x:Name="kotkGameVersion" Text="NOT INSTALLED" FontFamily="{StaticResource KotK.Display}" FontSize="13" Foreground="#D8D1C4"/>
-                                    </StackPanel>
-                                </Border>
-                            </Grid>
-                            <ProgressBar x:Name="kotkProgress" Grid.Row="1" Margin="0,14,0,0" Minimum="0" Maximum="100" Value="0" Style="{StaticResource KotK.Progress}"/>
-                            <Grid Grid.Row="2" Margin="0,16,0,0">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <Border Background="{StaticResource KotK.FieldBg}" BorderBrush="{StaticResource KotK.Border}" BorderThickness="1" CornerRadius="3" Height="40">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <Button Click="OpenDirectory" Width="40" Height="38" Style="{DynamicResource PathButton}" ToolTip="Open the game folder">
-                                            <Path Data="{DynamicResource FolderIcon}" Stroke="{StaticResource KotK.Gold}" StrokeThickness="1.5" Stretch="Uniform" Width="18" Height="18"/>
-                                        </Button>
-                                        <TextBlock Grid.Column="1" Text="GAME FOLDER" FontFamily="{StaticResource KotK.Display}" FontSize="12" Foreground="{StaticResource KotK.Dim}" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                                        <TextBlock x:Name="kotkDirectoryBox" Grid.Column="2" VerticalAlignment="Center" FontSize="14" Foreground="#D8D1C4" TextTrimming="CharacterEllipsis" Margin="0,0,12,0"/>
-                                    </Grid>
-                                </Border>
-                                <Button x:Name="kotkDirectoryButton" Grid.Column="1" Content="CHANGE" Click="SelectDirectory" Height="40" Margin="8,0,0,0" Padding="18,0" Style="{StaticResource KotK.Button}" ToolTip="Choose where KOTK is installed"/>
-                            </Grid>
-                            <Grid Grid.Row="3" Margin="0,18,0,0">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <Grid VerticalAlignment="Center" Margin="0,0,20,0">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                    <Path Data="{DynamicResource ShieldIcon}" Width="16" Height="18" Stretch="Uniform" Fill="{StaticResource KotK.Red}" VerticalAlignment="Top" Margin="0,1,10,0"/>
-                                    <TextBlock Grid.Column="1" TextWrapping="Wrap" FontSize="11" LineHeight="15" Foreground="{StaticResource KotK.Muted}"><Run Text="{DynamicResource item10}" Foreground="#E0564E" FontWeight="SemiBold"/><Run Text=" "/><Run Text="{DynamicResource item11}"/></TextBlock>
-                                </Grid>
-                                <Button x:Name="kotkRepairButton" Grid.Column="1" Content="INSTALL / REPAIR" Click="KotKRepairClick" Height="66" Padding="20,0" FontSize="16" Margin="0,0,10,0" Style="{StaticResource KotK.Button}"
-                                        ToolTip="Check every game file and download only what is missing or changed"/>
-                                <Button x:Name="kotkCancelButton" Grid.Column="2" Content="CANCEL" Click="KotKCancelClick" Height="66" Padding="22,0" FontSize="16" Margin="0,0,10,0" Visibility="Collapsed" Style="{StaticResource KotK.DangerButton}"
-                                        ToolTip="Stop the download. Progress is kept."/>
-                                <!-- soft gold glow behind Play (no bitmap effect: those leave specks under the Viewbox) -->
-                                <Border Grid.Column="3" Margin="-26,-22" IsHitTestVisible="False" Opacity="{Binding Opacity, ElementName=kotkPlayButton}">
-                                    <Border.Background><RadialGradientBrush RadiusX="0.5" RadiusY="0.5">
-                                        <GradientStop Color="#55F2B233" Offset="0.35"/><GradientStop Color="#00F2B233" Offset="1"/>
-                                    </RadialGradientBrush></Border.Background>
-                                </Border>
-                                <Button x:Name="kotkPlayButton" Grid.Column="3" Click="KotKPlayClick" Width="250" Height="66" FontSize="34" Content="{DynamicResource item8}" Style="{StaticResource KotK.GoldButton}"/>
-                            </Grid>
-                        </Grid>
-                    </Border>
-                </Grid>
-
-                <!-- friends, party, invitations -->
-                <Border Grid.Column="2" Background="#E60D0D0F" BorderBrush="{StaticResource KotK.Border}" BorderThickness="1" CornerRadius="4" Padding="22,20,22,20">
-                    <Grid>
-                        <Rectangle Height="2" VerticalAlignment="Top" Margin="-22,-21,-22,0" Fill="{StaticResource KotK.GoldLine}"/>
-                        <local:KotKSocialPanel x:Name="kotkSocial"/>
-                    </Grid>
-                </Border>
-            </Grid>
-
-            <!-- footer -->
-            <Grid Grid.Row="2" Margin="56,0,32,0">
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                <Rectangle Grid.ColumnSpan="3" Height="1" VerticalAlignment="Top" Fill="#1F1D1A"/>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Ellipse x:Name="kotkServerDot" Width="9" Height="9" Fill="{StaticResource KotK.Dim}" Margin="0,0,9,0"/>
-                    <TextBlock x:Name="kotkServerText" Text="KOTK SERVER  ·  EU  ·  CONNECTING" FontFamily="{StaticResource KotK.Display}" FontSize="13" Foreground="{StaticResource KotK.Muted}"/>
-                    <TextBlock x:Name="kotkFriendsOnline" FontFamily="{StaticResource KotK.Display}" FontSize="13" Foreground="{StaticResource KotK.Dim}" Margin="16,0,0,0"/>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Click="OpenWebsite" Cursor="Hand" Style="{DynamicResource PathButton}" ToolTip="jsemu.eu">
-                        <TextBlock Text="J S E M U . E U" FontFamily="{StaticResource KotK.Display}" FontSize="13" Foreground="#C9C2B4"/>
-                    </Button>
-                    <TextBlock Text="   |   " FontSize="12" Foreground="#3A3630" VerticalAlignment="Center"/>
-                    <TextBlock Text="K I N G   O F   T H E   K I L L" FontFamily="{StaticResource KotK.Display}" FontSize="13" Foreground="{StaticResource KotK.Gold}" VerticalAlignment="Center"/>
-                </StackPanel>
-                <TextBlock Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource KotK.Dim}" Text="{Binding Text, ElementName=copyrightNotice}"/>
-            </Grid>
-        </Grid>
-
         <!-- Top chrome shared by every layout: power mark, edition switch and window controls -->
         <Grid VerticalAlignment="Top" Height="84">
             <Border Width="38" Height="38" Margin="18" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#CA090C10" BorderBrush="#3B4146" BorderThickness="1" CornerRadius="9">
                 <Grid><Ellipse Width="13" Height="13" Stroke="#DDE1E5" StrokeThickness="1.5"/><Rectangle Width="3" Height="8" Fill="#E61D2B" RadiusX="1" RadiusY="1"/></Grid>
             </Border>
-            <!-- Game edition switch: 2016 (classic) / 2018 (Steam build, JSEmu 2018 server) / KOTK -->
+            <!-- Game edition switch: 2016 (classic) / 2018 (Steam build, JSEmu 2018 server) -->
             <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="66,16,0,0" Background="#E6070A0D" BorderBrush="#2C3237" BorderThickness="1" CornerRadius="10" Padding="4">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="GAME" Foreground="#6E757C" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,10,0">
@@ -426,13 +269,6 @@
                         <StackPanel>
                             <TextBlock Text="2018" FontSize="17" FontWeight="Bold" HorizontalAlignment="Center"/>
                             <TextBlock x:Name="edition2018Sub" Text="STEAM" FontSize="9" FontWeight="SemiBold" HorizontalAlignment="Center" Foreground="#9AA0A6"/>
-                        </StackPanel>
-                    </Button>
-                    <Border Width="4"/>
-                    <Button x:Name="editionKotKButton" Tag="KOTK" Click="EditionButtonClick" Height="44" MinWidth="96" Style="{StaticResource EditionTabStyle}" ToolTip="King of the Kill - Pre-Season 5, JSEmu KOTK server">
-                        <StackPanel>
-                            <TextBlock Text="KOTK" FontSize="17" FontWeight="Bold" HorizontalAlignment="Center"/>
-                            <TextBlock x:Name="editionKotKSub" Text="PRE-SEASON 5" FontSize="9" FontWeight="SemiBold" HorizontalAlignment="Center" Foreground="#9AA0A6"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>

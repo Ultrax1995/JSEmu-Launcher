@@ -8,30 +8,6 @@
     <Setting Name="activeDirectory2018" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="activeDirectoryKotK" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="kotkClientFixes" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="kotkHideOwnTracers" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="kotkVoiceEnabled" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
-    </Setting>
-    <Setting Name="kotkVoiceInput" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">-1</Value>
-    </Setting>
-    <Setting Name="kotkVoiceOutput" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">-1</Value>
-    </Setting>
-    <Setting Name="kotkVoiceVolume" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">80</Value>
-    </Setting>
-    <Setting Name="kotkVoiceKey" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
     <Setting Name="voice2016Enabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>

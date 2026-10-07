@@ -47,101 +47,13 @@ namespace H1Emu_Launcher.Properties {
             }
         }
 
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string activeDirectoryKotK {
-            get {
-                return ((string)(this["activeDirectoryKotK"]));
-            }
-            set {
-                this["activeDirectoryKotK"] = value;
-            }
-        }
 
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool kotkClientFixes {
-            get {
-                return ((bool)(this["kotkClientFixes"]));
-            }
-            set {
-                this["kotkClientFixes"] = value;
-            }
-        }
 
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool kotkHideOwnTracers {
-            get {
-                return ((bool)(this["kotkHideOwnTracers"]));
-            }
-            set {
-                this["kotkHideOwnTracers"] = value;
-            }
-        }
 
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool kotkVoiceEnabled {
-            get {
-                return ((bool)(this["kotkVoiceEnabled"]));
-            }
-            set {
-                this["kotkVoiceEnabled"] = value;
-            }
-        }
 
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
-        public int kotkVoiceInput {
-            get {
-                return ((int)(this["kotkVoiceInput"]));
-            }
-            set {
-                this["kotkVoiceInput"] = value;
-            }
-        }
 
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
-        public int kotkVoiceOutput {
-            get {
-                return ((int)(this["kotkVoiceOutput"]));
-            }
-            set {
-                this["kotkVoiceOutput"] = value;
-            }
-        }
 
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("80")]
-        public int kotkVoiceVolume {
-            get {
-                return ((int)(this["kotkVoiceVolume"]));
-            }
-            set {
-                this["kotkVoiceVolume"] = value;
-            }
-        }
 
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string kotkVoiceKey {
-            get {
-                return ((string)(this["kotkVoiceKey"]));
-            }
-            set {
-                this["kotkVoiceKey"] = value;
-            }
-        }
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

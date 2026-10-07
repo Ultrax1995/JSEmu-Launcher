@@ -1,2 +1,5 @@
 Source: https://github.com/Mixcria/h1z1-pre-season-5-project (launcher/src/Cranberry.Launcher.Core), MIT License - see LICENSE.
 Retargeted to net9.0-windows; Contracts.cs adds KeyCredentials for JSEmu account-key sign-in.
+Trimmed for JSEmu (KOTK edition removed): only what the 2016 proximity voice needs is kept -
+Contracts.cs (LauncherSettings), LauncherConnection.cs (certificate pin, split out of GameTunnel.cs) and Voice/.
+The installer, game tunnel, client fixes, updater and social code were deleted with the KOTK edition.
