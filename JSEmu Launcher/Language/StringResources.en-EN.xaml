@@ -219,7 +219,7 @@
     <system:String x:Key="item235">This asset pack name already exists in the asset pack list.</system:String>
 	<system:String x:Key="item236">H1Emu.com - Assets Pack</system:String>
     <system:String x:Key="item237">JOIN DISCORD</system:String>
-    <system:String x:Key="item238" xml:space="preserve">Your AuthKey is not registered yet.&#10;&#10;1. Join our Discord: discord.gg/yeDTjJHrQV&#10;2. Get the Member role.&#10;3. Go to the #support channel, click the Auth Key button and paste the AuthKey generated in the launcher.&#10;&#10;After that you can join the game.</system:String>
+    <system:String x:Key="item238" xml:space="preserve">Your AuthKey is not registered yet.&#10;&#10;1. Join our Discord: discord.gg/yeDTjJHrQV&#10;2. Get the Member role.&#10;3. Go to the #support channel, click the Auth Key button and paste the AuthKey generated in the launcher.&#10;&#10;After that you can join the game.&#10;&#10;Already registered? Then the AuthKey in your launcher is not the one you registered. Go to #support, click the Auth Key button and paste the correct AuthKey from the launcher.</system:String>
     <system:String x:Key="item239" xml:space="preserve">Your account is banned.&#10;&#10;Reason: {0}&#10;Duration: {1}&#10;&#10;To appeal, open a ticket on our Discord: discord.gg/yeDTjJHrQV</system:String>
     <system:String x:Key="item240">not specified</system:String>
     <system:String x:Key="item241">permanent</system:String>
