@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -917,26 +918,21 @@ namespace H1Emu_Launcher
                 if (SplashWindow.checkForUpdates && !await SplashWindow.CheckVersion(this) && serverIndex != 2)
                     return;
 
-                // Steam mode is no longer a choice: the game always announces itself to Steam,
-                // so a player with Just Survive on their account gets playtime and presence
-                // without touching any setting. Without Steam it changes nothing.
-                arguments += " STEAM_ENABLED=1";
-
                 // Kill any lingering processes to prevent bugs
                 if (!Properties.Settings.Default.developerMode)
                     KillProcesses();
 
-                // Steam counts a session as "Just Survive" when the game initialises Steam with that
-                // app id. Started from Steam it comes from the environment; started from here the Steam
-                // library reads it from steam_appid.txt in the game folder. Measured 17.10.2026: with
-                // this file the client registers and Steam shows the player in Just Survive, without it
-                // nothing happens. The file is read at game start, so writing it now is enough.
-                // Harmless without Steam or without the game on the account - the init simply fails.
+                // 3.5.40 made the GAME announce itself to Steam, through a steam_appid.txt next
+                // to it. That broke the game for players whose Steam status was Invisible: the
+                // client could not reach Steam, so it quit - they saw it flash and die. The file
+                // goes away for good; the session is announced by JSEmuSteam.exe instead, a tiny
+                // process living beside the game (started below). When Steam refuses there, the
+                // helper exits quietly and the game never notices.
                 try
                 {
                     string steamAppId = Path.Combine(Properties.Settings.Default.activeDirectory, "steam_appid.txt");
-                    if (!File.Exists(steamAppId) || File.ReadAllText(steamAppId).Trim() != "295110")
-                        File.WriteAllText(steamAppId, "295110");
+                    if (File.Exists(steamAppId) && File.ReadAllText(steamAppId).Trim() == "295110")
+                        File.Delete(steamAppId);
                 }
                 catch { }
 
@@ -973,6 +969,11 @@ namespace H1Emu_Launcher
                         startSingleplayerServerProcess.Kill(true);
                 };
                 h1Process.Start();
+
+                // Tells Steam a Just Survive session is running, so the player gets playtime and
+                // shows up as playing it. Deliberately a separate process: the game itself must
+                // never depend on Steam being reachable (see the steam_appid.txt note above).
+                SteamPresence.Start(h1Process, Properties.Settings.Default.activeDirectory);
 
                 // Proximity voice on the JSEmu servers (the proximityVoice plugin of the zone servers).
                 if (serverIndex == 0)
