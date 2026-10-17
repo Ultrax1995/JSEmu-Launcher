@@ -195,18 +195,6 @@ $@"""AppState""
             List<string> lines = File.Exists(ini) ? File.ReadAllLines(ini).ToList() : new List<string> { "# Written by the JSEmu Launcher (2018 mode)." };
             SetIniValue(lines, "server", Server);
             SetIniValue(lines, "sessionid", "auto");
-            // Steam runs this LaunchPad when the player presses Play on Just Survive, so these
-            // lines decide what they get. A player cannot fill them in by hand: the launcher is
-            // a single file they downloaded somewhere and they do not know its path, so we write
-            // it ourselves on every start, together with the edition picked here. Anything other
-            // than 2018 is handed back to us (-launchgame), because those editions need the patch,
-            // the server list and the login that only the launcher does.
-            SetIniValue(lines, "edycja", Selected ? "2018" : "2016");
-            string self = Environment.ProcessPath;
-            if (!string.IsNullOrEmpty(self))
-                SetIniValue(lines, "launcher", self);
-            SetIniValue(lines, "launcher_args", "-launchgame");
-
             File.WriteAllLines(ini, lines);
         }
 
