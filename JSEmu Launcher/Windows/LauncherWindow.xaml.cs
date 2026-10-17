@@ -917,13 +917,28 @@ namespace H1Emu_Launcher
                 if (SplashWindow.checkForUpdates && !await SplashWindow.CheckVersion(this) && serverIndex != 2)
                     return;
 
-                // If user has Steam enabled then add it to the launch arguments
-                if (Properties.Settings.Default.steamEnabled)
-                    arguments += " STEAM_ENABLED=1";
+                // Steam mode is no longer a choice: the game always announces itself to Steam,
+                // so a player with Just Survive on their account gets playtime and presence
+                // without touching any setting. Without Steam it changes nothing.
+                arguments += " STEAM_ENABLED=1";
 
                 // Kill any lingering processes to prevent bugs
                 if (!Properties.Settings.Default.developerMode)
                     KillProcesses();
+
+                // Steam counts a session as "Just Survive" when the game initialises Steam with that
+                // app id. Started from Steam it comes from the environment; started from here the Steam
+                // library reads it from steam_appid.txt in the game folder. Measured 17.10.2026: with
+                // this file the client registers and Steam shows the player in Just Survive, without it
+                // nothing happens. The file is read at game start, so writing it now is enough.
+                // Harmless without Steam or without the game on the account - the init simply fails.
+                try
+                {
+                    string steamAppId = Path.Combine(Properties.Settings.Default.activeDirectory, "steam_appid.txt");
+                    if (!File.Exists(steamAppId) || File.ReadAllText(steamAppId).Trim() != "295110")
+                        File.WriteAllText(steamAppId, "295110");
+                }
+                catch { }
 
                 // Launch game
                 Process h1Process = new()

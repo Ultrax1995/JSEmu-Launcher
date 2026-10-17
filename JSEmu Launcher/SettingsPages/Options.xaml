@@ -215,55 +215,6 @@
             </Grid>
 
             <!-- Divider -->
-            <Rectangle Grid.Row="6"
-                       Margin="20,0,20,0"
-                       Height="1"
-                       Fill="{DynamicResource LighterColour}">
-
-                <Rectangle.Effect>
-                    <DropShadowEffect BlurRadius="8"
-                                      Direction="-90"
-                                      RenderingBias="Quality"
-                                      ShadowDepth="1"
-                                      Opacity="0.3"/>
-                </Rectangle.Effect>
-            </Rectangle>
-
-            <!-- Steam enabled option -->
-            <Grid Grid.Row="7">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="auto"/>
-                </Grid.ColumnDefinitions>
-
-                <TextBlock VerticalAlignment="Center"
-                           Margin="20"
-                           Foreground="FloralWhite"
-                           TextWrapping="Wrap"
-                           Text="{DynamicResource item223}"
-                           Style="{DynamicResource TextBlockStyle}"/>
-
-                <ToggleButton x:Name="steamEnabledToggleButton"
-                              Grid.Column="2"
-                              Height="20"
-                              Margin="20"
-                              HorizontalAlignment="Right"
-                              Click="SteamEnabledToggleButtonClick"
-                              Style="{StaticResource ToggleButtonStyle}">
-
-                    <ToggleButton.Effect>
-
-                        <!-- Drop shadow effect -->
-                        <DropShadowEffect BlurRadius="15"
-                                          Direction="-90"
-                                          RenderingBias="Quality"
-                                          ShadowDepth="1"
-                                          Opacity="0.3"/>
-                    </ToggleButton.Effect>
-                </ToggleButton>
-            </Grid>
-
-            <!-- Divider -->
             <Rectangle Grid.Row="8"
                        Margin="20,0,20,0"
                        Height="1"

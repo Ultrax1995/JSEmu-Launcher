@@ -30,8 +30,6 @@ namespace H1Emu_Launcher.SettingsPages
             if (Properties.Settings.Default.autoMinimise)
                 autoMinimiseToggleButton.IsChecked = true;
 
-            if (Properties.Settings.Default.steamEnabled)
-                steamEnabledToggleButton.IsChecked = true;
 
             if (Properties.Settings.Default.developerMode)
                 developerModeToggleButton.IsChecked = true;
@@ -136,16 +134,7 @@ namespace H1Emu_Launcher.SettingsPages
 
             Properties.Settings.Default.Save();
         }
-
-        private void SteamEnabledToggleButtonClick(object sender, RoutedEventArgs e)
-        {
-            if (steamEnabledToggleButton.IsChecked == true)
-                Properties.Settings.Default.steamEnabled = true;
-            else
-                Properties.Settings.Default.steamEnabled = false;
-
-            Properties.Settings.Default.Save();
-        }
+
 
         private void DeveloperModeToggleButtonClick(object sender, RoutedEventArgs e)
         {
