@@ -247,6 +247,57 @@ namespace H1Emu_Launcher
             }
         }
 
+        // Set when the game died right after starting with the Steam integration on, so the rest
+        // of this launcher run starts it without. Deliberately NOT saved to the settings: the
+        // player may be Online next time, and then the Steam tab should simply come back. One
+        // restart of the launcher is all it takes to try again.
+        private static bool steamIntegrationOffThisRun;
+
+        private static readonly string[] gameProcessNames = { "H1Z1", "H1Z1_BE", "H1Z1_FP" };
+
+        private static bool GameRunning()
+        {
+            foreach (string name in gameProcessNames)
+            {
+                try
+                {
+                    if (Process.GetProcessesByName(name).Length > 0)
+                        return true;
+                }
+                catch { }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// A client that cannot reach Steam quits about a second after it starts, leaving the
+        /// player staring at the desktop. We give the game 15 seconds; if nothing of it is left by
+        /// then, the Steam integration is the prime suspect, so we drop it and press Play again.
+        /// BattlEye relaunches the game under another name, which is why the whole family of
+        /// process names is checked instead of the one we started.
+        /// </summary>
+        private async void WatchForSteamStartupFailure(Process game, string steamAppIdFile)
+        {
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(15));
+
+                if (!game.HasExited || GameRunning())
+                    return;
+
+                steamIntegrationOffThisRun = true;
+                try
+                {
+                    if (File.Exists(steamAppIdFile))
+                        File.Delete(steamAppIdFile);
+                }
+                catch { }
+
+                await Dispatcher.InvokeAsync(() => playButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent)));
+            }
+            catch { }
+        }
+
         private void ServerSelectorChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!serverSelector.IsLoaded)
@@ -928,11 +979,27 @@ namespace H1Emu_Launcher
                 // goes away for good; the session is announced by JSEmuSteam.exe instead, a tiny
                 // process living beside the game (started below). When Steam refuses there, the
                 // helper exits quietly and the game never notices.
+                //
+                // The game's own Steam integration is what draws the Steam tab and the friends
+                // playing - and it only starts when the client can reach Steam, which needs this
+                // file. The catch: when it cannot reach Steam (reported 17.10.2026 with the
+                // status set to Invisible), the client quits on startup. So we try the file every
+                // time and watch what happens; if the game dies straight away we drop the file
+                // and start it again without the integration. The decision lasts only until the
+                // launcher is closed, so a player who goes Online later gets the tab back by
+                // restarting the launcher.
+                bool steamIntegration = !steamIntegrationOffThisRun;
+                string steamAppIdFile = Path.Combine(Properties.Settings.Default.activeDirectory, "steam_appid.txt");
                 try
                 {
-                    string steamAppId = Path.Combine(Properties.Settings.Default.activeDirectory, "steam_appid.txt");
-                    if (File.Exists(steamAppId) && File.ReadAllText(steamAppId).Trim() == "295110")
-                        File.Delete(steamAppId);
+                    if (steamIntegration)
+                    {
+                        if (!File.Exists(steamAppIdFile) || File.ReadAllText(steamAppIdFile).Trim() != "295110")
+                            File.WriteAllText(steamAppIdFile, "295110");
+                        arguments += " STEAM_ENABLED=1";
+                    }
+                    else if (File.Exists(steamAppIdFile) && File.ReadAllText(steamAppIdFile).Trim() == "295110")
+                        File.Delete(steamAppIdFile);
                 }
                 catch { }
 
@@ -970,10 +1037,8 @@ namespace H1Emu_Launcher
                 };
                 h1Process.Start();
 
-                // Tells Steam a Just Survive session is running, so the player gets playtime and
-                // shows up as playing it. Deliberately a separate process: the game itself must
-                // never depend on Steam being reachable (see the steam_appid.txt note above).
-                SteamPresence.Start(h1Process, Properties.Settings.Default.activeDirectory);
+                if (steamIntegration)
+                    WatchForSteamStartupFailure(h1Process, steamAppIdFile);
 
                 // Proximity voice on the JSEmu servers (the proximityVoice plugin of the zone servers).
                 if (serverIndex == 0)
