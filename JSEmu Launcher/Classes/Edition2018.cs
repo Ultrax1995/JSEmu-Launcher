@@ -193,7 +193,11 @@ $@"""AppState""
             // LaunchPad-user.ini: server and account; any other lines (e.g. komendy=0) are kept.
             string ini = Path.Combine(gameDir, "LaunchPad-user.ini");
             List<string> lines = File.Exists(ini) ? File.ReadAllLines(ini).ToList() : new List<string> { "# Written by the JSEmu Launcher (2018 mode)." };
-            SetIniValue(lines, "server", Server);
+            // Someone testing their own server puts localhost in here; rewriting it on every
+            // launcher start sent them back to the live server without a word. Their address
+            // stays, ours only fills a missing or public one. Override: serwer_reczny=1
+            if (!OwnServer(GetIniValue(lines, "server"), GetIniValue(lines, "serwer_reczny")))
+                SetIniValue(lines, "server", Server);
             SetIniValue(lines, "sessionid", "auto");
             File.WriteAllLines(ini, lines);
         }
@@ -229,6 +233,28 @@ $@"""AppState""
         }
 
         private static bool Older(Version installed, Version ours) => installed == null || installed < ours;
+
+        // Value of a key in LaunchPad-user.ini, or "" when it is not there.
+        private static string GetIniValue(List<string> lines, string key)
+        {
+            int i = lines.FindIndex(l => l.TrimStart().StartsWith(key + "=", StringComparison.OrdinalIgnoreCase));
+            return i < 0 ? "" : lines[i].Substring(lines[i].IndexOf('=') + 1).Trim();
+        }
+
+        // True when the address in the file is the player's own (local network) or marked
+        // as hand-set, so we must not touch it.
+        private static bool OwnServer(string server, string manual)
+        {
+            if (manual == "1")
+                return true;
+            if (string.IsNullOrEmpty(server))
+                return false;
+            string host = server.Split(':')[0].Trim().ToLowerInvariant();
+            if (host == "localhost" || host.StartsWith("127.") || host.StartsWith("10.") || host.StartsWith("192.168."))
+                return true;
+            string[] parts = host.Split('.');
+            return host.StartsWith("172.") && parts.Length > 1 && int.TryParse(parts[1], out int second) && second >= 16 && second <= 31;
+        }
 
         private static void SetIniValue(List<string> lines, string key, string value)
         {
