@@ -28,7 +28,7 @@ namespace H1Emu_Launcher.Classes
         public const string BuildId = "3052008";
         public const long ExeSize = 71755720;          // H1Z1.exe of build 2.1.886508
         public const string InstallDirName = "Just Survive";
-        public const string Server = "135.125.173.208:1215";
+        public const string Server = "151.80.19.202:1215"; // new game host 22.10.2026 (an IP: the 2018 client is not known to resolve names)
 
         public static bool Selected => Properties.Settings.Default.gameEdition == "2018";
 

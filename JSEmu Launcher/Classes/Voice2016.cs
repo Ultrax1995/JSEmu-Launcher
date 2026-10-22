@@ -27,8 +27,10 @@ namespace H1Emu_Launcher.Classes
 
         public static readonly Endpoint[] DefaultEndpoints =
         {
-            new("Krakow", "https://135.125.173.208:8890/"),
-            new("TestServer", "https://135.125.173.208:8891/"),
+            // a domain, not an IP: the game host moved (22.10.2026) and will move again; the certificate is pinned by SHA-256,
+            // so the host name is not checked
+            new("Krakow", "https://loginserver.jsemu.eu:8890/"),
+            new("TestServer", "https://loginserver.jsemu.eu:8891/"),
         };
 
         // Self-signed certificate of the voice routers (/home/ubuntu/voice-tls on the game host);
