@@ -302,8 +302,10 @@ namespace H1Emu_Launcher.Classes
                     }
                 }
 
-                // Archives are unpacked on every run so removed game files are restored
-                if (item.extract)
+                // Archives are unpacked when a file of theirs is missing or has another size in the game
+                // folder (a new archive, removed game files) - not on every run: big archives (2018 trees,
+                // ~1900 files) made every Play wait for the same files to be written again
+                if (item.extract && !ArchiveIsInstalled(downloadedFile, targetDirectory))
                     ZipFile.ExtractToDirectory(downloadedFile, targetDirectory, true);
 
                 if (usesDefaultDirectory)
@@ -330,6 +332,32 @@ namespace H1Emu_Launcher.Classes
 
             return Convert.ToHexString(sha256.ComputeHash(stream))
                 .Equals(expectedHash, StringComparison.OrdinalIgnoreCase);
+        }
+
+        // Returns true when every file of the archive is already in the target folder with the same size
+        private static bool ArchiveIsInstalled(string archivePath, string targetDirectory)
+        {
+            try
+            {
+                string root = Path.GetFullPath(targetDirectory);
+                using ZipArchive archive = ZipFile.OpenRead(archivePath);
+                foreach (ZipArchiveEntry entry in archive.Entries)
+                {
+                    // Directory entries have no name
+                    if (string.IsNullOrEmpty(entry.Name))
+                        continue;
+
+                    FileInfo file = new(Path.GetFullPath(Path.Combine(root, entry.FullName)));
+                    if (!file.Exists || file.Length != entry.Length)
+                        return false;
+                }
+                return true;
+            }
+            catch
+            {
+                // Unreadable archive or file: extract, which reports the real problem
+                return false;
+            }
         }
     }
 }
