@@ -1268,13 +1268,10 @@ namespace H1Emu_Launcher
             // Also when the 2016 tab is the active one: a Steam "verify files" puts the Daybreak
             // LaunchPad back, and players start the game from Steam without opening us.
             Task.Run(() => Edition2018.EnsureGameDirReady());
-            Carousel.BeginImageCarousel();
+            // Before the carousel starts: its storyboard only exists after this method, and it stops itself when hidden
             if (!Properties.Settings.Default.imageCarouselVisibility)
-            {
-                // Show image carousel
-                Carousel.playCarousel.Stop();
-                imageCarousel.Visibility = Visibility.Visible;
-            }
+                imageCarousel.Visibility = Visibility.Hidden;
+            Carousel.BeginImageCarousel();
         }
 
         public static string[] rawArgs;
