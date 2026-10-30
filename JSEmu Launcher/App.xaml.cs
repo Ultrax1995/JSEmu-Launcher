@@ -216,7 +216,9 @@ namespace H1Emu_Launcher
 
                     Dispatcher.Invoke(new Action(async delegate
                     {
-                        await LauncherWindow.launcherInstance.ExecuteArguments(args.Split(' '));
+                        // A second launcher can start while this one is still on the splash or update window
+                        if (LauncherWindow.launcherInstance != null)
+                            await LauncherWindow.launcherInstance.ExecuteArguments(args.Split(' '));
                     }));
 
                     pipeServer.Dispose();
@@ -261,6 +263,12 @@ namespace H1Emu_Launcher
             }
         }
 
+        private static string FirstFrames(Exception ex)
+        {
+            string[] frames = ex?.StackTrace?.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
+            return string.Join("\n", frames.Take(3));
+        }
+
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             // UI preview next to a running launcher (development only): the application data belongs
@@ -279,6 +287,10 @@ namespace H1Emu_Launcher
                 Environment.Exit(1);
             }
             {
+                // The message alone cannot tell where it happened: keep the whole exception in the log
+                // and put the first frames in the dialog, so that a player's screenshot is enough.
+                LauncherLog.Write($"Unhandled exception: {e.ExceptionObject}");
+
                 if (LauncherWindow.launcherInstance == null)
                 {
                     MessageBoxResult mbr = CustomMessageBox.Show(
@@ -302,7 +314,7 @@ namespace H1Emu_Launcher
                 }
 
                 CustomMessageBox.Show(
-                    $"An unhandled exception occurred: \"{(e.ExceptionObject as Exception).Message}\".\n\nThe launcher will now close.",
+                    $"An unhandled exception occurred: \"{(e.ExceptionObject as Exception).Message}\".\n\n{FirstFrames(e.ExceptionObject as Exception)}\n\nThe launcher will now close.",
                     LauncherWindow.launcherInstance
                 );
 
