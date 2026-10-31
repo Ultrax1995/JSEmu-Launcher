@@ -23,29 +23,6 @@ namespace H1Emu_Launcher.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2016")]
-        public string gameEdition {
-            get {
-                return ((string)(this["gameEdition"]));
-            }
-            set {
-                this["gameEdition"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string activeDirectory2018 {
-            get {
-                return ((string)(this["activeDirectory2018"]));
-            }
-            set {
-                this["activeDirectory2018"] = value;
-            }
-        }
 
 
 
@@ -218,18 +195,6 @@ namespace H1Emu_Launcher.Properties {
             }
             set {
                 this["firstTimeUse"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int selectedAssetPack {
-            get {
-                return ((int)(this["selectedAssetPack"]));
-            }
-            set {
-                this["selectedAssetPack"] = value;
             }
         }
         

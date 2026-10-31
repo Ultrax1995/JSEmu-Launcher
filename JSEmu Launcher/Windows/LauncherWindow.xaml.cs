@@ -39,7 +39,6 @@ namespace H1Emu_Launcher
         public static ContextMenu notifyIconContextMenu = new();
         public static string customServersJsonFile = $"{Info.APPLICATION_DATA_PATH}\\JSEmu Launcher\\servers.json";
         public static string recentServersJsonFile = $"{Info.APPLICATION_DATA_PATH}\\JSEmu Launcher\\recentServers.json";
-        public static string assetPacksJsonFile = $"{Info.APPLICATION_DATA_PATH}\\JSEmu Launcher\\assetPacks.json";
 
         public Storyboard CarouselNextAnimation;
         public Storyboard CarouselNextAnimationFollow;
@@ -58,8 +57,8 @@ namespace H1Emu_Launcher
             Resources.MergedDictionaries.Clear();
             Resources.MergedDictionaries.Add(SetLanguageFile.LoadFile());
 
-            // Animatable accent brushes for this window (2016 red / 2018 ember).
-            EditionTheme.AttachWindow(Resources, Properties.Settings.Default.gameEdition == "2018");
+            // Accent brushes for this window.
+            EditionTheme.AttachWindow(Resources);
 
             CarouselNextAnimation = FindResource("CarouselNextImageAnimation") as Storyboard;
             CarouselNextAnimationFollow = FindResource("CarouselNextImageAnimationFollow") as Storyboard;
@@ -106,15 +105,6 @@ namespace H1Emu_Launcher
         {
             [JsonPropertyName("Recent Server Name")]
             public string CustomServerNameRecent { get; set; }
-        }
-
-        public class AssetPackList
-        {
-            [JsonPropertyName("Asset Pack Name")]
-            public string AssetPackName { get; set; }
-
-            [JsonPropertyName("Asset Pack URL")]
-            public string AssetPackURL { get; set; }
         }
 
         public async Task ExecuteArguments(string[] rawArgs)
@@ -169,43 +159,6 @@ namespace H1Emu_Launcher
                 return;
             }
 
-            // If the new asset pack name and URL arguments exist, open the Add Asset Pack window and tell it to fill in the name and URL fields with the specified argument values
-            if (!string.IsNullOrEmpty(SteamFramePages.Login.GetParameter(rawArgs, "-assetpackname", "")) || !string.IsNullOrEmpty(SteamFramePages.Login.GetParameter(rawArgs, "-assetpackurl", "")))
-            {
-                // Close every other window apart from the Launcher and Settings windows
-                foreach (Window window in Application.Current.Windows)
-                {
-                    if (window is not LauncherWindow && window is not SettingsWindow && window is not AddItemWindow)
-                        window.Close();
-                }
-
-                string newAssetPackName = SteamFramePages.Login.GetParameter(rawArgs, "-assetpackname", "");
-                string newAssetPackURL = SteamFramePages.Login.GetParameter(rawArgs, "-assetpackurl", "");
-
-                if (SettingsWindow.settingsInstance == null)
-                {
-                    SettingsWindow.newAssetPackName = newAssetPackName;
-                    SettingsWindow.newAssetPackURL = newAssetPackURL;
-                    SettingsWindow sw = new();
-                    sw.settingsTabControl.SelectedIndex = 1;
-                    await Task.Run(() =>
-                    {
-                        Dispatcher.Invoke(new Action(delegate
-                        {
-                            sw.ShowDialog();
-                        }));
-                    });
-                }
-                else
-                    SettingsWindow.SwitchToAssetPacksTab(newAssetPackName, newAssetPackURL);
-
-                newAssetPackName = null;
-                newAssetPackURL = null;
-                SettingsWindow.newAssetPackName = null;
-                SettingsWindow.newAssetPackURL = null;
-                return;
-            }
-
             // If the account key argument exists, open the Settings window and tell it to open the Account Key tab with accountkey argument value
             if (!string.IsNullOrEmpty(SteamFramePages.Login.GetParameter(rawArgs, "-accountkey", "")))
             {
@@ -222,7 +175,7 @@ namespace H1Emu_Launcher
                 {
                     SettingsWindow.newAccountKey = newAccountKey;
                     SettingsWindow sw = new();
-                    sw.settingsTabControl.SelectedIndex = 2;
+                    sw.settingsTabControl.SelectedIndex = 1;
                     await Task.Run(() =>
                     {
                         Dispatcher.Invoke(new Action(delegate
@@ -305,7 +258,7 @@ namespace H1Emu_Launcher
 
             if (serverSelector.SelectedIndex == serverSelector.Items.Count - 1 ||
                 serverSelector.SelectedIndex == serverSelector.Items.Count - 2 ||
-                serverSelector.SelectedIndex == 3 || serverSelector.SelectedIndex == -1)
+                serverSelector.SelectedIndex == 1 || serverSelector.SelectedIndex == 3 || serverSelector.SelectedIndex == -1)
             {
                 serverSelector.SelectedIndex = 0;
             }
@@ -551,7 +504,8 @@ namespace H1Emu_Launcher
                 CustomMessageBox.Show($"{FindResource("item184")} \"{e.Message}\".", this);
             }
 
-            serverSelector.SelectedIndex = Properties.Settings.Default.lastServer;
+            // 1 was H1Emu Servers
+            serverSelector.SelectedIndex = Properties.Settings.Default.lastServer == 1 ? 0 : Properties.Settings.Default.lastServer;
         }
 
         private void AddNewServerClick(object sender, MouseButtonEventArgs e)
@@ -811,15 +765,6 @@ namespace H1Emu_Launcher
                 playButton.SetResourceReference(ContentProperty, "item217");
             }
 
-            // 2018 mode: separate game folder, own LaunchPad, always the JSEmu 2018 server.
-            if (Edition2018.Selected)
-            {
-                Launch2018();
-                playButton.IsEnabled = true;
-                playButton.SetResourceReference(ContentProperty, "item8");
-                return;
-            }
-
             if (!CheckGameVersionAndPath(this, false, true))
             {
                 playButton.IsEnabled = true;
@@ -863,50 +808,6 @@ namespace H1Emu_Launcher
 
                     break;
 
-                case 1:
-
-                    // Official H1Emu Servers
-                    // IMPORTANT: H1Emu must receive the RAW account key, not hashed JSEmu key.
-                    string h1emuRawAuthKey = Properties.Settings.Default.sessionIdKey?.Trim() ?? string.Empty;
-
-                    if (string.IsNullOrEmpty(h1emuRawAuthKey))
-                    {
-                        MessageBoxResult mbr = CustomMessageBox.Show(FindResource("item153").ToString(), this, false, true, true);
-
-                        if (mbr != MessageBoxResult.Yes)
-                            throw new Exception("emptyAccountKey");
-                        else
-                            throw new Exception("createAccountKey");
-                    }
-
-                    HttpResponseMessage h1emuAuthResponse = await SplashWindow.httpClient.GetAsync(
-                        Info.H1EMU_ACCOUNT_KEY_CHECK_API + Uri.EscapeDataString(h1emuRawAuthKey)
-                    );
-
-                    if ((int)h1emuAuthResponse.StatusCode != 200)
-                    {
-                        throw new Exception("H1Emu Account Key is not verified. Paste your H1Emu key in Account Key tab.");
-                    }
-
-                    // Debug without exposing full key
-                    try
-                    {
-                        string debugPath = $"{Info.APPLICATION_DATA_PATH}\\JSEmu Launcher\\jsemu-h1emu-auth-debug.txt";
-                        string keyPreview = h1emuRawAuthKey.Length > 12
-                            ? h1emuRawAuthKey.Substring(0, 6) + "..." + h1emuRawAuthKey.Substring(h1emuRawAuthKey.Length - 6)
-                            : h1emuRawAuthKey;
-
-                        File.AppendAllText(
-                            debugPath,
-                            $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] H1Emu launch serverIp={Info.H1EMU_OFFICIAL_SERVER_IP}, keyLength={h1emuRawAuthKey.Length}, keyPreview={keyPreview}{Environment.NewLine}"
-                        );
-                    }
-                    catch { }
-
-                    sessionId = $"{{\"sessionId\":\"{h1emuRawAuthKey}\",\"gameVersion\":2}}";
-                    serverIp = Info.H1EMU_OFFICIAL_SERVER_IP;
-
-                    break;
 
                 case 2:
 
@@ -943,7 +844,7 @@ namespace H1Emu_Launcher
 
                     case "createAccountKey":
                         SettingsWindow sw = new();
-                        sw.settingsTabControl.SelectedIndex = 2;
+                        sw.settingsTabControl.SelectedIndex = 1;
                         sw.ShowDialog();
                         break;
 
@@ -1099,147 +1000,6 @@ namespace H1Emu_Launcher
             }
         }
 
-        // ---- Game edition switch (2016 / 2018) --------------------------------------------
-        private void EditionButtonClick(object sender, RoutedEventArgs e)
-        {
-            string edition = (sender as Button)?.Tag as string ?? "2016";
-            if (Properties.Settings.Default.gameEdition == edition)
-                return;
-
-            Properties.Settings.Default.gameEdition = edition;
-            Properties.Settings.Default.Save();
-            ShowEdition();
-            if (edition == "2016")
-                CheckGameVersionAndPath(this, false, false);
-        }
-
-        // Shows the active edition: accent colours, backdrop, hero texts, server area and game folder.
-        // The first call (window load) jumps straight to the edition; switches are animated.
-        private bool editionShown;
-        public void ShowEdition()
-        {
-            bool is2018 = Edition2018.Selected;
-            bool is2016 = !is2018;
-            bool animate = editionShown && IsLoaded;
-            editionShown = true;
-
-            EditionTheme.Apply(is2018, animate);
-
-            // sliding pill behind the 2016 / 2018 tabs
-            Animate(editionIndicatorShift, TranslateTransform.XProperty, is2018 ? edition2016Button.Width : 0, animate ? 350 : 0);
-            if (is2016) edition2016Button.SetResourceReference(ForegroundProperty, "Accent.TextOnBrush"); else edition2016Button.ClearValue(ForegroundProperty);
-            if (is2018) edition2018Button.SetResourceReference(ForegroundProperty, "Accent.TextOnBrush"); else edition2018Button.ClearValue(ForegroundProperty);
-
-            // backdrop cross-fade
-            Animate(backdrop2016, OpacityProperty, is2016 ? 1 : 0, animate ? 600 : 0);
-            Animate(backdrop2018, OpacityProperty, is2018 ? 1 : 0, animate ? 600 : 0);
-
-            // hero and labels
-            topEditionText.Text = is2018 ? "2 0 1 8" : "2 0 1 6";
-            heroKicker.Text = is2018 ? "STEAM BUILD   ·   JSEMU 2018 SERVER   ·   EU" : "SURVIVAL   ·   JSEMU SERVERS   ·   EU";
-            heroEdition.Text = is2018 ? "JUST SURVIVE 2018" : "JUST SURVIVE 2016";
-            heroModes.Text = is2018 ? "BUILD 2.1.886508   ·   SURVIVAL   ·   PVP" : "SURVIVAL   ·   PVP   ·   BASE BUILDING";
-            heroDescription.Text = is2018
-                ? "The 2018 Steam build of Just Survive on the JSEmu 2018 server. Install it with your Steam account and the launcher " +
-                  "sets up the JSEmu LaunchPad - after that the game also starts straight from Steam."
-                : "The classic December 2016 client on the JSEmu servers. Gather, craft and build, fight off the infected and " +
-                  "other survivors - and talk to the players around you with proximity voice.";
-            editionBadge.Text = is2018 ? "2018  ·  STEAM" : "2016  ·  CLASSIC";
-            steamBadge.Text = is2018 ? "STEAM  ·  2018" : "STEAM  ·  2016";
-            serverStatusText.Text = is2018 ? "JSEMU 2018 SERVER  ·  EU  ·  ONLINE" : "JSEMU SERVERS  ·  EU  ·  ONLINE";
-            if (animate)
-            {
-                Animate(heroPanel, OpacityProperty, 1, 450, 0);
-                Animate(heroShift, TranslateTransform.YProperty, 0, 450, 12);
-            }
-
-            // 2018 has one fixed server instead of the list, and its folder comes from Steam.
-            server2018Info.Visibility = is2018 ? Visibility.Visible : Visibility.Collapsed;
-            serverSelector.Visibility = is2016 ? Visibility.Visible : Visibility.Hidden;
-            serverSelectorIcon.Visibility = is2016 ? Visibility.Visible : Visibility.Hidden;
-            serverSelector.IsEnabled = is2016;
-            directoryButton.Visibility = is2016 ? Visibility.Visible : Visibility.Collapsed;
-
-            if (is2016)
-            {
-                directoryBox.Text = string.IsNullOrEmpty(Properties.Settings.Default.activeDirectory)
-                    ? FindResource("item75").ToString() : Properties.Settings.Default.activeDirectory;
-                return;
-            }
-
-            // 2018: prefer an install Steam knows about, then a folder saved after a download.
-            string dir = Edition2018.FindInSteam();
-            if (dir == null && Edition2018.IsValidInstall(Properties.Settings.Default.activeDirectory2018))
-                dir = Properties.Settings.Default.activeDirectory2018;
-            if (dir != null && dir != Properties.Settings.Default.activeDirectory2018)
-            {
-                Properties.Settings.Default.activeDirectory2018 = dir;
-                Properties.Settings.Default.Save();
-            }
-            directoryBox.Text = dir ?? "Just Survive 2018: not installed - log in with Steam below to download it";
-            currentGame.Text = dir == null ? "Game Version: 2018 not installed"
-                : Edition2018.IsValidInstall(dir) ? "Current Game Version: 2018" : "Game Version: not the 2018 build";
-
-            // Put our LaunchPad and its settings in place right away - Steam's own Play button
-            // never goes through this launcher.
-            Task.Run(() => Edition2018.EnsureGameDirReady(dir));
-        }
-
-        private static void Animate(IAnimatable target, DependencyProperty property, double to, double milliseconds, double? from = null)
-        {
-            if (milliseconds <= 0)
-            {
-                target.BeginAnimation(property, null);
-                ((DependencyObject)target).SetValue(property, to);
-                return;
-            }
-            var animation = new DoubleAnimation(to, new Duration(TimeSpan.FromMilliseconds(milliseconds)))
-            {
-                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
-            };
-            // From = the value on screen right now, unless the caller gives one.
-            animation.From = from ?? (double)((DependencyObject)target).GetValue(property);
-            ((DependencyObject)target).SetValue(property, to);
-            target.BeginAnimation(property, animation);
-        }
-
-        // Play in 2018 mode. Returns when the game was started (or an error was shown).
-        private void Launch2018()
-        {
-            string dir = Edition2018.FindInSteam();
-            if (dir == null && Edition2018.IsValidInstall(Properties.Settings.Default.activeDirectory2018))
-                dir = Properties.Settings.Default.activeDirectory2018;
-
-            if (dir == null)
-            {
-                CustomMessageBox.Show("Just Survive 2018 is not installed.\n\nLog in with your Steam account in the panel below - " +
-                    "the launcher will download the 2018 version into your Steam library.", this);
-                return;
-            }
-
-            if (!Edition2018.IsValidInstall(dir))
-            {
-                CustomMessageBox.Show($"The game in\n{dir}\nis not the 2018 build (2.1.886508). Update it in Steam or remove it and download again.", this);
-                return;
-            }
-
-            if (string.IsNullOrEmpty(Properties.Settings.Default.sessionIdKey?.Trim()))
-            {
-                CustomMessageBox.Show(FindResource("item153").ToString(), this);
-                return;
-            }
-
-            try
-            {
-                Edition2018.PrepareGameDir(dir);
-                Edition2018.Launch(dir);
-            }
-            catch (Exception ex)
-            {
-                CustomMessageBox.Show($"{FindResource("item142")} \"{ex.Message}\"", this);
-            }
-        }
-
         private void LauncherWindowLoaded(object sender, RoutedEventArgs e)
         {
             // Delete old setup file
@@ -1249,13 +1009,6 @@ namespace H1Emu_Launcher
             if (Properties.Settings.Default.language == 1)
                 chineseLink.Visibility = Visibility.Visible;
 
-            // The KOTK edition was removed: anything that is not 2018 opens as 2016.
-            if (Properties.Settings.Default.gameEdition != "2016" && Properties.Settings.Default.gameEdition != "2018")
-            {
-                Properties.Settings.Default.gameEdition = "2016";
-                Properties.Settings.Default.Save();
-            }
-
             // The footer used to show a fixed "3.5.15"; show the real build.
             Version launcherVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             if (launcherVersion != null)
@@ -1264,10 +1017,8 @@ namespace H1Emu_Launcher
             DisplayVersionInformation();
             LoadServers();
             CheckGameVersionAndPath(this, false, false);
-            ShowEdition();
-            // Also when the 2016 tab is the active one: a Steam "verify files" puts the Daybreak
-            // LaunchPad back, and players start the game from Steam without opening us.
-            Task.Run(() => Edition2018.EnsureGameDirReady());
+            directoryBox.Text = string.IsNullOrEmpty(Properties.Settings.Default.activeDirectory)
+                ? FindResource("item75").ToString() : Properties.Settings.Default.activeDirectory;
             // Before the carousel starts: its storyboard only exists after this method, and it stops itself when hidden
             if (!Properties.Settings.Default.imageCarouselVisibility)
                 imageCarousel.Visibility = Visibility.Hidden;
@@ -1278,6 +1029,7 @@ namespace H1Emu_Launcher
         private async void LauncherWindowContentRendered(object sender, EventArgs e)
         {
             _ = UpdateHubCoins();
+            StartServerList();
 #if DEBUG
             // UI preview only (Debug, JSEMU_UI_PREVIEW=1 and JSEMU_UI_VOICE_SAMPLE=1): the Voice settings tab
             // and the talking list with made-up names over this window.
@@ -1612,6 +1364,77 @@ namespace H1Emu_Launcher
             HubWindow window = new() { Owner = this };
             window.Closed += async (_, _) => await UpdateHubCoins();
             window.Show();
+        }
+
+        private System.Windows.Threading.DispatcherTimer serverListTimer;
+
+        private void StartServerList()
+        {
+            if (serverListTimer != null)
+                return;
+
+            _ = UpdateServerList();
+            serverListTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+            serverListTimer.Tick += async (_, _) => await UpdateServerList();
+            serverListTimer.Start();
+        }
+
+        private async System.Threading.Tasks.Task UpdateServerList()
+        {
+            List<ServerStatusApi.Status> servers = await ServerStatusApi.GetAllAsync();
+
+            serverList.Children.Clear();
+            for (int i = 0; i < servers.Count; i++)
+                serverList.Children.Add(CreateServerTile(servers[i], i < servers.Count - 1));
+        }
+
+        private static Border CreateServerTile(ServerStatusApi.Status status, bool gapAfter)
+        {
+            bool known = status.Online.HasValue;
+            bool playing = status.Online > 0;
+
+            System.Windows.Shapes.Ellipse dot = new()
+            {
+                Width = 8,
+                Height = 8,
+                Margin = new Thickness(0, 0, 10, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+                Fill = new SolidColorBrush(playing ? Color.FromRgb(0x52, 0xB8, 0x4A) : Color.FromRgb(0x5E, 0x65, 0x6C))
+            };
+
+            StackPanel name = new() { VerticalAlignment = VerticalAlignment.Center };
+            name.Children.Add(new TextBlock { Text = status.Server.Name, FontSize = 15, FontWeight = FontWeights.SemiBold, Foreground = Brushes.White });
+            name.Children.Add(new TextBlock { Text = status.Server.Mode, FontSize = 11, Foreground = new SolidColorBrush(Color.FromRgb(0x9A, 0xA0, 0xA8)) });
+
+            TextBlock count = new()
+            {
+                Text = known ? status.Online.ToString() : "-",
+                FontSize = 19,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = Brushes.White,
+                VerticalAlignment = VerticalAlignment.Center,
+                ToolTip = known ? $"{status.Online} of {status.Max} players online" : "Could not read the player count"
+            };
+            count.SetResourceReference(TextBlock.FontFamilyProperty, "Signika");
+
+            DockPanel row = new();
+            DockPanel.SetDock(dot, Dock.Left);
+            DockPanel.SetDock(count, Dock.Right);
+            row.Children.Add(dot);
+            row.Children.Add(count);
+            row.Children.Add(name);
+
+            return new Border
+            {
+                Child = row,
+                Height = 66,
+                Padding = new Thickness(14, 0, 14, 0),
+                Margin = new Thickness(0, 0, gapAfter ? 10 : 0, 0),
+                CornerRadius = new CornerRadius(7),
+                BorderThickness = new Thickness(1),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(0x2C, 0x32, 0x37)),
+                Background = new SolidColorBrush(Color.FromArgb(0xE6, 0x0A, 0x0D, 0x10))
+            };
         }
 
         private async System.Threading.Tasks.Task UpdateHubCoins()

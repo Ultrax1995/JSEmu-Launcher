@@ -17,12 +17,11 @@
     </WindowChrome.WindowChrome>
 
     <!-- Layout (1440 x 810, scaled by the Viewbox):
-         top bar        power mark, 2016 / 2018 switch, wordmark, Discord, window controls
-         left column    hero (logo, edition, description), Hub / Dressing Room tiles, game card with Play
+         top bar        power mark, wordmark, Discord, window controls
+         left column    hero (logo, name, description), Hub / Dressing Room tiles, game card with Play
          right column   updates card (patch notes + screenshots), Steam download card
          footer         server status, jsemu.eu, launcher version
-         Every accent colour comes from the Accent.* brushes of Classes/EditionTheme.cs: red for 2016,
-         ember for 2018, animated when the edition changes. Styles sit directly in Window.Resources
+         Every accent colour comes from the Accent.* brushes of Classes/EditionTheme.cs. Styles sit directly in Window.Resources
          because the language switch replaces the merged dictionaries. -->
     <Window.Resources>
         <ResourceDictionary>
@@ -75,22 +74,6 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ChromeBorder" Property="Background" Value="#252A30"/></Trigger>
                         <Trigger Property="IsPressed" Value="True"><Setter TargetName="ChromeBorder" Property="Opacity" Value="0.68"/></Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate></Setter.Value></Setter>
-            </Style>
-
-            <!-- Edition tab (2016 / 2018): the sliding accent pill behind the tabs marks the active one. -->
-            <Style x:Key="EditionTabStyle" TargetType="Button">
-                <Setter Property="Foreground" Value="#9A9FA6"/><Setter Property="Background" Value="Transparent"/>
-                <Setter Property="Cursor" Value="Hand"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
-                    <Grid Background="Transparent">
-                        <Border x:Name="HoverLayer" Background="#14FFFFFF" CornerRadius="7" Opacity="0" IsHitTestVisible="False"/>
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Grid>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="HoverLayer" Property="Opacity" Value="1"/></Trigger>
-                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="HoverLayer" Property="Opacity" Value="0.5"/></Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate></Setter.Value></Setter>
             </Style>
@@ -224,10 +207,9 @@
     <Border Width="1440" Height="810" Background="#08090B" BorderBrush="#252B30" BorderThickness="1" CornerRadius="15" ClipToBounds="True"
             MouseLeftButtonDown="MoveWindow">
         <Grid>
-            <!-- Backdrops: one per edition, cross-faded on the switch -->
+            <!-- Backdrop -->
             <Image x:Name="backdrop2016" Source="..\Resources\Backdrop2016.png" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" IsHitTestVisible="False"/>
-            <Image x:Name="backdrop2018" Source="..\Resources\Backdrop2018.png" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" IsHitTestVisible="False" Opacity="0"/>
-            <!-- edition-coloured ambient light behind the hero -->
+            <!-- accent-coloured ambient light behind the hero -->
             <Ellipse Width="1100" Height="760" Margin="-380,-360,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Fill="{DynamicResource Accent.GlowBrush}" Opacity="0.45" IsHitTestVisible="False"/>
             <Rectangle IsHitTestVisible="False" Opacity="0.06">
                 <Rectangle.Fill><ImageBrush ImageSource="..\Resources\Grain.png" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/></Rectangle.Fill>
@@ -242,40 +224,27 @@
                         <Grid><Ellipse Width="13" Height="13" Stroke="#DDE1E5" StrokeThickness="1.5"/><Rectangle Width="3" Height="8" Fill="{DynamicResource Accent.Brush}" RadiusX="1" RadiusY="1"/></Grid>
                     </Border>
 
-                    <!-- Game edition switch: 2016 (classic JSEmu servers) / 2018 (Steam build, JSEmu 2018 server) -->
-                    <Border HorizontalAlignment="Left" VerticalAlignment="Center" Margin="66,0,0,0" Background="#E6070A0D" BorderBrush="#2C3237" BorderThickness="1" CornerRadius="10" Padding="4">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="GAME" Foreground="#6E757C" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" Margin="8,0,8,0">
-                                <TextBlock.LayoutTransform><RotateTransform Angle="-90"/></TextBlock.LayoutTransform>
-                            </TextBlock>
-                            <Grid>
-                                <Border x:Name="editionIndicator" Width="104" HorizontalAlignment="Left" CornerRadius="7" Background="{DynamicResource Accent.GradientBrush}" BorderBrush="{DynamicResource Accent.LightBrush}" BorderThickness="1">
-                                    <Border.RenderTransform><TranslateTransform x:Name="editionIndicatorShift"/></Border.RenderTransform>
-                                </Border>
-                                <StackPanel Orientation="Horizontal">
-                                    <Button x:Name="edition2016Button" Tag="2016" Click="EditionButtonClick" Height="44" Width="104" Style="{StaticResource EditionTabStyle}" ToolTip="Just Survive 2016 - classic JSEmu servers">
-                                        <StackPanel>
-                                            <TextBlock Text="2016" FontFamily="{StaticResource Signika}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
-                                            <TextBlock x:Name="edition2016Sub" Text="CLASSIC" FontSize="9" FontWeight="SemiBold" HorizontalAlignment="Center" Opacity="0.8"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Button x:Name="edition2018Button" Tag="2018" Click="EditionButtonClick" Height="44" Width="104" Style="{StaticResource EditionTabStyle}" ToolTip="Just Survive 2018 - Steam build, JSEmu 2018 server">
-                                        <StackPanel>
-                                            <TextBlock Text="2018" FontFamily="{StaticResource Signika}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
-                                            <TextBlock x:Name="edition2018Sub" Text="STEAM" FontSize="9" FontWeight="SemiBold" HorizontalAlignment="Center" Opacity="0.8"/>
-                                        </StackPanel>
-                                    </Button>
-                                </StackPanel>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
+
+                    <!-- quick actions -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="68,0,0,0">
+                        <Button x:Name="hubButton" Uid="JSEMU HUB" Tag="Battle Pass, Pimp My Car, Scrap Yard" Click="OpenHub" Width="244" Height="58" Style="{StaticResource TileButton}" ToolTip="Battle Pass, Pimp My Car, Scrap Yard and your coins">
+                            <Border Width="34" Height="34" Background="{DynamicResource Accent.GradientBrush}" CornerRadius="9">
+                                <Path Data="M12,2.5 L20.5,7.3 L20.5,16.7 L12,21.5 L3.5,16.7 L3.5,7.3 Z M12,7.5 L8,9.8 L8,14.2 L12,16.5 L16,14.2 L16,9.8 Z" Fill="{DynamicResource Accent.TextOnBrush}" Stretch="Uniform" Width="19" Height="19" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Button>
+                        <Button x:Name="dressingRoomButton" Uid="DRESSING ROOM" Tag="Change your skins and outfit" Click="OpenDressingRoom" Width="244" Height="58" Margin="10,0,0,0" Style="{StaticResource TileButton}" ToolTip="Change your skins and outfit">
+                            <Border Width="34" Height="34" Background="{DynamicResource Accent.GradientBrush}" CornerRadius="9">
+                                <Path Data="M4,7 L9,4 C9.5,6 14.5,6 15,4 L20,7 L18,11 L16,10 L16,20 L8,20 L8,10 L6,11 Z" Fill="{DynamicResource Accent.TextOnBrush}" Stretch="Uniform" Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Button>
+                    </StackPanel>
 
                     <!-- centre wordmark -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
                         <Rectangle Width="20" Height="18" Fill="{DynamicResource Accent.Brush}" VerticalAlignment="Center" Margin="0,0,12,0">
                             <Rectangle.OpacityMask><ImageBrush ImageSource="..\Resources\LogoMark.png" Stretch="Uniform" Viewbox="0,0,0.17,1"/></Rectangle.OpacityMask>
                         </Rectangle>
-                        <TextBlock FontFamily="{StaticResource Signika}" FontSize="15" FontWeight="SemiBold" Foreground="#C9CCD0" VerticalAlignment="Center"><Run Text="J S E M U   ·   "/><Run x:Name="topEditionText" Text="2 0 1 6" Foreground="{DynamicResource Accent.LightBrush}"/></TextBlock>
+                        <TextBlock FontFamily="{StaticResource Signika}" FontSize="15" FontWeight="SemiBold" Foreground="#C9CCD0" VerticalAlignment="Center"><Run Text="JSEMU  ·  "/><Run Text="JUST SURVIVE: AFTERLIFE" Foreground="{DynamicResource Accent.LightBrush}"/></TextBlock>
                     </StackPanel>
 
                     <Button x:Name="discordLink" Click="OpenDiscord" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,244,0" Height="42" Padding="16,0" Style="{StaticResource GhostButton}" ToolTip="Join the JSEmu Discord">
@@ -313,13 +282,12 @@
                     <Grid>
                         <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
 
-                        <StackPanel x:Name="heroPanel" VerticalAlignment="Top" Margin="0,14,0,0">
-                            <StackPanel.RenderTransform><TranslateTransform x:Name="heroShift"/></StackPanel.RenderTransform>
+                        <StackPanel VerticalAlignment="Top" Margin="0,14,0,0">
                             <StackPanel Orientation="Horizontal" Margin="2,0,0,16">
                                 <Border Width="4" Height="16" Background="{DynamicResource Accent.Brush}" CornerRadius="1" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                                <TextBlock x:Name="heroKicker" Text="SURVIVAL   ·   JSEMU SERVERS   ·   EU" FontFamily="{StaticResource Signika}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource Accent.LightBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Text="SURVIVAL   ·   JSEMU SERVERS   ·   EU" FontFamily="{StaticResource Signika}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource Accent.LightBrush}" VerticalAlignment="Center"/>
                             </StackPanel>
-                            <!-- JSEmu logo: white wordmark + the slash in the edition accent -->
+                            <!-- JSEmu logo: white wordmark + the slash in the accent colour -->
                             <Grid Height="74" HorizontalAlignment="Left">
                                 <Image Source="..\Resources\LogoWordmark.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
                                 <Rectangle Fill="{DynamicResource Accent.Brush}">
@@ -328,26 +296,15 @@
                             </Grid>
                             <StackPanel Orientation="Horizontal" Margin="0,22,0,0">
                                 <Border Background="{DynamicResource Accent.GradientBrush}" CornerRadius="3" Padding="12,3,12,4" VerticalAlignment="Center">
-                                    <TextBlock x:Name="heroEdition" Text="JUST SURVIVE 2016" FontFamily="{StaticResource Signika}" FontWeight="Bold" FontSize="20" Foreground="{DynamicResource Accent.TextOnBrush}"/>
+                                    <TextBlock Text="JUST SURVIVE: AFTERLIFE" FontFamily="{StaticResource Signika}" FontWeight="Bold" FontSize="20" Foreground="{DynamicResource Accent.TextOnBrush}"/>
                                 </Border>
-                                <TextBlock x:Name="heroModes" Text="SURVIVAL   ·   PVP   ·   BASE BUILDING" FontFamily="{StaticResource Signika}" FontSize="19" FontWeight="SemiBold" Foreground="#D8DADD" VerticalAlignment="Center" Margin="18,0,0,0"/>
+                                <TextBlock Text="SURVIVAL   ·   PVP   ·   BASE BUILDING" FontFamily="{StaticResource Signika}" FontSize="19" FontWeight="SemiBold" Foreground="#D8DADD" VerticalAlignment="Center" Margin="18,0,0,0"/>
                             </StackPanel>
-                            <TextBlock x:Name="heroDescription" Margin="0,16,0,0" MaxWidth="600" HorizontalAlignment="Left" TextWrapping="Wrap" FontSize="15" LineHeight="23" Foreground="#B4B8BD"/>
+                            <TextBlock Text="The December 2016 client, rebuilt by JSEmu: a reworked map, new gear and proximity voice. Gather, craft and build, fight off the infected and other survivors." Margin="0,16,0,0" MaxWidth="600" HorizontalAlignment="Left" TextWrapping="Wrap" FontSize="15" LineHeight="23" Foreground="#B4B8BD"/>
                         </StackPanel>
 
-                        <!-- quick actions -->
-                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
-                            <Button x:Name="hubButton" Uid="JSEMU HUB" Tag="Battle Pass, Pimp My Car, Scrap Yard" Click="OpenHub" Width="270" Height="66" Style="{StaticResource TileButton}" ToolTip="Battle Pass, Pimp My Car, Scrap Yard and your coins">
-                                <Border Width="34" Height="34" Background="#F2BC55" CornerRadius="17">
-                                    <TextBlock Text="C" FontSize="17" FontWeight="Bold" Foreground="#3A2A00" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                            </Button>
-                            <Button x:Name="dressingRoomButton" Uid="DRESSING ROOM" Tag="Change your skins and outfit" Click="OpenDressingRoom" Width="270" Height="66" Margin="14,0,0,0" Style="{StaticResource TileButton}" ToolTip="Change your skins and outfit">
-                                <Border Width="34" Height="34" Background="{DynamicResource Accent.GradientBrush}" CornerRadius="9">
-                                    <Path Data="M4,7 L9,4 C9.5,6 14.5,6 15,4 L20,7 L18,11 L16,10 L16,20 L8,20 L8,10 L6,11 Z" Fill="{DynamicResource Accent.TextOnBrush}" Stretch="Uniform" Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                            </Button>
-                        </StackPanel>
+                        <!-- public servers with their player counts, filled by UpdateServerList -->
+                        <UniformGrid x:Name="serverList" Grid.Row="1" Rows="1" Width="554" Height="66" HorizontalAlignment="Left" Margin="0,0,0,16"/>
 
                         <!-- game card: status, folder, server, Play -->
                         <Border Grid.Row="2" Style="{StaticResource CardStyle}" Padding="24,18,24,22">
@@ -361,7 +318,7 @@
                                         <TextBlock x:Name="currentGame" Text="{DynamicResource item69}" FontSize="16" Foreground="{StaticResource L.Text}" TextTrimming="CharacterEllipsis"/>
                                     </StackPanel>
                                     <Border Grid.Column="1" VerticalAlignment="Top" Padding="10,4" CornerRadius="3" Background="{DynamicResource Accent.SoftBrush}" BorderBrush="{DynamicResource Accent.BorderBrush}" BorderThickness="1">
-                                        <TextBlock x:Name="editionBadge" Text="2016  ·  CLASSIC" FontFamily="{StaticResource Signika}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource Accent.LightBrush}"/>
+                                        <TextBlock Text="JUST SURVIVE: AFTERLIFE" FontFamily="{StaticResource Signika}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource Accent.LightBrush}"/>
                                     </Border>
                                 </Grid>
 
@@ -386,24 +343,11 @@
                                 <Grid Grid.Row="2" Margin="0,14,0,0">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="270"/></Grid.ColumnDefinitions>
                                     <Grid Height="70">
+                                        <!-- The hidden item was H1Emu Servers: positions are saved in lastServer and used across the code, so it keeps its slot. -->
                                         <ComboBox x:Name="serverSelector" Height="70" Padding="46,0,12,0" SelectedIndex="0" VerticalContentAlignment="Center" FontSize="16" SelectionChanged="ServerSelectorChanged" Background="#11151A" BorderBrush="{DynamicResource Accent.BorderBrush}" BorderThickness="1" Foreground="#E7E9ED" Style="{DynamicResource ComboBoxStyle}">
-                                            <ComboBoxItem Content="JSEmu Servers" Style="{DynamicResource ComboBoxItemStyle}"/><ComboBoxItem Content="H1Emu Servers" Style="{DynamicResource ComboBoxItemStyle}"/><ComboBoxItem Content="Singleplayer" Style="{DynamicResource ComboBoxItemStyle}"/><Separator Background="#3A3E43"/><ComboBoxItem Content="New Server..." PreviewMouseLeftButtonUp="AddNewServerClick" Style="{DynamicResource ComboBoxItemStyle}"/>
+                                            <ComboBoxItem Content="JSEmu Servers" Style="{DynamicResource ComboBoxItemStyle}"/><ComboBoxItem Visibility="Collapsed" IsEnabled="False"/><ComboBoxItem Content="Singleplayer" Style="{DynamicResource ComboBoxItemStyle}"/><Separator Background="#3A3E43"/><ComboBoxItem Content="New Server..." PreviewMouseLeftButtonUp="AddNewServerClick" Style="{DynamicResource ComboBoxItemStyle}"/>
                                         </ComboBox>
-                                        <Path x:Name="serverSelectorIcon" Data="M2,7 L12,2 L22,7 L12,12 Z M2,12 L12,17 L22,12 M2,17 L12,22 L22,17" Stroke="{DynamicResource Accent.LightBrush}" StrokeThickness="1.4" Width="22" Height="22" HorizontalAlignment="Left" Margin="15,0,0,0" IsHitTestVisible="False"/>
-                                        <!-- 2018: one fixed server instead of the list -->
-                                        <Border x:Name="server2018Info" Visibility="Collapsed" Background="#F20F1216" BorderBrush="{DynamicResource Accent.BorderBrush}" BorderThickness="1" CornerRadius="5">
-                                            <Grid Margin="15,0">
-                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                                <Path Data="M2,7 L12,2 L22,7 L12,12 Z M2,12 L12,17 L22,12 M2,17 L12,22 L22,17" Stroke="{DynamicResource Accent.LightBrush}" StrokeThickness="1.4" Width="22" Height="22" VerticalAlignment="Center"/>
-                                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,0,0,0">
-                                                    <TextBlock Text="JSEmu 2018 Server" Foreground="#F2F3F5" FontSize="16" FontWeight="SemiBold"/>
-                                                    <TextBlock Text="Just Survive 2018  ·  Steam build 2.1.886508" Foreground="{StaticResource L.Muted}" FontSize="12"/>
-                                                </StackPanel>
-                                                <Border Grid.Column="2" VerticalAlignment="Center" Padding="8,3" CornerRadius="3" Background="#1A52B84A">
-                                                    <StackPanel Orientation="Horizontal"><Ellipse Width="7" Height="7" Fill="{StaticResource L.Online}" Margin="0,0,6,0" VerticalAlignment="Center"/><TextBlock Text="EU" Foreground="{StaticResource L.Online}" FontSize="11" FontWeight="Bold"/></StackPanel>
-                                                </Border>
-                                            </Grid>
-                                        </Border>
+                                        <Path Data="M2,7 L12,2 L22,7 L12,12 Z M2,12 L12,17 L22,12 M2,17 L12,22 L22,17" Stroke="{DynamicResource Accent.LightBrush}" StrokeThickness="1.4" Width="22" Height="22" HorizontalAlignment="Left" Margin="15,0,0,0" IsHitTestVisible="False"/>
                                     </Grid>
                                     <!-- soft accent glow behind Play (radial brush, no bitmap effect: those leave specks under the Viewbox) -->
                                     <Border Grid.Column="2" Margin="-34,-30" IsHitTestVisible="False" Background="{DynamicResource Accent.GlowBrush}"/>
@@ -451,15 +395,12 @@
                                 <Rectangle Height="2" VerticalAlignment="Top" Margin="-22,-17,-22,0" Fill="{DynamicResource Accent.LineBrush}"/>
                                 <Grid Margin="0,0,0,10">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                    <TextBlock Text="DOWNLOAD THE GAME" Style="{StaticResource CardHeading}" VerticalAlignment="Center"/>
-                                    <Border Grid.Column="1" Padding="8,2" CornerRadius="3" Background="#1F66C0F4" BorderBrush="#5566C0F4" BorderThickness="1">
-                                        <TextBlock x:Name="steamBadge" Text="STEAM  ·  2016" FontSize="11" FontWeight="Bold" Foreground="#9FD6F7"/>
-                                    </Border>
+                                    <TextBlock Text="DON'T HAVE THE GAME YET?" Style="{StaticResource CardHeading}" VerticalAlignment="Center"/>
                                 </Grid>
                                 <Grid Grid.Row="1" Margin="0,0,0,12">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                     <Path Data="{DynamicResource ShieldIcon}" Width="18" Height="20" Stretch="Uniform" Fill="{DynamicResource Accent.Brush}" VerticalAlignment="Top" Margin="0,1,12,0"/>
-                                    <TextBlock Grid.Column="1" TextWrapping="Wrap" FontSize="12" LineHeight="17" Foreground="#A9AEB4"><Run Text="{DynamicResource item10}" Foreground="{DynamicResource Accent.LightBrush}" FontWeight="SemiBold"/><Run Text=" "/><Run Text="{DynamicResource item11}"/><Run Text=" "/><Run Text="{DynamicResource item50}" Foreground="#7E848B"/></TextBlock>
+                                    <TextBlock Grid.Column="1" TextWrapping="Wrap" FontSize="12" LineHeight="17" Foreground="#A9AEB4"><Run Text="Only needed once, for the first install." Foreground="#F2F3F5" FontWeight="SemiBold"/><Run Text=" Log in with Steam and the launcher downloads the right game version. Already have it? Skip this and pick it under GAME FOLDER."/><LineBreak/><Run Text="You must own H1Z1: Just Survive on Steam. Your login goes only to Steam, which may ask for a Steam Guard code." Foreground="#858C95"/></TextBlock>
                                 </Grid>
                                 <Frame x:Name="steamFramePanel" Grid.Row="2" Height="140" Source="..\SteamFramePages\Login.xaml" NavigationUIVisibility="Hidden" f:DisableFrameNavigation.Disable="True"/>
                             </Grid>
@@ -473,7 +414,7 @@
                     <Rectangle Grid.ColumnSpan="3" Height="1" VerticalAlignment="Top" Fill="#1E2226"/>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <Ellipse Width="9" Height="9" Fill="{StaticResource L.Online}" Margin="0,0,10,0"/>
-                        <TextBlock x:Name="serverStatusText" Text="JSEMU SERVERS  ·  EU  ·  ONLINE" FontFamily="{StaticResource Signika}" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource L.Online}"/>
+                        <TextBlock Text="JSEMU SERVERS  ·  EU  ·  ONLINE" FontFamily="{StaticResource Signika}" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource L.Online}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                         <Button Click="OpenWebsite" Cursor="Hand" Style="{DynamicResource PathButton}" ToolTip="jsemu.eu">

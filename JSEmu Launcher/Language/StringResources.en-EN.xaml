@@ -29,8 +29,8 @@
     <system:String x:Key="item31">JANUARY 2015</system:String>
     <system:String x:Key="item32">DECEMBER 2016</system:String>
     <system:String x:Key="item33">Are you sure you would like to cancel the download of H1Z1: Just Survive version</system:String>
-    <system:String x:Key="item34">Need to download Just Survive?</system:String>
-    <system:String x:Key="item35">Enter your Steam info on the left and hit the arrow to get started!</system:String>
+    <system:String x:Key="item34">Log in with Steam</system:String>
+    <system:String x:Key="item35">Press the arrow, then choose where to install the game.</system:String>
     <system:String x:Key="item36">Please make sure to fill in the Username and Password boxes.</system:String>
     <system:String x:Key="item37">Successfully downloaded H1Z1: Just Survive version</system:String>
     <system:String x:Key="item38">Successfully cancelled the download of H1Z1: Just Survive version</system:String>
@@ -54,8 +54,8 @@
     <system:String x:Key="item56">Processing depot: {0}</system:String>
     <system:String x:Key="item57">Pre-allocating space...</system:String>
     <system:String x:Key="item58">Game version not supported by JSEmu.\n\nPlease remember to use the game version 22nd December 2016.\n\nYou can use this launcher to download the required version on the main page with your Steam account that has Just Survive ownership, or alternatively, source the game files from elsewhere.</system:String>
-    <system:String x:Key="item59">Username...</system:String>
-    <system:String x:Key="item60">Password...</system:String>
+    <system:String x:Key="item59">Steam username...</system:String>
+    <system:String x:Key="item60">Steam password...</system:String>
     <system:String x:Key="item61">View updates on Discord...</system:String>
     <system:String x:Key="item62">Settings...</system:String>
     <system:String x:Key="item63">And a special thanks to everyone who joined the community and kept the motivation alive!</system:String>

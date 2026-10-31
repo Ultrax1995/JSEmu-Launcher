@@ -29,21 +29,33 @@ namespace H1Emu_Launcher.SettingsPages
             volumeLabel.Text = $"Voice volume  {(int)volumeSlider.Value}%";
             inputBox.Items.Clear();
             outputBox.Items.Clear();
-            inputBox.Items.Add(new AudioDevice(-1, "Windows default microphone"));
-            outputBox.Items.Add(new AudioDevice(-1, "Windows default speakers / headphones"));
+            inputBox.Items.Add(new AudioDevice(GameAudioDevices.WindowsDefault, "Windows default microphone"));
+            outputBox.Items.Add(new AudioDevice(GameAudioDevices.WindowsDefault, "Windows default speakers / headphones"));
             try
             {
                 for (int i = 0; i < WaveIn.DeviceCount; i++) inputBox.Items.Add(new AudioDevice(i, WaveIn.GetCapabilities(i).ProductName));
                 for (int i = 0; i < WaveOut.DeviceCount; i++) outputBox.Items.Add(new AudioDevice(i, WaveOut.GetCapabilities(i).ProductName));
             }
             catch (NAudio.MmException) { statusText.Text = "Audio devices unavailable. Check Windows sound settings."; }
-            inputBox.SelectedIndex = Math.Clamp(settings.voice2016Input + 1, 0, inputBox.Items.Count - 1);
-            outputBox.SelectedIndex = Math.Clamp(settings.voice2016Output + 1, 0, outputBox.Items.Count - 1);
+            AddGameDevice(inputBox, GameAudioDevices.GameInput());
+            AddGameDevice(outputBox, GameAudioDevices.GameOutput());
+            Select(inputBox, settings.voice2016Input);
+            Select(outputBox, settings.voice2016Output);
 
             Voice2016.StatusChanged += ShowStatus;
             Voice2016.TalkersChanged += ShowTalkers;
             ShowStatus();
         }
+
+        // First on the list: the device from the game's own options, used until the player picks another.
+        private static void AddGameDevice(ComboBox box, int gameDevice)
+        {
+            AudioDevice match = box.Items.Cast<AudioDevice>().FirstOrDefault(d => d.Id == gameDevice);
+            box.Items.Insert(0, new AudioDevice(GameAudioDevices.FollowGame, match == null ? "Same as in game (Windows default)" : $"Same as in game ({match})"));
+        }
+
+        private static void Select(ComboBox box, int id) =>
+            box.SelectedItem = box.Items.Cast<AudioDevice>().FirstOrDefault(d => d.Id == id) ?? box.Items[0];
 
         private void VoiceUnloaded(object sender, RoutedEventArgs e)
         {

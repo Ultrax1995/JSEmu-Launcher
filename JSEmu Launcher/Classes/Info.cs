@@ -10,7 +10,6 @@ namespace H1Emu_Launcher.Classes
 
         public static string H1EMU_SERVER_IP = "loginserver.jsemu.eu:1115";
 
-        public static string H1EMU_OFFICIAL_SERVER_IP = "loginserver.h1emu.com:1115";
         public static string SERVER_JSON_API = "https://api.github.com/repos/QuentinGruber/h1z1-server/releases/latest";
 
         // JSEmu launcher auto-update endpoint.
@@ -20,7 +19,7 @@ namespace H1Emu_Launcher.Classes
         public static string LAUNCHER_MIRROR_API = "https://jsemu.eu/api/launcher/latest";
         public static string LAUNCHER_MIRROR_DOWNLOAD = "https://jsemu.eu/api/launcher/download";
 
-        // 0 = JSEmu.eu - Assets Pack
+        // JSEmu.eu assets
         // v2 also lists patch files, which need the path/extract fields to be installed correctly
         public static string OFFICIAL_ASSET_PACK = "https://assets.jsemu.eu/feed/v2";
 
@@ -28,17 +27,12 @@ namespace H1Emu_Launcher.Classes
         // cannot be reached (e.g. the player's DNS/network has not picked up the new domain yet).
         public static string OFFICIAL_ASSET_PACK_FALLBACK = "https://assets.h1emukrakow.eu/feed/v2";
 
-        // 1 = H1Emu.com - Assets Pack
-        public static string H1EMU_ASSET_PACK = "https://raw.githubusercontent.com/H1emu/asset-pack/refs/heads/main/feed.json";
-
         public static string SERVER_BUG_LINK = "https://github.com/QuentinGruber/h1z1-server/issues/new?assignees=&labels=bug&template=bug_report.md&title=";
 
         public static string LAUNCHER_BUG_LINK = "https://github.com/Ultrax1995/JSEmu-Launcher/issues/new";
 
         public static string ACCOUNT_KEY_CHECK_API = "https://jsemu.eu/";
         public static string JSEMU_ACCOUNT_KEY_CHECK_API = "https://jsemu.eu/";
-
-        public static string H1EMU_ACCOUNT_KEY_CHECK_API = "http://loginserver.h1emu.com/isverified?authKey=";
 
         public static string DISCORD_LINK = "https://discord.gg/bmRndA6FSG";
 

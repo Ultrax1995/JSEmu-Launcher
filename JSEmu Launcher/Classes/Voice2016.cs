@@ -60,8 +60,8 @@ namespace H1Emu_Launcher.Classes
             CertificateSha256 = CertificateSha256,
             InstallDirectory = Properties.Settings.Default.activeDirectory ?? "",
             ProximityVoiceEnabled = Properties.Settings.Default.voice2016Enabled,
-            VoiceInputDevice = Properties.Settings.Default.voice2016Input,
-            VoiceOutputDevice = Properties.Settings.Default.voice2016Output,
+            VoiceInputDevice = GameAudioDevices.ResolveInput(Properties.Settings.Default.voice2016Input),
+            VoiceOutputDevice = GameAudioDevices.ResolveOutput(Properties.Settings.Default.voice2016Output),
             VoiceVolume = Properties.Settings.Default.voice2016Volume,
             VoicePushToTalkKey = Properties.Settings.Default.voice2016Key ?? ""
         };
@@ -293,7 +293,7 @@ namespace H1Emu_Launcher.Classes
         internal static void ShowPreviewSample(System.Windows.Window owner)
         {
             var settings = new SettingsWindow { Owner = owner };
-            settings.settingsTabControl.SelectedIndex = 3;
+            settings.settingsTabControl.SelectedIndex = 2;
             settings.Show();
             // With JSEMU_UI_VOICE_CONNECT=1 the launcher itself stands in for the game window and
             // voice really connects (JSEMU_VOICE2016_ENDPOINTS / JSEMU_VOICE2016_TOKEN).

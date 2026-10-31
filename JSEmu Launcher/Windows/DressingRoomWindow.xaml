@@ -6,9 +6,9 @@
         Background="Transparent"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
-        Width="1120" Height="740"
+        Width="1120" Height="720"
         UseLayoutRounding="True"
-        FontFamily="Bahnschrift Light"
+        FontFamily="Segoe UI"
         Foreground="#DDE3E8"
         Loaded="WindowLoaded">
 
@@ -37,97 +37,131 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="CloseButton" TargetType="Button">
+            <Setter Property="Background" Value="#14FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#2F343A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template"><Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Surface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Surface" Property="Background" Value="#D71923"/>
+                            <Setter TargetName="Surface" Property="BorderBrush" Value="#D71923"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="Surface" Property="Opacity" Value="0.7"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value></Setter>
+        </Style>
+        <!-- Slim dark scrollbar, thumb only -->
+        <Style TargetType="ScrollBar">
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="MinWidth" Value="8"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template"><Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Track x:Name="PART_Track" IsDirectionReversed="True">
+                        <Track.Thumb>
+                            <Thumb>
+                                <Thumb.Template>
+                                    <ControlTemplate TargetType="Thumb"><Border x:Name="Bar" Background="#3A4046" CornerRadius="4" Margin="1,0"/>
+                                        <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bar" Property="Background" Value="#5A6168"/></Trigger></ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Thumb.Template>
+                            </Thumb>
+                        </Track.Thumb>
+                    </Track>
+                </ControlTemplate>
+            </Setter.Value></Setter>
+        </Style>
     </Window.Resources>
 
-    <Border Background="#080B0E" BorderBrush="#252B30" BorderThickness="1" CornerRadius="15" ClipToBounds="True">
+    <Border Background="#08090B" BorderBrush="#2A2E33" BorderThickness="1" CornerRadius="14" ClipToBounds="True" MouseLeftButtonDown="DragWindow">
         <Grid>
-            <Grid.Background>
-                <RadialGradientBrush Center="0.2,0" GradientOrigin="0.2,0" RadiusX="0.9" RadiusY="0.9">
-                    <GradientStop Color="#2A0F13" Offset="0"/>
-                    <GradientStop Color="#0A0D10" Offset="0.55"/>
-                    <GradientStop Color="#050709" Offset="1"/>
-                </RadialGradientBrush>
-            </Grid.Background>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="86"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="76"/>
-            </Grid.RowDefinitions>
+            <Image Source="..\Resources\Backdrop2016.png" Stretch="UniformToFill" Opacity="0.75" RenderOptions.BitmapScalingMode="HighQuality" IsHitTestVisible="False"/>
+            <Rectangle Fill="#C70A0C0F" IsHitTestVisible="False"/>
+            <Rectangle IsHitTestVisible="False" Opacity="0.06">
+                <Rectangle.Fill><ImageBrush ImageSource="..\Resources\Grain.png" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/></Rectangle.Fill>
+            </Rectangle>
 
-            <!-- header -->
-            <Grid Grid.Row="0" Background="Transparent" MouseLeftButtonDown="DragWindow" Margin="30,0,20,0">
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="JSEMU LOCKER ROOM" FontSize="11" FontWeight="Bold" Foreground="#E11D2A"/>
-                    <TextBlock FontSize="30" FontWeight="Bold" Margin="0,2,0,0"><Run Text="Dressing "/><Run Text="Room" Foreground="#E11D2A"/></TextBlock>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <TextBlock x:Name="userLabel" VerticalAlignment="Center" Foreground="#8A96A3" FontSize="13" Margin="0,0,18,0"/>
-                    <Button Width="44" Height="38" Click="CloseClick" Style="{StaticResource DrButton}" ToolTip="Close">
-                        <TextBlock Text="X" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center"/>
-                    </Button>
-                </StackPanel>
-            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="256"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
 
-            <!-- body -->
-            <Grid Grid.Row="1" Margin="30,0,30,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="250"/>
-                    <ColumnDefinition Width="18"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <Border Background="#0E1216" BorderBrush="#252B30" BorderThickness="1" CornerRadius="13">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
-                        <StackPanel x:Name="slotList"/>
-                    </ScrollViewer>
-                </Border>
-
-                <Border Grid.Column="2" Background="#0E1216" BorderBrush="#252B30" BorderThickness="1" CornerRadius="13" Padding="18,14">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Grid Margin="0,0,0,12">
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock x:Name="panelTitle" FontSize="22" FontWeight="Bold"/>
-                                <TextBlock x:Name="panelCount" FontSize="12" Foreground="#8A96A3"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                <TextBox x:Name="searchBox" Width="210" Height="34" Padding="10,0" VerticalContentAlignment="Center"
-                                         Background="#151A20" BorderBrush="#2C3540" Foreground="#DDE3E8" CaretBrush="White"
-                                         TextChanged="SearchChanged"/>
-                                <CheckBox x:Name="showLocked" Content="Show locked" IsChecked="True" Margin="16,0,0,0" VerticalAlignment="Center"
-                                          Foreground="#8A96A3" Checked="ShowLockedChanged" Unchecked="ShowLockedChanged"/>
-                            </StackPanel>
-                        </Grid>
-                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                            <StackPanel>
-                                <WrapPanel x:Name="ownedPanel"/>
-                                <TextBlock x:Name="lockedTitle" Text="LOCKED" FontSize="12" FontWeight="Bold" Foreground="#8A96A3" Margin="0,22,0,10"/>
-                                <WrapPanel x:Name="lockedPanel"/>
-                                <TextBlock x:Name="emptyText" Foreground="#8A96A3" Margin="0,20,0,0" Visibility="Collapsed"/>
-                            </StackPanel>
+                <!-- left rail: logo and slots -->
+                <Border Background="#D9090B0E" BorderBrush="#24282D" BorderThickness="0,0,1,0">
+                    <DockPanel Margin="16,0,8,0">
+                        <StackPanel DockPanel.Dock="Top" Margin="6,30,0,26" IsHitTestVisible="False">
+                            <Grid Height="30" HorizontalAlignment="Left">
+                                <Image Source="..\Resources\LogoWordmark.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                <Rectangle Fill="{DynamicResource Accent.Brush}">
+                                    <Rectangle.OpacityMask><ImageBrush ImageSource="..\Resources\LogoMark.png" Stretch="Uniform"/></Rectangle.OpacityMask>
+                                </Rectangle>
+                            </Grid>
+                            <TextBlock Margin="1,10,0,0" Text="D R E S S I N G   R O O M" FontFamily="{StaticResource Signika}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Accent.LightBrush}"/>
+                        </StackPanel>
+                        <TextBlock x:Name="userLabel" DockPanel.Dock="Bottom" Margin="6,8,8,16" FontSize="12" Foreground="#8A96A3" TextTrimming="CharacterEllipsis" IsHitTestVisible="False"/>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0">
+                            <StackPanel x:Name="slotList" Margin="0,0,8,0"/>
                         </ScrollViewer>
-                    </Grid>
+                    </DockPanel>
                 </Border>
 
-                <TextBlock x:Name="loadingText" Grid.ColumnSpan="3" Text="Opening your locker..." FontSize="18" Foreground="#8A96A3"
-                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions><RowDefinition Height="84"/><RowDefinition Height="*"/><RowDefinition Height="76"/></Grid.RowDefinitions>
+
+                    <!-- page title, search -->
+                    <Grid Margin="30,0,90,0">
+                        <StackPanel VerticalAlignment="Center" IsHitTestVisible="False">
+                            <TextBlock x:Name="panelTitle" FontFamily="{StaticResource Signika}" FontSize="24" FontWeight="SemiBold" Foreground="#F2F3F5"/>
+                            <TextBlock x:Name="panelCount" FontSize="12" Foreground="#8A96A3" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <CheckBox x:Name="showLocked" Content="Show locked" IsChecked="True" Margin="0,0,16,0" VerticalAlignment="Center"
+                                      Foreground="#8A96A3" Checked="ShowLockedChanged" Unchecked="ShowLockedChanged"/>
+                            <TextBox x:Name="searchBox" Width="200" Height="34" Padding="10,0" VerticalContentAlignment="Center"
+                                     Background="#14FFFFFF" BorderBrush="#2F343A" Foreground="#DDE3E8" CaretBrush="White"
+                                     TextChanged="SearchChanged"/>
+                        </StackPanel>
+                    </Grid>
+                    <Rectangle Height="1" Margin="30,0" VerticalAlignment="Bottom" Fill="{DynamicResource Accent.LineBrush}" Opacity="0.7" IsHitTestVisible="False"/>
+
+                    <!-- items -->
+                    <ScrollViewer Grid.Row="1" Margin="30,14,14,0" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <WrapPanel x:Name="ownedPanel"/>
+                            <TextBlock x:Name="lockedTitle" Text="LOCKED" FontSize="12" FontWeight="Bold" Foreground="#8A96A3" Margin="0,22,0,10"/>
+                            <WrapPanel x:Name="lockedPanel"/>
+                            <TextBlock x:Name="emptyText" Foreground="#8A96A3" Margin="0,20,0,0" Visibility="Collapsed"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                    <TextBlock x:Name="loadingText" Grid.Row="1" Text="Opening your locker..." FontSize="18" Foreground="#8A96A3"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"/>
+
+                    <!-- footer -->
+                    <Grid Grid.Row="2" Margin="30,0,30,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" IsHitTestVisible="False">
+                            <Ellipse x:Name="dirtyDot" Width="10" Height="10" Fill="#45D38A" Margin="0,0,10,0"/>
+                            <TextBlock x:Name="statusText" Text="" FontSize="13" Foreground="#8A96A3"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <Button x:Name="unequipAllButton" Content="Unequip all" Click="UnequipAllClick" Height="42" Padding="20,0" Margin="0,0,10,0" Style="{StaticResource DrButton}"/>
+                            <Button x:Name="resetButton" Content="Reset" Click="ResetClick" Height="42" Padding="20,0" Margin="0,0,10,0" Style="{StaticResource DrButton}"/>
+                            <Button x:Name="saveButton" Content="Save outfit" Click="SaveClick" Height="42" Padding="26,0" Background="#E11D2A" BorderBrush="#F02A36" Foreground="White" Style="{StaticResource DrButton}"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
             </Grid>
 
-            <!-- footer -->
-            <Grid Grid.Row="2" Margin="30,0,30,0">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Ellipse x:Name="dirtyDot" Width="10" Height="10" Fill="#45D38A" Margin="0,0,10,0"/>
-                    <TextBlock x:Name="statusText" Text="" FontSize="13" Foreground="#8A96A3"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Button x:Name="unequipAllButton" Content="Unequip all" Click="UnequipAllClick" Height="42" Padding="22,0" Margin="0,0,10,0" Style="{StaticResource DrButton}"/>
-                    <Button x:Name="resetButton" Content="Reset" Click="ResetClick" Height="42" Padding="22,0" Margin="0,0,10,0" Style="{StaticResource DrButton}"/>
-                    <Button x:Name="saveButton" Content="Save outfit" Click="SaveClick" Height="42" Padding="28,0" Background="#E11D2A" BorderBrush="#F02A36" Foreground="White" Style="{StaticResource DrButton}"/>
-                </StackPanel>
-            </Grid>
+            <Button Click="CloseClick" Width="44" Height="38" Margin="0,22,22,0" HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource CloseButton}" ToolTip="Close">
+                <Path Data="{DynamicResource XIcon}" Stretch="Uniform" Fill="White" Width="12" Height="12"/>
+            </Button>
         </Grid>
     </Border>
 </Window>

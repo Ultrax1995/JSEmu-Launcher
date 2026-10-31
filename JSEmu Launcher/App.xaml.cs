@@ -28,8 +28,8 @@ namespace H1Emu_Launcher
             Resources.MergedDictionaries.Clear();
             Resources.MergedDictionaries.Add(SetLanguageFile.LoadFile());
 
-            // Accent brushes (2016 red / 2018 ember) for every window, before the first one opens.
-            EditionTheme.ApplyToApplication(H1Emu_Launcher.Properties.Settings.Default.gameEdition == "2018");
+            // Accent brushes for every window, before the first one opens.
+            EditionTheme.ApplyToApplication();
 
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 

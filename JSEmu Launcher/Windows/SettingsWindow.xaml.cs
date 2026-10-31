@@ -11,8 +11,6 @@ namespace H1Emu_Launcher
     {
         public static SettingsWindow settingsInstance;
         public static string newAccountKey;
-        public static string newAssetPackName;
-        public static string newAssetPackURL;
 
         public SettingsWindow()
         {
@@ -24,12 +22,6 @@ namespace H1Emu_Launcher
             Resources.MergedDictionaries.Clear();
             Resources.MergedDictionaries.Add(SetLanguageFile.LoadFile());
 
-            // Edition look: backdrop and label follow the 2016 / 2018 switch of the launcher.
-            if (Edition2018.Selected)
-            {
-                backdrop.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("pack://application:,,,/Resources/Backdrop2018.png"));
-                settingsEdition.Text = "2 0 1 8";
-            }
         }
 
         public void MoveSettingsWindow(object sender, MouseButtonEventArgs e)
@@ -48,41 +40,10 @@ namespace H1Emu_Launcher
             }
         }
 
-        public static void SwitchToAssetPacksTab(string newAssetPackName, string newAssetPackURL)
+        public static void SwitchToAccountKeyTab(string accountKeyArgument)
         {
             if (settingsInstance.settingsTabControl.SelectedIndex != 1)
                 settingsInstance.settingsTabControl.SelectedIndex = 1;
-
-            if (AddItemWindow.addItemWindowInstance == null)
-            {
-                AddItemWindow addAssetPack = new()
-                {
-                    Owner = settingsInstance,
-                    itemType = 2
-                };
-                addAssetPack.primaryTextBox.Text = newAssetPackName;
-                addAssetPack.secondaryTextBox.Text = newAssetPackURL;
-                addAssetPack.primaryTextBoxHint.Visibility = Visibility.Hidden;
-                addAssetPack.secondaryTextBoxHint.Visibility = Visibility.Hidden;
-                Task.Run(() =>
-                {
-                    Application.Current.Dispatcher.Invoke(new Action(delegate
-                    {
-                        addAssetPack.ShowDialog();
-                    }));
-                });
-            }
-            else
-                AddItemWindow.addItemWindowInstance.FillInFields(newAssetPackName, newAssetPackURL);
-
-            newAssetPackName = null;
-            newAssetPackURL = null;
-        }
-
-        public static void SwitchToAccountKeyTab(string accountKeyArgument)
-        {
-            if (settingsInstance.settingsTabControl.SelectedIndex != 2)
-                settingsInstance.settingsTabControl.SelectedIndex = 2;
 
             SettingsPages.AccountKey.accountKeyInstance.accountKeyBoxHint.Visibility = Visibility.Hidden;
 
@@ -102,18 +63,15 @@ namespace H1Emu_Launcher
                     Title = $"{FindResource("item206")} - {FindResource("item195")}";
                     break;
                 case 1:
-                    Title = $"{FindResource("item206")} - {FindResource("item224")}";
-                    break;
-                case 2:
                     Title = $"{FindResource("item206")} - {FindResource("item196")}";
                     break;
-                case 3:
+                case 2:
                     Title = $"{FindResource("item206")} - {FindResource("itemVoice")}";
                     break;
-                case 4:
+                case 3:
                     Title = $"{FindResource("item206")} - {FindResource("item197")}";
                     break;
-                case 5:
+                case 4:
                     Title = $"{FindResource("item206")} - {FindResource("item199")}";
                     break;
             }
@@ -126,31 +84,6 @@ namespace H1Emu_Launcher
             if (!string.IsNullOrEmpty(newAccountKey))
             {
                 SettingsPages.AccountKey.accountKeyInstance.accountKeyBoxPassword.Password = newAccountKey;
-                return;
-            }
-
-
-            if (!string.IsNullOrEmpty(newAssetPackName) || !string.IsNullOrEmpty(newAssetPackURL))
-            {
-                AddItemWindow addAssetPack = new()
-                {
-                    Owner = settingsInstance,
-                    itemType = 2
-                };
-                addAssetPack.primaryTextBox.Text = newAssetPackName;
-                addAssetPack.secondaryTextBox.Text = newAssetPackURL;
-                addAssetPack.primaryTextBoxHint.Visibility = Visibility.Hidden;
-                addAssetPack.secondaryTextBoxHint.Visibility = Visibility.Hidden;
-                Task.Run(() =>
-                {
-                    Application.Current.Dispatcher.Invoke(new Action(delegate
-                    {
-                        addAssetPack.ShowDialog();
-                    }));
-                });
-
-                newAssetPackName = null;
-                newAssetPackURL = null;
                 return;
             }
         }

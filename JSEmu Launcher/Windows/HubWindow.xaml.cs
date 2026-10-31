@@ -111,8 +111,8 @@ namespace H1Emu_Launcher
             foreach (Button tab in new[] { tabBattlepass, tabStore, tabPimp, tabScrap })
             {
                 bool active = (string)tab.Tag == activeTab;
-                tab.BorderBrush = active ? RedBrush : EdgeBrush;
-                tab.Background = active ? new SolidColorBrush(Color.FromRgb(0x2A, 0x10, 0x14)) : PanelBrush;
+                tab.Background = active ? (Brush)FindResource("Accent.SoftBrush") : Brushes.Transparent;
+                if (active) tab.Foreground = Brushes.White; else tab.ClearValue(ForegroundProperty);
             }
         }
 

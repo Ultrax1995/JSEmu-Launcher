@@ -29,73 +29,7 @@ namespace H1Emu_Launcher.Classes
                     Bitmap fairPlayLogo = new Bitmap(Properties.Resources.logo);
                     fairPlayLogo.Save($"{Properties.Settings.Default.activeDirectory}\\logo.bmp", ImageFormat.Bmp);
 
-                    // Get the download URL for the selected asset pack
-                    string assetPackJsonURL = string.Empty;
-
-                    int selectedServerIndex = LauncherWindow.launcherInstance.serverSelector.SelectedIndex;
-                    int selectedAssetPackIndex = Properties.Settings.Default.selectedAssetPack;
-
-                    /*
-                     * Auto asset pack logic:
-                     *
-                     * Server selector:
-                     * 0 = JSEmu Servers       -> JSEmu asset pack
-                     * 1 = H1Emu Servers       -> H1Emu asset pack
-                     * 2 = Singleplayer        -> selected/manual asset pack fallback
-                     * 3 = Separator
-                     * 4 = New Server...
-                     * 5+ = Custom servers     -> selected/manual asset pack fallback
-                     *
-                     * Asset pack selector:
-                     * 0 = JSEmu.eu - Assets Pack
-                     * 1 = H1Emu.com - Assets Pack
-                     * 2 = Separator/New Asset Pack area
-                     * 3+ = Custom asset packs from assetPacks.json
-                     */
-
-                    if (selectedServerIndex == 0)
-                    {
-                        // JSEmu Servers always use JSEmu assets
-                        assetPackJsonURL = Info.OFFICIAL_ASSET_PACK;
-                        Properties.Settings.Default.selectedAssetPack = 0;
-                    }
-                    else if (selectedServerIndex == 1)
-                    {
-                        // H1Emu Servers always use official H1Emu assets
-                        assetPackJsonURL = Info.H1EMU_ASSET_PACK;
-                        Properties.Settings.Default.selectedAssetPack = 1;
-                    }
-                    else
-                    {
-                        // Custom servers / singleplayer use the manually selected asset pack
-                        if (selectedAssetPackIndex == 0)
-                        {
-                            assetPackJsonURL = Info.OFFICIAL_ASSET_PACK;
-                        }
-                        else if (selectedAssetPackIndex == 1)
-                        {
-                            assetPackJsonURL = Info.H1EMU_ASSET_PACK;
-                        }
-                        else if (selectedAssetPackIndex >= 3)
-                        {
-                            List<LauncherWindow.AssetPackList> assetPackJson =
-                                JsonSerializer.Deserialize<List<LauncherWindow.AssetPackList>>(
-                                    File.ReadAllText(LauncherWindow.assetPacksJsonFile)
-                                );
-
-                            assetPackJsonURL = assetPackJson[selectedAssetPackIndex - 3].AssetPackURL;
-                        }
-                        else
-                        {
-                            // Safety fallback if separator/new item somehow gets selected
-                            assetPackJsonURL = Info.OFFICIAL_ASSET_PACK;
-                            Properties.Settings.Default.selectedAssetPack = 0;
-                        }
-                    }
-
-                    Properties.Settings.Default.Save();
-
-                    await DownloadAssetPack(assetPackJsonURL, (filename, percentage) =>
+                    await DownloadAssetPack(Info.OFFICIAL_ASSET_PACK, (filename, percentage) =>
                     {
                         LauncherWindow.launcherInstance.playButton.FontSize = 18;
                         LauncherWindow.launcherInstance.taskbarIcon.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;

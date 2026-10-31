@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" UseLayoutRounding="True"
         Title="{DynamicResource item206}" x:Name="Settings"
-        Width="860" Height="620" MinWidth="860" MaxWidth="860"
-        MinHeight="620" MaxHeight="620"
+        Width="1120" Height="720" MinWidth="1120" MaxWidth="1120"
+        MinHeight="720" MaxHeight="720"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
         Background="Transparent" FontFamily="Segoe UI" FontSize="15" Foreground="#E7E9ED"
         Loaded="SettingsLoaded" ContentRendered="SettingsWindowContentRendered"
@@ -22,44 +22,47 @@
                 <ResourceDictionary Source="..\Language\StringResources.en-EN.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
+            <!-- Icons of the side navigation (24 x 24 outlines) -->
+            <StreamGeometry x:Key="NavGameFiles">M3,6.5 L9.5,6.5 L11.5,9 L21,9 L21,19.5 L3,19.5 Z</StreamGeometry>
+            <StreamGeometry x:Key="NavAccountKey">M14.5,9.5 A4.5,4.5 0 1 1 14.5,9.49 M11.5,13 L4,20.5 M7,17.5 L9.5,20 M5,19.5 L7,21.5 M15.5,7.5 A1,1 0 1 1 15.5,7.49</StreamGeometry>
+            <StreamGeometry x:Key="NavVoice">M12,3 C10.3,3 9,4.3 9,6 L9,12 C9,13.7 10.3,15 12,15 C13.7,15 15,13.7 15,12 L15,6 C15,4.3 13.7,3 12,3 Z M5,11 C5,15 8,18 12,18 C16,18 19,15 19,11 M12,18 L12,21.5</StreamGeometry>
+            <StreamGeometry x:Key="NavOptions">M4,7 L14,7 M18,7 L20,7 M16,5 A2,2 0 1 1 15.99,5 M4,17 L6,17 M10,17 L20,17 M8,15 A2,2 0 1 1 7.99,15</StreamGeometry>
+            <StreamGeometry x:Key="NavAbout">M12,3 A9,9 0 1 1 11.99,3 M12,11 L12,16.5 M12,7.2 L12,7.9</StreamGeometry>
+
+            <!-- Side navigation row: icon + name, the accent bar and soft fill mark the open page -->
             <Style x:Key="SettingsTabItemStyle" TargetType="TabItem">
-                <Setter Property="Foreground" Value="#858C95"/>
-                <Setter Property="Background" Value="#CC0D1013"/>
+                <Setter Property="Foreground" Value="#9AA0A8"/>
+                <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="FontFamily" Value="{StaticResource Signika}"/>
-                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="FontSize" Value="15"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
-                <Setter Property="MinWidth" Value="124"/>
-                <Setter Property="Height" Value="46"/>
-                <Setter Property="Margin" Value="2,0"/>
+                <Setter Property="Height" Value="48"/>
+                <Setter Property="Margin" Value="0,0,0,4"/>
                 <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="Padding" Value="12,0"/>
                 <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="TabItem">
-                            <Border x:Name="TabSurface" Background="{TemplateBinding Background}"
-                                    BorderBrush="#2A2E33" BorderThickness="1"
-                                    CornerRadius="6" SnapsToDevicePixels="True">
+                            <Border x:Name="TabSurface" Background="{TemplateBinding Background}" CornerRadius="7" SnapsToDevicePixels="True">
                                 <Grid>
-                                    <ContentPresenter ContentSource="Header"
-                                                      Margin="12,0"
-                                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <Border x:Name="ActiveMarker" Height="3"
-                                            VerticalAlignment="Bottom" Margin="9,0,9,0"
-                                            Background="{DynamicResource Accent.Brush}" CornerRadius="2,2,0,0" Opacity="0"/>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="46"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <Border x:Name="ActiveMarker" Width="3" Height="22" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                            Background="{DynamicResource Accent.Brush}" CornerRadius="0,2,2,0" Opacity="0"/>
+                                    <Path Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.6"
+                                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                          Width="19" Height="19" Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                    <ContentPresenter Grid.Column="1" ContentSource="Header" Margin="13,0,8,1" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                 </Grid>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Foreground" Value="#E0E3E7"/>
-                                    <Setter TargetName="TabSurface" Property="Background" Value="#E6161A1E"/>
-                                    <Setter TargetName="TabSurface" Property="BorderBrush" Value="#3A4046"/>
+                                    <Setter Property="Foreground" Value="#E7E9ED"/>
+                                    <Setter TargetName="TabSurface" Property="Background" Value="#14FFFFFF"/>
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Foreground" Value="White"/>
                                     <Setter TargetName="TabSurface" Property="Background" Value="{DynamicResource Accent.SoftBrush}"/>
-                                    <Setter TargetName="TabSurface" Property="BorderBrush" Value="{DynamicResource Accent.BorderBrush}"/>
                                     <Setter TargetName="ActiveMarker" Property="Opacity" Value="1"/>
                                 </Trigger>
                                 <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4"/></Trigger>
@@ -69,6 +72,7 @@
                 </Setter>
             </Style>
 
+            <!-- Left rail (logo, pages) + the open page with its title -->
             <Style x:Key="SettingsTabControlStyle" TargetType="TabControl">
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="BorderThickness" Value="0"/>
@@ -76,22 +80,35 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="TabControl">
-                            <Grid Background="{TemplateBinding Background}" ClipToBounds="True">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <UniformGrid Grid.Row="0" IsItemsHost="True"
-                                             Rows="1" Columns="6"
-                                             Margin="4,10,6,10" Panel.ZIndex="2"
-                                             Background="Transparent"
-                                             KeyboardNavigation.TabIndex="1"/>
-                                <ContentPresenter x:Name="PART_SelectedContentHost"
-                                                  Grid.Row="1" Panel.ZIndex="1"
-                                                  ContentSource="SelectedContent"
-                                                  HorizontalAlignment="Stretch"
-                                                  VerticalAlignment="Stretch"
-                                                  SnapsToDevicePixels="True"/>
+                            <Grid Background="{TemplateBinding Background}">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="256"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+
+                                <Border Background="#D9090B0E" BorderBrush="#24282D" BorderThickness="0,0,1,0">
+                                    <DockPanel Margin="16,0">
+                                        <StackPanel DockPanel.Dock="Top" Margin="6,30,0,30" IsHitTestVisible="False">
+                                            <Grid Height="30" HorizontalAlignment="Left">
+                                                <Image Source="..\Resources\LogoWordmark.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                <Rectangle Fill="{DynamicResource Accent.Brush}">
+                                                    <Rectangle.OpacityMask><ImageBrush ImageSource="..\Resources\LogoMark.png" Stretch="Uniform"/></Rectangle.OpacityMask>
+                                                </Rectangle>
+                                            </Grid>
+                                            <TextBlock Margin="1,10,0,0" Text="JUST SURVIVE: AFTERLIFE" FontFamily="{StaticResource Signika}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Accent.LightBrush}"/>
+                                        </StackPanel>
+                                        <StackPanel DockPanel.Dock="Top" IsItemsHost="True" KeyboardNavigation.TabIndex="1"/>
+                                    </DockPanel>
+                                </Border>
+
+                                <Grid Grid.Column="1">
+                                    <Grid.RowDefinitions><RowDefinition Height="84"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                    <StackPanel Margin="30,0,90,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                                        <TextBlock Text="{Binding SelectedItem.Header, RelativeSource={RelativeSource TemplatedParent}}" FontFamily="{StaticResource Signika}" FontSize="24" FontWeight="SemiBold" Foreground="#F2F3F5"/>
+                                    </StackPanel>
+                                    <Rectangle Height="1" Margin="30,0" VerticalAlignment="Bottom" Fill="{DynamicResource Accent.LineBrush}" Opacity="0.7" IsHitTestVisible="False"/>
+                                    <ContentPresenter x:Name="PART_SelectedContentHost" Grid.Row="1" Margin="16,8,16,14"
+                                                      ContentSource="SelectedContent"
+                                                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                      SnapsToDevicePixels="True"/>
+                                </Grid>
                             </Grid>
                         </ControlTemplate>
                     </Setter.Value>
@@ -99,10 +116,11 @@
             </Style>
 
             <Style x:Key="SettingsCloseButtonStyle" TargetType="Button">
-                <Setter Property="Background" Value="#A90C12"/>
+                <Setter Property="Background" Value="#14FFFFFF"/>
                 <Setter Property="Foreground" Value="White"/>
-                <Setter Property="BorderBrush" Value="#D71B25"/>
+                <Setter Property="BorderBrush" Value="#2F343A"/>
                 <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
                 <Setter Property="Template"><Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -112,7 +130,10 @@
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="Background" Value="#D71923"/></Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="#D71923"/>
+                                <Setter TargetName="Surface" Property="BorderBrush" Value="#D71923"/>
+                            </Trigger>
                             <Trigger Property="IsPressed" Value="True"><Setter TargetName="Surface" Property="Opacity" Value="0.7"/></Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -121,63 +142,42 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <!-- Same look as the launcher window: edition backdrop, glass panels, accent line (Accent.* = 2016 red / 2018 ember). -->
+    <!-- Same look as the launcher window: backdrop, glass panels, accent line (Accent.*). -->
     <Border Background="#08090B" BorderBrush="#2A2E33" BorderThickness="1"
             CornerRadius="14" ClipToBounds="True"
             MouseLeftButtonDown="MoveSettingsWindow">
         <Grid>
             <Image x:Name="backdrop" Source="..\Resources\Backdrop2016.png" Stretch="UniformToFill" Opacity="0.75" RenderOptions.BitmapScalingMode="HighQuality" IsHitTestVisible="False"/>
+            <Rectangle Fill="#C70A0C0F" IsHitTestVisible="False"/>
             <Rectangle IsHitTestVisible="False" Opacity="0.06">
                 <Rectangle.Fill><ImageBrush ImageSource="..\Resources\Grain.png" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/></Rectangle.Fill>
             </Rectangle>
-            <Grid>
-            <Grid.RowDefinitions><RowDefinition Height="84"/><RowDefinition Height="*"/></Grid.RowDefinitions>
 
-            <Grid Grid.Row="0" Background="Transparent">
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <StackPanel Margin="26,0,0,0" VerticalAlignment="Center">
-                    <Grid Height="28" HorizontalAlignment="Left">
-                        <Image Source="..\Resources\LogoWordmark.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
-                        <Rectangle Fill="{DynamicResource Accent.Brush}">
-                            <Rectangle.OpacityMask><ImageBrush ImageSource="..\Resources\LogoMark.png" Stretch="Uniform"/></Rectangle.OpacityMask>
-                        </Rectangle>
-                    </Grid>
-                    <TextBlock x:Name="settingsSubtitle" Margin="1,8,0,0" FontFamily="{StaticResource Signika}" FontSize="11" FontWeight="SemiBold" Foreground="#80868D"><Run Text="L A U N C H E R   S E T T I N G S   ·   "/><Run x:Name="settingsEdition" Text="2 0 1 6" Foreground="{DynamicResource Accent.LightBrush}"/></TextBlock>
-                </StackPanel>
-                <Button x:Name="ExitButton" Grid.Column="1" Click="CloseSettingsWindow"
-                        Width="46" Height="38" Margin="0,0,20,0" VerticalAlignment="Center"
-                        Style="{StaticResource SettingsCloseButtonStyle}">
-                    <Path Data="{DynamicResource XIcon}" Stretch="Uniform" Fill="White" Width="12" Height="12"/>
-                </Button>
-                <Rectangle Grid.ColumnSpan="2" Height="1" Margin="22,0" Fill="{DynamicResource Accent.LineBrush}" Opacity="0.8" VerticalAlignment="Bottom"/>
-            </Grid>
+            <TabControl x:Name="settingsTabControl" Background="Transparent" BorderThickness="0"
+                        Style="{StaticResource SettingsTabControlStyle}"
+                        Padding="0" SelectionChanged="SettingsTabControlSelectionChanged">
+                <TabItem Header="{DynamicResource item195}" Tag="{StaticResource NavGameFiles}" Style="{StaticResource SettingsTabItemStyle}">
+                    <Frame Source="..\SettingsPages\GameFiles.xaml" NavigationUIVisibility="Hidden" Background="Transparent"/>
+                </TabItem>
+                <TabItem Header="{DynamicResource item196}" Tag="{StaticResource NavAccountKey}" Style="{StaticResource SettingsTabItemStyle}">
+                    <Frame Source="..\SettingsPages\AccountKey.xaml" NavigationUIVisibility="Hidden" Background="Transparent"/>
+                </TabItem>
+                <TabItem Header="{DynamicResource itemVoice}" Tag="{StaticResource NavVoice}" Style="{StaticResource SettingsTabItemStyle}">
+                    <Frame Source="..\SettingsPages\Voice.xaml" NavigationUIVisibility="Hidden" Background="Transparent"/>
+                </TabItem>
+                <TabItem Header="{DynamicResource item197}" Tag="{StaticResource NavOptions}" Style="{StaticResource SettingsTabItemStyle}">
+                    <Frame Source="..\SettingsPages\Options.xaml" NavigationUIVisibility="Hidden" Background="Transparent"/>
+                </TabItem>
+                <TabItem Header="{DynamicResource item199}" Tag="{StaticResource NavAbout}" Style="{StaticResource SettingsTabItemStyle}">
+                    <Frame Source="..\SettingsPages\About.xaml" NavigationUIVisibility="Hidden" Background="Transparent"/>
+                </TabItem>
+            </TabControl>
 
-            <Border Grid.Row="1" Margin="22,16,22,22" Background="#E60C0E11"
-                    BorderBrush="#2A2E33" BorderThickness="1" CornerRadius="8" ClipToBounds="True">
-                <TabControl x:Name="settingsTabControl" Background="Transparent" BorderThickness="0"
-                            Style="{StaticResource SettingsTabControlStyle}"
-                            Padding="0" Margin="5,2,5,5" SelectionChanged="SettingsTabControlSelectionChanged">
-                    <TabItem Header="{DynamicResource item195}" Style="{StaticResource SettingsTabItemStyle}">
-                        <Frame Source="..\SettingsPages\GameFiles.xaml" NavigationUIVisibility="Hidden" Background="Transparent"/>
-                    </TabItem>
-                    <TabItem Header="{DynamicResource item224}" Style="{StaticResource SettingsTabItemStyle}">
-                        <Frame Source="..\SettingsPages\AssetPacks.xaml" NavigationUIVisibility="Hidden" Background="Transparent"/>
-                    </TabItem>
-                    <TabItem Header="{DynamicResource item196}" Style="{StaticResource SettingsTabItemStyle}">
-                        <Frame Source="..\SettingsPages\AccountKey.xaml" NavigationUIVisibility="Hidden" Background="Transparent"/>
-                    </TabItem>
-                    <TabItem Header="{DynamicResource itemVoice}" Style="{StaticResource SettingsTabItemStyle}">
-                        <Frame Source="..\SettingsPages\Voice.xaml" NavigationUIVisibility="Hidden" Background="Transparent"/>
-                    </TabItem>
-                    <TabItem Header="{DynamicResource item197}" Style="{StaticResource SettingsTabItemStyle}">
-                        <Frame Source="..\SettingsPages\Options.xaml" NavigationUIVisibility="Hidden" Background="Transparent"/>
-                    </TabItem>
-                    <TabItem Header="{DynamicResource item199}" Style="{StaticResource SettingsTabItemStyle}">
-                        <Frame Source="..\SettingsPages\About.xaml" NavigationUIVisibility="Hidden" Background="Transparent"/>
-                    </TabItem>
-                </TabControl>
-            </Border>
-            </Grid>
+            <Button x:Name="ExitButton" Click="CloseSettingsWindow"
+                    Width="44" Height="38" Margin="0,22,22,0" HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Style="{StaticResource SettingsCloseButtonStyle}">
+                <Path Data="{DynamicResource XIcon}" Stretch="Uniform" Fill="White" Width="12" Height="12"/>
+            </Button>
         </Grid>
     </Border>
 </Window>

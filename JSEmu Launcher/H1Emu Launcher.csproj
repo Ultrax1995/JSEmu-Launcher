@@ -8,10 +8,10 @@
 	  <UseWindowsForms>true</UseWindowsForms>
 	  <ApplicationIcon>Resources\Icon.ico</ApplicationIcon>
 	  <ApplicationManifest>app.manifest</ApplicationManifest>
-	  <FileVersion>3.5.46</FileVersion>
+	  <FileVersion>3.5.47</FileVersion>
 	  <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
 	  <Authors>JSEmu.eu</Authors>
-	  <Version>3.5.46</Version>
+	  <Version>3.5.47</Version>
 	  <AssemblyName>JSEmu Launcher</AssemblyName>
 	  <SignAssembly>false</SignAssembly>
 	  <Copyright>© JSEmu.eu</Copyright>
@@ -19,14 +19,13 @@
 	  <Description>Launcher for JSEmu.eu Just Survive servers.</Description>
 	  <Title>JSEmu Launcher</Title>
 	  <PackageIcon>Icon.ico</PackageIcon>
-	  <AssemblyVersion>3.5.46</AssemblyVersion>
+	  <AssemblyVersion>3.5.47</AssemblyVersion>
 	  <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="bin\**" />
     <EmbeddedResource Remove="bin\**" />
-    <EmbeddedResource Include="Resources\LaunchPad2018.exe" LogicalName="LaunchPad2018.exe" />
     <None Remove="bin\**" />
     <Page Remove="bin\**" />
   </ItemGroup>
@@ -55,7 +54,6 @@
     <None Remove="Resources\H1EmuIcon.png" />
     <None Remove="Resources\HeroBanner-v2.png" />
     <None Remove="Resources\Backdrop2016.png" />
-    <None Remove="Resources\Backdrop2018.png" />
     <None Remove="Resources\LogoWordmark.png" />
     <None Remove="Resources\LogoMark.png" />
     <None Remove="Resources\UserHeroBanner.png" />
@@ -166,9 +164,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Backdrop2016.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Backdrop2018.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\LogoWordmark.png">

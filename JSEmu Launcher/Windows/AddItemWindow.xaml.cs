@@ -57,12 +57,6 @@ namespace H1Emu_Launcher
                         else
                             EditExistingServer(editIndex);
                         break;
-                    case 2:
-                        if (!editItem)
-                            AddNewAssetPack();
-                        else
-                            EditExistingAssetPack(editIndex);
-                        break;
                 }
             }
         }
@@ -76,12 +70,6 @@ namespace H1Emu_Launcher
                         AddNewServer();
                     else
                         EditExistingServer(editIndex);
-                    break;
-                case 2:
-                    if (!editItem)
-                        AddNewAssetPack();
-                    else
-                        EditExistingAssetPack(editIndex);
                     break;
             }
         }
@@ -288,183 +276,6 @@ namespace H1Emu_Launcher
             Close();
         }
 
-        private void AddNewAssetPack()
-        {
-            if (string.IsNullOrEmpty(primaryTextBox.Text))
-            {
-                CustomMessageBox.Show(FindResource("item233").ToString(), this);
-                return;
-            }
-
-            if (string.IsNullOrEmpty(secondaryTextBox.Text))
-            {
-                CustomMessageBox.Show(FindResource("item234").ToString(), this);
-                return;
-            }
-
-            if (primaryTextBox.Text.Trim() == FindResource("item226").ToString() || primaryTextBox.Text.Trim() == FindResource("item227").ToString())
-            {
-                CustomMessageBox.Show(FindResource("item235").ToString(), this);
-                return;
-            }
-
-            List<LauncherWindow.AssetPackList> assetPackJson = JsonSerializer.Deserialize<List<LauncherWindow.AssetPackList>>(File.ReadAllText(LauncherWindow.assetPacksJsonFile));
-            foreach (LauncherWindow.AssetPackList item in assetPackJson)
-            {
-                if (item.AssetPackName == primaryTextBox.Text.Trim())
-                {
-                    CustomMessageBox.Show(FindResource("item235").ToString(), this);
-                    return;
-                }
-            }
-
-            try
-            {
-                // Save the new asset pack to the custom asset pack file list
-                assetPackJson.Add(new LauncherWindow.AssetPackList()
-                {
-                    AssetPackName = primaryTextBox.Text.Trim(),
-                    AssetPackURL = secondaryTextBox.Text.Trim().Replace(" ", "")
-                });
-
-                string newJson = JsonSerializer.Serialize(assetPackJson, LauncherWindow.jsonSerializerOptions);
-                File.WriteAllText(LauncherWindow.assetPacksJsonFile, newJson);
-
-                ComboBoxItem newItem = new()
-                {
-                    Content = primaryTextBox.Text.Trim(),
-                    Style = (Style)FindResource("ComboBoxItemStyle")
-                };
-
-                ContextMenu newItemContextMenu = new()
-                {
-                    Style = (Style)FindResource("ContextMenuStyle")
-                };
-                newItem.ContextMenu = newItemContextMenu;
-
-                MenuItem editOption = new()
-                {
-                    Style = (Style)FindResource("CustomMenuItem")
-                };
-                System.Windows.Shapes.Path pathEdit = new()
-                {
-                    Data = (PathGeometry)FindResource("EditIcon"),
-                    Stretch = Stretch.Uniform
-                };
-                Binding bindingEdit = new("Foreground")
-                {
-                    Source = editOption,
-                    Mode = BindingMode.OneWay
-                };
-                BindingOperations.SetBinding(pathEdit, System.Windows.Shapes.Path.FillProperty, bindingEdit);
-
-                editOption.Icon = pathEdit;
-                editOption.SetResourceReference(HeaderedItemsControl.HeaderProperty, "item212");
-                editOption.Click += (s, e) => { AssetPacks.assetPacksInstance.EditAssetPack(newItem); };
-
-                Separator contextMenuSeparatorSeparator = new()
-                {
-                    Style = (Style)FindResource("SeparatorMenuItem"),
-                    Background = new SolidColorBrush(Color.FromRgb(66, 66, 66)),
-                    Margin = new Thickness(10, 2, 10, 10)
-                };
-
-                MenuItem deleteOption = new()
-                {
-                    Style = (Style)FindResource("CustomMenuItem"),
-                    Foreground = new SolidColorBrush(Color.FromRgb(255, 71, 76))
-                };
-                System.Windows.Shapes.Path pathDelete = new()
-                {
-                    Data = (PathGeometry)FindResource("BinIcon"),
-                    Stretch = Stretch.Uniform
-                };
-                Binding bindingDelete = new("Foreground")
-                {
-                    Source = deleteOption,
-                    Mode = BindingMode.OneWay
-                };
-                BindingOperations.SetBinding(pathDelete, System.Windows.Shapes.Path.FillProperty, bindingDelete);
-
-                deleteOption.Icon = pathDelete;
-                deleteOption.SetResourceReference(HeaderedItemsControl.HeaderProperty, "item192");
-                deleteOption.Click += (s, e) => { AssetPacks.assetPacksInstance.DeleteAssetPack(newItem); };
-
-                newItemContextMenu.Items.Add(editOption);
-                newItemContextMenu.Items.Add(contextMenuSeparatorSeparator);
-                newItemContextMenu.Items.Add(deleteOption);
-
-                int insertIndex = AssetPacks.assetPacksInstance.assetPacksBox.Items.Count - 1;
-                if (AssetPacks.assetPacksInstance.assetPacksBox.Items.Count > 4)
-                    insertIndex--;
-
-                AssetPacks.assetPacksInstance.assetPacksBox.Items.Insert(insertIndex, newItem);
-
-                if (AssetPacks.assetPacksInstance.assetPacksBox.Items.Count == 4)
-                {
-                    Separator serverSelectorSeparator = new()
-                    {
-                        Style = (Style)FindResource("SeparatorMenuItem"),
-                        Background = new SolidColorBrush(Color.FromRgb(66, 66, 66))
-                    };
-                    AssetPacks.assetPacksInstance.assetPacksBox.Items.Insert(AssetPacks.assetPacksInstance.assetPacksBox.Items.Count - 1, serverSelectorSeparator);
-                }
-
-                AssetPacks.assetPacksInstance.assetPacksBox.SelectedIndex = insertIndex;
-            }
-            catch (Exception e)
-            {
-                CustomMessageBox.Show($"{FindResource("item142")} {e.Message}", this);
-            }
-
-            Topmost = true;
-            Close();
-        }
-
-        private void EditExistingAssetPack(int editIndex)
-        {
-            if (string.IsNullOrEmpty(primaryTextBox.Text) || string.IsNullOrEmpty(secondaryTextBox.Text))
-            {
-                CustomMessageBox.Show(FindResource("item233").ToString(), this);
-                return;
-            }
-
-            if (primaryTextBox.Text.Trim() == FindResource("item139").ToString() || primaryTextBox.Text.Trim() == FindResource("item140").ToString() || primaryTextBox.Text.Trim() == FindResource("item141").ToString())
-            {
-                CustomMessageBox.Show(FindResource("item235").ToString(), this);
-                return;
-            }
-
-            List<LauncherWindow.AssetPackList> assetPackJson = JsonSerializer.Deserialize<List<LauncherWindow.AssetPackList>>(File.ReadAllText(LauncherWindow.assetPacksJsonFile));
-            foreach (LauncherWindow.AssetPackList item in assetPackJson)
-            {
-                if (item.AssetPackName == primaryTextBox.Text.Trim())
-                {
-                    CustomMessageBox.Show(FindResource("item235").ToString(), this);
-                    return;
-                }
-            }
-
-            try
-            {
-                assetPackJson[editIndex].AssetPackName = primaryTextBox.Text.Trim();
-                assetPackJson[editIndex].AssetPackURL = secondaryTextBox.Text.Trim().Replace(" ", "");
-
-                ComboBoxItem comboBoxItem = (ComboBoxItem)AssetPacks.assetPacksInstance.assetPacksBox.Items[editIndex + 2];
-                comboBoxItem.Content = primaryTextBox.Text.Trim();
-
-                string newJson = JsonSerializer.Serialize(assetPackJson, LauncherWindow.jsonSerializerOptions);
-                File.WriteAllText(LauncherWindow.assetPacksJsonFile, newJson);
-            }
-            catch (Exception e)
-            {
-                CustomMessageBox.Show($"{FindResource("item142")} {e.Message}", this);
-            }
-
-            Topmost = true;
-            Close();
-        }
-
         private void CancelButton(object sender, RoutedEventArgs e)
         {
             Topmost = true;
@@ -510,11 +321,6 @@ namespace H1Emu_Launcher
                     primaryTextBoxHint.Text = LauncherWindow.launcherInstance.FindResource("item144").ToString();
                     secondaryTextBoxHint.Text = LauncherWindow.launcherInstance.FindResource("item145").ToString();
                     Title = LauncherWindow.launcherInstance.FindResource("item207").ToString();
-                    break;
-                case 2:
-                    primaryTextBoxHint.Text = LauncherWindow.launcherInstance.FindResource("item228").ToString();
-                    secondaryTextBoxHint.Text = LauncherWindow.launcherInstance.FindResource("item229").ToString();
-                    Title = LauncherWindow.launcherInstance.FindResource("item231").ToString();
                     break;
             }
 

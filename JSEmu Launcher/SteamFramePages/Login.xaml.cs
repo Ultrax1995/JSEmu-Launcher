@@ -18,11 +18,7 @@ namespace H1Emu_Launcher.SteamFramePages
     public partial class Login
     {
         private static Storyboard loadingAnimation;
-        public const string gameInfo2016 = "-app 295110 -depot 295111 -manifest 8395659676467739522";
-        // 2018 mode (top-bar switch) downloads the final Steam build instead.
-        public static string gameInfo => Edition2018.Selected
-            ? $"-app {Edition2018.AppId} -depot {Edition2018.DepotId} -manifest {Edition2018.Manifest}"
-            : gameInfo2016;
+        public const string gameInfo = "-app 295110 -depot 295111 -manifest 8395659676467739522";
 
         public Login()
         {
@@ -134,14 +130,6 @@ namespace H1Emu_Launcher.SteamFramePages
                     bool returnToLogin = false;
                     string selectedDirectory = string.Empty;
 
-                    // 2018 goes straight into the Steam library, so Steam can launch it.
-                    string steamTarget = Edition2018.Selected ? Edition2018.DownloadTarget() : null;
-                    if (steamTarget != null)
-                    {
-                        Directory.CreateDirectory(steamTarget);
-                        selectedDirectory = steamTarget;
-                    }
-                    else
                     Dispatcher.Invoke(new Action(delegate
                     {
                         OpenFolderDialog ofd = new()
@@ -187,8 +175,6 @@ namespace H1Emu_Launcher.SteamFramePages
                     {
                         if (manifestId == 8395659676467739522)
                             version = "2016";
-                        else if (manifestId == Edition2018.Manifest)
-                            version = "2018";
                     }
 
                     Dispatcher.Invoke(new Action(delegate
@@ -209,19 +195,7 @@ namespace H1Emu_Launcher.SteamFramePages
                     ContentDownloader.downloadSpeedTimer.Start();
                     await ContentDownloader.DownloadAppAsync(appId, depotManifestIds, "Public", null, null, null, false, false).ConfigureAwait(false);
 
-                    bool download2018 = version == "2018";
-                    if (download2018)
-                    {
-                        Properties.Settings.Default.activeDirectory2018 = ContentDownloader.DEFAULT_DOWNLOAD_DIR;
-                        if (steamTarget != null)
-                        {
-                            try { Edition2018.WriteAppManifest(ContentDownloader.DEFAULT_DOWNLOAD_DIR); } catch { }
-                        }
-                        // Ready to play straight from Steam, without pressing Play here first.
-                        Edition2018.EnsureGameDirReady(ContentDownloader.DEFAULT_DOWNLOAD_DIR);
-                    }
-                    else
-                        Properties.Settings.Default.activeDirectory = ContentDownloader.DEFAULT_DOWNLOAD_DIR;
+                    Properties.Settings.Default.activeDirectory = ContentDownloader.DEFAULT_DOWNLOAD_DIR;
                     Properties.Settings.Default.Save();
 
                     if (Directory.Exists($"{ContentDownloader.DEFAULT_DOWNLOAD_DIR}\\DepotDownloader"))
@@ -234,13 +208,8 @@ namespace H1Emu_Launcher.SteamFramePages
                         loadingAnimation.Stop();
                         loadingIcon.Visibility = Visibility.Hidden;
                         loginEnterButton.Visibility = Visibility.Visible;
-                        if (download2018)
-                            LauncherWindow.launcherInstance.ShowEdition();
-                        else
-                        {
-                            LauncherWindow.launcherInstance.directoryBox.Text = Properties.Settings.Default.activeDirectory;
-                            LauncherWindow.launcherInstance.CheckGameVersionAndPath(LauncherWindow.launcherInstance, false, true);
-                        }
+                        LauncherWindow.launcherInstance.directoryBox.Text = Properties.Settings.Default.activeDirectory;
+                        LauncherWindow.launcherInstance.CheckGameVersionAndPath(LauncherWindow.launcherInstance, false, true);
                         UpdateLang();
                         CustomMessageBox.Show($"{FindResource("item37")} {version}.", LauncherWindow.launcherInstance);
                     }));

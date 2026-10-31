@@ -20,7 +20,7 @@ namespace H1Emu_Launcher
             ("chest", "Shirt", "Shirts", false),
             ("hands", "Hands", "Gloves", false),
             ("legs", "Pants", "Pants", false),
-            ("feet", "Feet", "Boots", false),
+            ("feet", "Feet", "Boots and shoes", false),
             ("conveys", "Conveys", "Conveys / Zeds / Gators skins", true),
             ("armor", "Body Armor", "Body armor skins", true),
             ("helmet", "Helmet", "Helmet skins", true),
@@ -264,8 +264,8 @@ namespace H1Emu_Launcher
                 slotCurrent[slot.Key].Text = hasPick ? byId[id].Name : "Default";
                 Button button = slotButtons[slot.Key];
                 bool active = slot.Key == activeSlot;
-                button.BorderBrush = active ? RedBrush : EdgeBrush;
-                button.Background = active ? new SolidColorBrush(Color.FromRgb(0x2A, 0x10, 0x14)) : PanelBrush;
+                button.BorderBrush = active ? (Brush)FindResource("Accent.BorderBrush") : Brushes.Transparent;
+                button.Background = active ? (Brush)FindResource("Accent.SoftBrush") : Brushes.Transparent;
             }
 
             UpdateDirty();

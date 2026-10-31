@@ -86,18 +86,7 @@ namespace H1Emu_Launcher.SettingsPages
                             settingsProgressText.Text = FindResource("item54").ToString();
                         }));
 
-                        // Get the download URL for the selected asset pack
-                        string assetPackJsonURL = string.Empty;
-
-                        if (Properties.Settings.Default.selectedAssetPack == 0)
-                            assetPackJsonURL = Info.OFFICIAL_ASSET_PACK;
-                        else
-                        {
-                            List<LauncherWindow.AssetPackList> assetPackJson = JsonSerializer.Deserialize<List<LauncherWindow.AssetPackList>>(File.ReadAllText(LauncherWindow.assetPacksJsonFile));
-                            assetPackJsonURL = assetPackJson[Properties.Settings.Default.selectedAssetPack - 2].AssetPackURL;
-                        }
-
-                        await InstallPatchClass.DownloadAssetPack(assetPackJsonURL, (filename, percentage) =>
+                        await InstallPatchClass.DownloadAssetPack(Info.OFFICIAL_ASSET_PACK, (filename, percentage) =>
                         {
                             Dispatcher.Invoke(new Action(delegate
                             {

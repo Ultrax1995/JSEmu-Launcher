@@ -6,9 +6,9 @@
         Background="Transparent"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
-        Width="1180" Height="760"
+        Width="1120" Height="720"
         UseLayoutRounding="True"
-        FontFamily="Bahnschrift Light"
+        FontFamily="Segoe UI"
         Foreground="#DDE3E8"
         Loaded="WindowLoaded">
 
@@ -37,68 +37,152 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Side navigation row, same as the Settings window; HighlightTab paints the open page -->
+        <Style x:Key="HubNavButton" TargetType="Button">
+            <Setter Property="Foreground" Value="#9AA0A8"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontFamily" Value="{StaticResource Signika}"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template"><Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Surface" Background="{TemplateBinding Background}" CornerRadius="7" Padding="27,0,8,0">
+                        <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter Property="Foreground" Value="#E7E9ED"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value></Setter>
+        </Style>
+
+        <Style x:Key="CloseButton" TargetType="Button">
+            <Setter Property="Background" Value="#14FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#2F343A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template"><Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Surface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Surface" Property="Background" Value="#D71923"/>
+                            <Setter TargetName="Surface" Property="BorderBrush" Value="#D71923"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="Surface" Property="Opacity" Value="0.7"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value></Setter>
+        </Style>
+        <!-- Slim dark scrollbar, thumb only -->
+        <Style TargetType="ScrollBar">
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="MinWidth" Value="8"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template"><Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Track x:Name="PART_Track" IsDirectionReversed="True">
+                        <Track.Thumb>
+                            <Thumb>
+                                <Thumb.Template>
+                                    <ControlTemplate TargetType="Thumb"><Border x:Name="Bar" Background="#3A4046" CornerRadius="4" Margin="1,0"/>
+                                        <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bar" Property="Background" Value="#5A6168"/></Trigger></ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Thumb.Template>
+                            </Thumb>
+                        </Track.Thumb>
+                    </Track>
+                </ControlTemplate>
+            </Setter.Value></Setter>
+        </Style>
     </Window.Resources>
 
-    <Border Background="#080B0E" BorderBrush="#252B30" BorderThickness="1" CornerRadius="15" ClipToBounds="True">
+    <Border Background="#08090B" BorderBrush="#2A2E33" BorderThickness="1" CornerRadius="14" ClipToBounds="True" MouseLeftButtonDown="DragWindow">
         <Grid>
-            <Grid.Background>
-                <RadialGradientBrush Center="0.2,0" GradientOrigin="0.2,0" RadiusX="0.9" RadiusY="0.9">
-                    <GradientStop Color="#2A0F13" Offset="0"/>
-                    <GradientStop Color="#0A0D10" Offset="0.55"/>
-                    <GradientStop Color="#050709" Offset="1"/>
-                </RadialGradientBrush>
-            </Grid.Background>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="84"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+            <Image Source="..\Resources\Backdrop2016.png" Stretch="UniformToFill" Opacity="0.75" RenderOptions.BitmapScalingMode="HighQuality" IsHitTestVisible="False"/>
+            <Rectangle Fill="#C70A0C0F" IsHitTestVisible="False"/>
+            <Rectangle IsHitTestVisible="False" Opacity="0.06">
+                <Rectangle.Fill><ImageBrush ImageSource="..\Resources\Grain.png" TileMode="Tile" ViewportUnits="Absolute" Viewport="0,0,512,512"/></Rectangle.Fill>
+            </Rectangle>
 
-            <!-- header -->
-            <Grid Grid.Row="0" Background="Transparent" MouseLeftButtonDown="DragWindow" Margin="30,0,20,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="256"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
 
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <StackPanel VerticalAlignment="Center" Margin="0,0,30,0">
-                        <TextBlock Text="JSEMU.EU" FontSize="11" FontWeight="Bold" Foreground="#E11D2A"/>
-                        <TextBlock FontSize="28" FontWeight="Bold"><Run Text="JSEmu "/><Run Text="Hub" Foreground="#E11D2A"/></TextBlock>
-                    </StackPanel>
-                    <Button x:Name="tabBattlepass" Content="Battle Pass" Click="TabClick" Tag="battlepass" Height="40" Margin="0,0,10,0" Style="{StaticResource HubButton}"/>
-                    <Button x:Name="tabStore" Content="Crate Store" Click="TabClick" Tag="store" Height="40" Margin="0,0,10,0" Style="{StaticResource HubButton}"/>
-                    <Button x:Name="tabPimp" Content="Pimp My Car" Click="TabClick" Tag="pimp" Height="40" Margin="0,0,10,0" Style="{StaticResource HubButton}"/>
-                    <Button x:Name="tabScrap" Content="Scrap Yard" Click="TabClick" Tag="scrap" Height="40" Style="{StaticResource HubButton}"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Background="#1B160A" BorderBrush="#5A4A22" BorderThickness="1" CornerRadius="9" Padding="14,0" Height="40" Margin="0,0,10,0">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Width="22" Height="22" Background="#F2BC55" CornerRadius="11" Margin="0,0,9,0">
-                                <TextBlock Text="C" FontSize="13" FontWeight="Bold" Foreground="#3A2A00" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <TextBlock x:Name="coinsText" Text="-" FontSize="16" FontWeight="Bold" Foreground="#F2BC55" VerticalAlignment="Center"/>
-                            <TextBlock Text=" coins" FontSize="13" Foreground="#C9B98A" VerticalAlignment="Center"/>
+                <!-- left rail: logo, pages, coins -->
+                <Border Background="#D9090B0E" BorderBrush="#24282D" BorderThickness="0,0,1,0">
+                    <DockPanel Margin="16,0">
+                        <StackPanel DockPanel.Dock="Top" Margin="6,30,0,26" IsHitTestVisible="False">
+                            <Grid Height="30" HorizontalAlignment="Left">
+                                <Image Source="..\Resources\LogoWordmark.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                <Rectangle Fill="{DynamicResource Accent.Brush}">
+                                    <Rectangle.OpacityMask><ImageBrush ImageSource="..\Resources\LogoMark.png" Stretch="Uniform"/></Rectangle.OpacityMask>
+                                </Rectangle>
+                            </Grid>
+                            <TextBlock Margin="1,10,0,0" Text="J S E M U   H U B" FontFamily="{StaticResource Signika}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Accent.LightBrush}"/>
                         </StackPanel>
-                    </Border>
-                    <Button Content="Gambling (web)" Click="GamblingClick" Height="40" Margin="0,0,10,0" Style="{StaticResource HubButton}" ToolTip="Opens the casino on jsemu.eu inside the launcher"/>
-                    <Button Width="44" Height="40" Click="CloseClick" Style="{StaticResource HubButton}" Padding="0" ToolTip="Close">
-                        <TextBlock Text="X" FontSize="15" FontWeight="Bold"/>
-                    </Button>
-                </StackPanel>
-            </Grid>
+                        <StackPanel DockPanel.Dock="Bottom" Margin="0,0,0,18">
+                            <Border Background="#1B160A" BorderBrush="#5A4A22" BorderThickness="1" CornerRadius="8" Padding="14,0" Height="46" Margin="0,0,0,10" IsHitTestVisible="False">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Width="22" Height="22" Background="#F2BC55" CornerRadius="11" Margin="0,0,10,0">
+                                        <TextBlock Text="C" FontSize="13" FontWeight="Bold" Foreground="#3A2A00" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock x:Name="coinsText" Text="-" FontFamily="{StaticResource Signika}" FontSize="18" FontWeight="SemiBold" Foreground="#F2BC55" VerticalAlignment="Center"/>
+                                    <TextBlock Text=" coins" FontSize="13" Foreground="#C9B98A" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <Button Content="Gambling (web)" Click="GamblingClick" Height="42" Style="{StaticResource HubButton}" ToolTip="Opens the casino on jsemu.eu inside the launcher"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <Button x:Name="tabBattlepass" Click="TabClick" Tag="battlepass" Style="{StaticResource HubNavButton}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="M12,3 L14.8,8.8 L21,9.7 L16.5,14.1 L17.6,20.4 L12,17.4 L6.4,20.4 L7.5,14.1 L3,9.7 L9.2,8.8 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Width="19" Height="19" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,13,0"/>
+                                    <TextBlock Text="Battle Pass" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="tabStore" Click="TabClick" Tag="store" Style="{StaticResource HubNavButton}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="M3,8 L12,3.5 L21,8 L21,17 L12,21.5 L3,17 Z M3,8 L12,12.5 L21,8 M12,12.5 L12,21.5" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Width="19" Height="19" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,13,0"/>
+                                    <TextBlock Text="Crate Store" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="tabPimp" Click="TabClick" Tag="pimp" Style="{StaticResource HubNavButton}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="M3,15 L5,9 C5.4,8 6,7.5 7,7.5 L17,7.5 C18,7.5 18.6,8 19,9 L21,15 L21,18 L3,18 Z M3,13 L21,13 M7,18 L7,20 M17,18 L17,20" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Width="19" Height="19" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,13,0"/>
+                                    <TextBlock Text="Pimp My Car" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="tabScrap" Click="TabClick" Tag="scrap" Style="{StaticResource HubNavButton}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="M4,7 L20,7 M9,7 L9,4 L15,4 L15,7 M6,7 L7,20 L17,20 L18,7 M10,11 L10,16 M14,11 L14,16" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Width="19" Height="19" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,13,0"/>
+                                    <TextBlock Text="Scrap Yard" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
 
-            <!-- content -->
-            <Border Grid.Row="1" Margin="30,0,30,26" Background="#0E1216" BorderBrush="#252B30" BorderThickness="1" CornerRadius="13">
-                <Grid>
-                    <ScrollViewer x:Name="scroller" VerticalScrollBarVisibility="Auto" Padding="22,18">
+                <!-- content -->
+                <Grid Grid.Column="1">
+                    <ScrollViewer x:Name="scroller" VerticalScrollBarVisibility="Auto" Padding="30,24,18,18">
                         <StackPanel x:Name="content"/>
                     </ScrollViewer>
                     <TextBlock x:Name="loadingText" Text="Loading..." FontSize="18" Foreground="#8A96A3"
                                HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"/>
                 </Grid>
-            </Border>
+            </Grid>
+
+            <Button Click="CloseClick" Width="44" Height="38" Margin="0,22,22,0" HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource CloseButton}" ToolTip="Close">
+                <Path Data="{DynamicResource XIcon}" Stretch="Uniform" Fill="White" Width="12" Height="12"/>
+            </Button>
         </Grid>
     </Border>
 </Window>
