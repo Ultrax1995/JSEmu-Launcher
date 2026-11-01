@@ -113,7 +113,7 @@ namespace H1Emu_Launcher
 
         private void HighlightTab()
         {
-            foreach (Button tab in new[] { tabBattlepass, tabStore, tabScrap, tabWipe })
+            foreach (Button tab in new[] { tabBattlepass, tabStore, tabBackpack, tabScrap, tabWipe })
             {
                 bool active = (string)tab.Tag == activeTab;
                 tab.Background = active ? (Brush)FindResource("Accent.SoftBrush") : Brushes.Transparent;
@@ -155,6 +155,7 @@ namespace H1Emu_Launcher
             {
                 case "battlepass": await LoadBattlepass(); break;
                 case "store": await LoadStore(); break;
+                case "backpack": await LoadBackpack(); break;
                 case "scrap": await LoadScrap(); break;
                 case "wipe": await LoadWipe(); break;
             }
@@ -513,6 +514,145 @@ namespace H1Emu_Launcher
             else
             {
                 ShowMessage(HubApi.Error(result, "Could not claim this reward."), false);
+            }
+        }
+
+        // ---------- Backpack ----------
+
+        private sealed class BackpackItem
+        {
+            public long Id;
+            public string Name = "";
+            public string Image = "";
+            public long Quantity;
+            public bool Hidden;
+            public bool Missing;
+        }
+
+        private List<BackpackItem> backpackItems = new();
+        private string backpackFilter = "all";
+        private StackPanel backpackFilters = new();
+        private StackPanel backpackList = new();
+
+        private async System.Threading.Tasks.Task LoadBackpack()
+        {
+            JsonElement data = await HubApi.CallAsync("backpack");
+            if (FailedView(data))
+                return;
+
+            if (data.TryGetProperty("coins", out JsonElement coinsEl) && coinsEl.ValueKind == JsonValueKind.Number)
+                SetCoins(coinsEl.GetInt64());
+
+            backpackItems = new List<BackpackItem>();
+            if (data.TryGetProperty("items", out JsonElement items) && items.ValueKind == JsonValueKind.Array)
+                foreach (JsonElement item in items.EnumerateArray())
+                    backpackItems.Add(new BackpackItem
+                    {
+                        Id = HubApi.Num(item, "itemid"),
+                        Name = HubApi.Str(item, "name", "Unknown Item"),
+                        Image = HubApi.Str(item, "image"),
+                        Quantity = HubApi.Num(item, "quantity", 1),
+                        Hidden = HubApi.Bool(item, "hidden"),
+                        Missing = HubApi.Bool(item, "missing")
+                    });
+
+            BeginView("Backpack", "Your account items. Hidden items stay on your account but do not show up in game, the change applies the next time you join a server.");
+            backpackFilter = "all";
+            backpackFilters = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 14) };
+            backpackList = new StackPanel();
+            content.Children.Add(backpackFilters);
+            content.Children.Add(backpackList);
+            RenderBackpack();
+        }
+
+        private void RenderBackpack()
+        {
+            backpackFilters.Children.Clear();
+            backpackFilters.Children.Add(CreateBackpackFilter("all", "All", backpackItems.Count));
+            backpackFilters.Children.Add(CreateBackpackFilter("visible", "Visible", backpackItems.Count(i => !i.Hidden)));
+            backpackFilters.Children.Add(CreateBackpackFilter("hidden", "Hidden", backpackItems.Count(i => i.Hidden)));
+            backpackFilters.Children.Add(CreateBackpackFilter("missing", "Missing", backpackItems.Count(i => i.Missing)));
+
+            backpackList.Children.Clear();
+            List<BackpackItem> shown = backpackItems.Where(i => backpackFilter switch
+            {
+                "visible" => !i.Hidden,
+                "hidden" => i.Hidden,
+                "missing" => i.Missing,
+                _ => true
+            }).ToList();
+
+            if (shown.Count == 0)
+                backpackList.Children.Add(Label(backpackItems.Count == 0 ? "Your backpack is empty." : "No items match this filter.", 14, MutedBrush));
+
+            foreach (BackpackItem item in shown)
+                backpackList.Children.Add(CreateBackpackRow(item));
+        }
+
+        private Button CreateBackpackFilter(string filter, string title, int count)
+        {
+            Button button = new() { Content = $"{title} ({Fmt(count)})", Height = 34, Margin = new Thickness(0, 0, 8, 0), Style = ButtonStyle, Padding = new Thickness(14, 0, 14, 0) };
+            if (filter == backpackFilter)
+                button.Background = RedBrush;
+            button.Click += (_, _) =>
+            {
+                backpackFilter = filter;
+                RenderBackpack();
+            };
+            return button;
+        }
+
+        private Border CreateBackpackRow(BackpackItem item)
+        {
+            Grid row = new();
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(56) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            Image icon = new() { Width = 44, Height = 44, Source = LoadImage(item.Image), HorizontalAlignment = HorizontalAlignment.Left, Opacity = item.Hidden ? 0.45 : 1 };
+            row.Children.Add(icon);
+
+            StackPanel info = new() { VerticalAlignment = VerticalAlignment.Center };
+            info.Children.Add(Label(item.Name, 14, item.Hidden ? MutedBrush : Brushes.White, FontWeights.SemiBold));
+            info.Children.Add(Label($"x{Fmt(item.Quantity)}  |  {(item.Hidden ? "Hidden" : "Visible")}", 12, MutedBrush));
+            Grid.SetColumn(info, 1);
+            row.Children.Add(info);
+
+            Button toggle = new() { Content = item.Hidden ? "Show" : "Hide", Height = 34, MinWidth = 76, VerticalAlignment = VerticalAlignment.Center, Style = ButtonStyle, Padding = new Thickness(14, 0, 14, 0) };
+            toggle.Click += async (_, _) => await ToggleBackpackItem(item, toggle);
+            Grid.SetColumn(toggle, 2);
+            row.Children.Add(toggle);
+
+            return new Border
+            {
+                Margin = new Thickness(0, 0, 0, 8),
+                Padding = new Thickness(14, 10, 14, 10),
+                Background = PanelBrush,
+                BorderBrush = EdgeBrush,
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(10),
+                Child = row
+            };
+        }
+
+        private async System.Threading.Tasks.Task ToggleBackpackItem(BackpackItem item, Button toggle)
+        {
+            if (busy) return;
+
+            busy = true;
+            toggle.IsEnabled = false;
+            JsonElement result = await HubApi.CallAsync("backpack_hide", new Dictionary<string, object> { ["itemDefinitionId"] = item.Id, ["hidden"] = !item.Hidden });
+            busy = false;
+            toggle.IsEnabled = true;
+
+            if (HubApi.Ok(result))
+            {
+                item.Hidden = !item.Hidden;
+                RenderBackpack();
+            }
+            else
+            {
+                ShowMessage(HubApi.Error(result, "Could not update this item."), false);
             }
         }
 

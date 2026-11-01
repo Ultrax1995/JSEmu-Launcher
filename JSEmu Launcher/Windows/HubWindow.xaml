@@ -155,6 +155,12 @@
                                     <TextBlock Text="Crate Store" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
+                            <Button x:Name="tabBackpack" Click="TabClick" Tag="backpack" Style="{StaticResource HubNavButton}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="M9,6 L9,5 C9,3.5 10.3,3 12,3 C13.7,3 15,3.5 15,5 L15,6 M6,21 L18,21 C19.2,21 20,20.2 20,19 L20,11 C20,8 18,6 15,6 L9,6 C6,6 4,8 4,11 L4,19 C4,20.2 4.8,21 6,21 Z M8,13 L16,13 L16,17 L8,17 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Width="19" Height="19" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,13,0"/>
+                                    <TextBlock Text="Backpack" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
                             <Button x:Name="tabScrap" Click="TabClick" Tag="scrap" Style="{StaticResource HubNavButton}">
                                 <StackPanel Orientation="Horizontal">
                                     <Path Data="M4,7 L20,7 M9,7 L9,4 L15,4 L15,7 M6,7 L7,20 L17,20 L18,7 M10,11 L10,16 M14,11 L14,16" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Width="19" Height="19" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,13,0"/>
