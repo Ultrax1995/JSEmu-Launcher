@@ -62,21 +62,22 @@ namespace H1Emu_Launcher
 
         // ---------- helpers ----------
 
-        private static BitmapImage? LoadImage(string? path)
+        private static BitmapImage? LoadImage(string? path, int width = 72)
         {
             if (string.IsNullOrEmpty(path))
                 return null;
-            if (ImageCache.TryGetValue(path, out BitmapImage? cached))
+            string key = $"{width}:{path}";
+            if (ImageCache.TryGetValue(key, out BitmapImage? cached))
                 return cached;
             try
             {
                 BitmapImage image = new();
                 image.BeginInit();
                 image.UriSource = new Uri(DressingRoomApi.SiteRoot + path, UriKind.Absolute);
-                image.DecodePixelWidth = 72;
+                image.DecodePixelWidth = width;
                 image.CacheOption = BitmapCacheOption.OnLoad;
                 image.EndInit();
-                ImageCache[path] = image;
+                ImageCache[key] = image;
                 return image;
             }
             catch
@@ -147,6 +148,7 @@ namespace H1Emu_Launcher
         {
             activeTab = tab;
             HighlightTab();
+            HideCratePreview();
             content.Children.Clear();
             loadingText.Text = "Loading...";
             loadingText.Visibility = Visibility.Visible;
@@ -343,6 +345,9 @@ namespace H1Emu_Launcher
                 ? $"Buy crates with coins. Store discount: {storeDiscount}% off. Crates arrive in your account items in game."
                 : "Buy crates with coins. Crates arrive in your account items in game.");
 
+            if (data.TryGetProperty("ticketCrate", out JsonElement ticketCrate) && ticketCrate.ValueKind == JsonValueKind.Object)
+                content.Children.Add(CreateTicketExchange(ticketCrate, HubApi.Num(data, "eventTickets")));
+
             WrapPanel wrap = new();
             if (data.TryGetProperty("crates", out JsonElement crates) && crates.ValueKind == JsonValueKind.Array)
                 foreach (JsonElement crate in crates.EnumerateArray())
@@ -358,7 +363,18 @@ namespace H1Emu_Launcher
             long unit = storeDiscount > 0 ? (long)Math.Floor(cost * (1 - storeDiscount / 100.0)) : cost;
 
             StackPanel stack = new() { HorizontalAlignment = HorizontalAlignment.Center };
-            stack.Children.Add(new Image { Source = LoadImage(HubApi.Str(crate, "image")), Width = 72, Height = 72, Margin = new Thickness(0, 2, 0, 8) });
+            string preview = HubApi.Str(crate, "preview");
+            Border iconArea = new()
+            {
+                Background = Brushes.Transparent,
+                Child = new Image { Source = LoadImage(HubApi.Str(crate, "image")), Width = 72, Height = 72, Margin = new Thickness(0, 2, 0, 8) }
+            };
+            if (!string.IsNullOrEmpty(preview))
+            {
+                iconArea.MouseEnter += (_, _) => ShowCratePreviewSoon(name, preview);
+                iconArea.MouseLeave += (_, _) => HideCratePreview();
+            }
+            stack.Children.Add(iconArea);
             TextBlock nameText = Label(name, 13, Brushes.White, FontWeights.SemiBold);
             nameText.TextAlignment = TextAlignment.Center;
             nameText.MaxHeight = 36;
@@ -366,6 +382,12 @@ namespace H1Emu_Launcher
             TextBlock price = Label($"{Fmt(unit)} coins", 12, GoldBrush, null, new Thickness(0, 3, 0, 8));
             price.HorizontalAlignment = HorizontalAlignment.Center;
             stack.Children.Add(price);
+            if (!string.IsNullOrEmpty(preview))
+            {
+                TextBlock hint = Label("Hold over the icon to preview", 11, MutedBrush, null, new Thickness(0, -4, 0, 8));
+                hint.HorizontalAlignment = HorizontalAlignment.Center;
+                stack.Children.Add(hint);
+            }
 
             StackPanel buyRow = new() { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center };
             TextBox qty = new() { Text = "1", Width = 44, Height = 32, Padding = new Thickness(6, 0, 6, 0), VerticalContentAlignment = VerticalAlignment.Center, Background = PanelBrush, BorderBrush = EdgeBrush, Foreground = Brushes.White, CaretBrush = Brushes.White };
@@ -386,6 +408,99 @@ namespace H1Emu_Launcher
                 CornerRadius = new CornerRadius(10),
                 Child = stack
             };
+        }
+
+        private System.Windows.Threading.DispatcherTimer? cratePreviewTimer;
+
+        // The contents only open after holding the mouse over the crate for 3 seconds.
+        private void ShowCratePreviewSoon(string name, string path)
+        {
+            HideCratePreview();
+            BitmapImage? image = LoadImage(path, 1035);
+            cratePreviewTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
+            cratePreviewTimer.Tick += (_, _) =>
+            {
+                cratePreviewTimer?.Stop();
+                cratePreviewName.Text = name;
+                cratePreviewImage.Source = image;
+                cratePreview.Visibility = Visibility.Visible;
+            };
+            cratePreviewTimer.Start();
+        }
+
+        private void HideCratePreview()
+        {
+            cratePreviewTimer?.Stop();
+            cratePreviewTimer = null;
+            cratePreview.Visibility = Visibility.Collapsed;
+        }
+
+        private Border CreateTicketExchange(JsonElement crate, long tickets)
+        {
+            string name = HubApi.Str(crate, "name", "Designer Crate");
+            long perCrate = Math.Max(1, HubApi.Num(crate, "ticketsPerCrate", 1));
+
+            Grid row = new();
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(84) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            row.Children.Add(new Image { Source = LoadImage(HubApi.Str(crate, "image")), Width = 72, Height = 72, HorizontalAlignment = HorizontalAlignment.Left });
+
+            StackPanel info = new() { VerticalAlignment = VerticalAlignment.Center };
+            info.Children.Add(Label(name, 16, Brushes.White, FontWeights.SemiBold));
+            info.Children.Add(Label($"You have {Fmt(tickets)} Event Ticket(s), {Fmt(perCrate)} per crate.", 13, GoldBrush, null, new Thickness(0, 2, 0, 2)));
+            info.Children.Add(Label("You must be online in game to receive the crate.", 12, MutedBrush));
+            Grid.SetColumn(info, 1);
+            row.Children.Add(info);
+
+            StackPanel actions = new() { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+            TextBox qty = new() { Text = "1", Width = 44, Height = 34, Padding = new Thickness(6, 0, 6, 0), VerticalContentAlignment = VerticalAlignment.Center, Background = PanelBrush, BorderBrush = EdgeBrush, Foreground = Brushes.White, CaretBrush = Brushes.White };
+            Button exchange = new() { Content = "Exchange", Height = 34, Margin = new Thickness(8, 0, 0, 0), Style = ButtonStyle, Background = RedBrush, BorderBrush = new SolidColorBrush(Color.FromRgb(0xF0, 0x2A, 0x36)), Padding = new Thickness(18, 0, 18, 0), IsEnabled = tickets >= perCrate };
+            exchange.Click += async (_, _) => await ExchangeTickets(name, perCrate, qty.Text);
+            actions.Children.Add(qty);
+            actions.Children.Add(exchange);
+            Grid.SetColumn(actions, 2);
+            row.Children.Add(actions);
+
+            return new Border
+            {
+                Margin = new Thickness(0, 0, 12, 14),
+                Padding = new Thickness(14, 10, 14, 10),
+                Background = PanelBrush,
+                BorderBrush = EdgeBrush,
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(10),
+                Child = row
+            };
+        }
+
+        private async System.Threading.Tasks.Task ExchangeTickets(string name, long perCrate, string quantityText)
+        {
+            if (busy) return;
+            if (!int.TryParse(quantityText.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out int quantity) || quantity < 1 || quantity > 50)
+            {
+                ShowMessage("Enter a quantity between 1 and 50.", false);
+                return;
+            }
+
+            if (!Confirm($"Exchange {Fmt(quantity * perCrate)} Event Ticket(s) for {quantity}x {name}?"))
+                return;
+
+            busy = true;
+            ShowMessage("Processing...", true);
+            JsonElement result = await HubApi.CallAsync("event_exchange", new Dictionary<string, object> { ["quantity"] = quantity });
+            busy = false;
+
+            if (HubApi.Ok(result))
+            {
+                await LoadStore();
+                ShowMessage($"Exchanged for {quantity}x {name}. It will be delivered to your account shortly.", true);
+            }
+            else
+            {
+                ShowMessage(HubApi.Error(result, "Could not complete the exchange."), false);
+            }
         }
 
         private async System.Threading.Tasks.Task BuyCrate(string itemid, string name, long unit, string quantityText)

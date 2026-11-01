@@ -184,6 +184,16 @@
                     </ScrollViewer>
                     <TextBlock x:Name="loadingText" Text="Loading..." FontSize="18" Foreground="#8A96A3"
                                HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"/>
+
+                    <!-- crate contents, shown while hovering a crate icon -->
+                    <Border x:Name="cratePreview" Visibility="Collapsed" IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Background="#F20C0F13" BorderBrush="#2C3540" BorderThickness="1" CornerRadius="12" Padding="16">
+                        <StackPanel>
+                            <TextBlock Text="CRATE PREVIEW" FontSize="11" FontWeight="Bold" Foreground="#E11D2A"/>
+                            <TextBlock x:Name="cratePreviewName" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,1,0,8"/>
+                            <Image x:Name="cratePreviewImage" Width="740" Height="566" Stretch="Uniform"/>
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </Grid>
 
