@@ -139,7 +139,8 @@
                                     <TextBlock Text=" coins" FontSize="13" Foreground="#C9B98A" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
-                            <Button Content="Gambling (web)" Click="GamblingClick" Height="42" Style="{StaticResource HubButton}" ToolTip="Opens the casino on jsemu.eu inside the launcher"/>
+                            <Button Content="Donate" Click="DonateClick" Height="42" Margin="0,0,0,8" Style="{StaticResource HubButton}" ToolTip="Opens jsemu.eu in your browser"/>
+                            <Button Content="Gambling" Click="GamblingClick" Height="42" Style="{StaticResource HubButton}" ToolTip="Opens jsemu.eu in your browser"/>
                         </StackPanel>
                         <StackPanel>
                             <Button x:Name="tabBattlepass" Click="TabClick" Tag="battlepass" Style="{StaticResource HubNavButton}">
@@ -154,16 +155,16 @@
                                     <TextBlock Text="Crate Store" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
-                            <Button x:Name="tabPimp" Click="TabClick" Tag="pimp" Style="{StaticResource HubNavButton}">
-                                <StackPanel Orientation="Horizontal">
-                                    <Path Data="M3,15 L5,9 C5.4,8 6,7.5 7,7.5 L17,7.5 C18,7.5 18.6,8 19,9 L21,15 L21,18 L3,18 Z M3,13 L21,13 M7,18 L7,20 M17,18 L17,20" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Width="19" Height="19" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,13,0"/>
-                                    <TextBlock Text="Pimp My Car" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
                             <Button x:Name="tabScrap" Click="TabClick" Tag="scrap" Style="{StaticResource HubNavButton}">
                                 <StackPanel Orientation="Horizontal">
                                     <Path Data="M4,7 L20,7 M9,7 L9,4 L15,4 L15,7 M6,7 L7,20 L17,20 L18,7 M10,11 L10,16 M14,11 L14,16" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Width="19" Height="19" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,13,0"/>
                                     <TextBlock Text="Scrap Yard" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="tabWipe" Click="TabClick" Tag="wipe" Style="{StaticResource HubNavButton}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="M7,4 L17,4 L17,10 C17,13 15,15 12,15 C9,15 7,13 7,10 Z M7,6 L4,6 L4,8 C4,10 5.5,11 7.5,11 M17,6 L20,6 L20,8 C20,10 18.5,11 16.5,11 M12,15 L12,19 M8,20 L16,20" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Width="19" Height="19" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,13,0"/>
+                                    <TextBlock Text="Wipe Rewards" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>

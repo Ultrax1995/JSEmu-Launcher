@@ -42,7 +42,12 @@ namespace H1Emu_Launcher
 
         private void CloseClick(object sender, RoutedEventArgs e) => Close();
 
-        private void GamblingClick(object sender, RoutedEventArgs e) => WebsiteWindow.ShowHub(this, "/gambling");
+        private void GamblingClick(object sender, RoutedEventArgs e) => OpenInBrowser("gambling");
+
+        private void DonateClick(object sender, RoutedEventArgs e) => OpenInBrowser("donate");
+
+        private static void OpenInBrowser(string path) =>
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo($"https://jsemu.eu/{path}") { UseShellExecute = true });
 
         private async void WindowLoaded(object sender, RoutedEventArgs e)
         {
@@ -108,7 +113,7 @@ namespace H1Emu_Launcher
 
         private void HighlightTab()
         {
-            foreach (Button tab in new[] { tabBattlepass, tabStore, tabPimp, tabScrap })
+            foreach (Button tab in new[] { tabBattlepass, tabStore, tabScrap, tabWipe })
             {
                 bool active = (string)tab.Tag == activeTab;
                 tab.Background = active ? (Brush)FindResource("Accent.SoftBrush") : Brushes.Transparent;
@@ -147,8 +152,8 @@ namespace H1Emu_Launcher
             {
                 case "battlepass": await LoadBattlepass(); break;
                 case "store": await LoadStore(); break;
-                case "pimp": await LoadPimp(); break;
                 case "scrap": await LoadScrap(); break;
+                case "wipe": await LoadWipe(); break;
             }
         }
 
@@ -410,88 +415,101 @@ namespace H1Emu_Launcher
             }
         }
 
-        // ---------- Pimp My Car ----------
+        // ---------- Wipe Rewards ----------
 
-        private async System.Threading.Tasks.Task LoadPimp()
+        private async System.Threading.Tasks.Task LoadWipe()
         {
-            JsonElement data = await HubApi.CallAsync("shaders");
+            JsonElement data = await HubApi.CallAsync("wipe_rewards");
             if (FailedView(data))
                 return;
 
             if (data.TryGetProperty("coins", out JsonElement coinsEl) && coinsEl.ValueKind == JsonValueKind.Number)
                 SetCoins(coinsEl.GetInt64());
 
-            bool isDonator = HubApi.Bool(data, "isDonator");
-            BeginView("Pimp My Car", "Repaint your vehicle for coins. You must be sitting in your vehicle in game when you apply a color.");
+            BeginView("Wipe Rewards", "Rewards for finishing a wipe at the top of the Krakow leaderboards.");
 
-            if (!isDonator)
-                content.Children.Add(Label("Pimp My Car is a Donator perk. Become a Donator to unlock repainting.", 13, OrangeBrush, FontWeights.SemiBold, new Thickness(0, 0, 0, 14)));
-
-            WrapPanel wrap = new();
-            if (data.TryGetProperty("shaders", out JsonElement shaders) && shaders.ValueKind == JsonValueKind.Array)
+            if (!HubApi.Bool(data, "linked"))
             {
-                foreach (JsonElement shader in shaders.EnumerateArray())
-                    wrap.Children.Add(CreateShaderTile(shader, isDonator));
+                content.Children.Add(Label("Your account is not linked to a game account yet.", 13, OrangeBrush));
+                return;
             }
-            content.Children.Add(wrap);
-        }
 
-        private Border CreateShaderTile(JsonElement shader, bool isDonator)
-        {
-            string hex = HubApi.Str(shader, "colorHex", "#888888");
-            Brush fill;
-            try { fill = (Brush)new BrushConverter().ConvertFromString(hex)!; }
-            catch { fill = Brushes.Gray; }
-
-            long id = HubApi.Num(shader, "shaderGroupId");
-            long price = HubApi.Num(shader, "price");
-            string name = HubApi.Str(shader, "name", "Color");
-
-            StackPanel stack = new() { HorizontalAlignment = HorizontalAlignment.Center };
-            stack.Children.Add(new Ellipse { Width = 52, Height = 52, Fill = fill, Stroke = EdgeBrush, StrokeThickness = 2, Margin = new Thickness(0, 4, 0, 8) });
-            TextBlock nameText = Label(name, 13, Brushes.White, FontWeights.SemiBold);
-            nameText.TextAlignment = TextAlignment.Center;
-            nameText.MaxHeight = 36;
-            stack.Children.Add(nameText);
-            stack.Children.Add(Label($"{Fmt(price)} coins", 12, GoldBrush, null, new Thickness(0, 3, 0, 8)));
-            ((TextBlock)stack.Children[^1]).HorizontalAlignment = HorizontalAlignment.Center;
-
-            Button apply = new() { Content = isDonator ? "Apply" : "Donator only", Height = 32, Style = ButtonStyle, IsEnabled = isDonator, Padding = new Thickness(18, 0, 18, 0) };
-            apply.Click += async (_, _) => await ApplyShader(id, name, price);
-            stack.Children.Add(apply);
-
-            return new Border
+            int shown = 0;
+            if (data.TryGetProperty("rewards", out JsonElement rewards) && rewards.ValueKind == JsonValueKind.Array)
             {
-                Width = 150,
-                Margin = new Thickness(0, 0, 12, 12),
-                Padding = new Thickness(10, 12, 10, 12),
-                Background = PanelBrush,
-                BorderBrush = EdgeBrush,
-                BorderThickness = new Thickness(1),
-                CornerRadius = new CornerRadius(10),
-                Child = stack
-            };
+                foreach (JsonElement reward in rewards.EnumerateArray())
+                {
+                    content.Children.Add(CreateWipeCard(reward, data));
+                    shown++;
+                }
+            }
+
+            if (shown == 0)
+                content.Children.Add(Label("No wipe rewards on your account. Finish a wipe at the top of a leaderboard.", 13, MutedBrush));
         }
 
-        private async System.Threading.Tasks.Task ApplyShader(long shaderGroupId, string name, long price)
+        private Border CreateWipeCard(JsonElement reward, JsonElement data)
         {
-            if (busy) return;
-            if (MessageBox.Show(this, $"Repaint your vehicle {name} for {Fmt(price)} coins?\n\nYou must be sitting in your vehicle in game.", "Pimp My Car", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            Border card = new() { Background = PanelBrush, BorderBrush = EdgeBrush, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10), Padding = new Thickness(16), Margin = new Thickness(0, 0, 0, 12) };
+            StackPanel panel = new();
+            card.Child = panel;
+
+            string id = HubApi.Str(reward, "id"), kind = HubApi.Str(reward, "kind"), wipe = HubApi.Str(reward, "wipe"), value = HubApi.Str(reward, "value");
+            bool golden = kind == "golden", claimed = HubApi.Str(reward, "status") == "claimed";
+            string title = golden ? $"#1 {HubApi.Str(reward, "category")}" : $"#1 clan [{HubApi.Str(reward, "clanTag")}]";
+            panel.Children.Add(Label(title, 15, GoldBrush, FontWeights.Bold));
+            panel.Children.Add(Label(string.IsNullOrEmpty(value) ? wipe : $"{wipe} - {value}", 12, MutedBrush, null, new Thickness(0, 2, 0, 10)));
+
+            if (claimed)
+            {
+                panel.Children.Add(Label("Claimed", 13, GreenBrush, FontWeights.SemiBold));
+                return card;
+            }
+
+            if (!golden)
+            {
+                long amount = HubApi.Num(reward, "amount");
+                Button coins = new() { Content = $"Claim {Fmt(amount)} coins", Height = 36, Style = ButtonStyle, HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(16, 0, 16, 0) };
+                coins.Click += async (_, _) => await ClaimWipe(id, null, $"Claim {Fmt(amount)} coins?");
+                panel.Children.Add(coins);
+                return card;
+            }
+
+            panel.Children.Add(Label("Pick one golden skin. It goes straight to your account items.", 13, null, null, new Thickness(0, 0, 0, 8)));
+            WrapPanel skinsPanel = new();
+            if (data.TryGetProperty("skins", out JsonElement skins) && skins.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement skin in skins.EnumerateArray())
+                {
+                    long itemId = HubApi.Num(skin, "itemId");
+                    string name = HubApi.Str(skin, "name");
+                    Button pick = new() { Content = name, Height = 36, Style = ButtonStyle, Margin = new Thickness(0, 0, 8, 8), Padding = new Thickness(14, 0, 14, 0) };
+                    pick.Click += async (_, _) => await ClaimWipe(id, itemId, $"Claim {name}? You can pick only one skin for this reward.");
+                    skinsPanel.Children.Add(pick);
+                }
+            }
+            panel.Children.Add(skinsPanel);
+            return card;
+        }
+
+        private async System.Threading.Tasks.Task ClaimWipe(string grantId, long? itemId, string question)
+        {
+            if (MessageBox.Show(this, question, "Wipe Rewards", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
                 return;
 
-            busy = true;
-            ShowMessage("Applying...", true);
-            JsonElement result = await HubApi.CallAsync("shader_apply", new Dictionary<string, object> { ["shaderGroupId"] = shaderGroupId });
-            busy = false;
+            Dictionary<string, object> extra = new() { ["grantId"] = grantId };
+            if (itemId.HasValue)
+                extra["itemId"] = itemId.Value;
 
+            JsonElement result = await HubApi.CallAsync("wipe_reward_claim", extra);
             if (HubApi.Ok(result))
             {
-                ShowMessage(HubApi.Str(result, "message", "Paint applied."), true);
-                await RefreshCoins();
+                await LoadWipe();
+                ShowMessage(HubApi.Str(result, "message", "Reward claimed."), true);
             }
             else
             {
-                ShowMessage(HubApi.Error(result, "Could not apply the paint."), false);
+                ShowMessage(HubApi.Error(result, "Could not claim this reward."), false);
             }
         }
 

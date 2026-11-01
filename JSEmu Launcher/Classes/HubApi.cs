@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace H1Emu_Launcher.Classes
 {
-    // Battle Pass, Pimp My Car, Scrap Yard and coin balance for the launcher.
+    // Battle Pass, Crate Store, Scrap Yard and coin balance for the launcher.
     // Like the Dressing Room it only ever sends SHA-256(account key).
     internal static class HubApi
     {

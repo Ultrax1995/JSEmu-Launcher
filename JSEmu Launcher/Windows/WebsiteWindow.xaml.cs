@@ -9,7 +9,7 @@ using Microsoft.Web.WebView2.Core;
 
 namespace H1Emu_Launcher
 {
-    // Hosts jsemu.eu inside the launcher (Gambling, Scrap Yard, Store, ...).
+    // Hosts jsemu.eu inside the launcher (Gambling, ...).
     // Login is the website's normal Discord login; the session is kept in the
     // WebView2 profile under the launcher's AppData folder.
     public partial class WebsiteWindow : Window
