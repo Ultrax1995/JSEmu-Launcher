@@ -123,6 +123,9 @@ namespace H1Emu_Launcher
 
         private TextBlock messageBox = new();
 
+        private bool Confirm(string question) =>
+            CustomMessageBox.Show(question, this, okButtonVisibility: false, yesButtonVisibility: true, noButtonVisibility: true) == MessageBoxResult.Yes;
+
         private void ShowMessage(string text, bool ok)
         {
             messageBox.Text = text;
@@ -393,7 +396,7 @@ namespace H1Emu_Launcher
                 return;
             }
 
-            if (MessageBox.Show(this, $"Buy {quantity}x {name} for {Fmt(unit * quantity)} coins?", "Crate Store", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            if (!Confirm($"Buy {quantity}x {name} for {Fmt(unit * quantity)} coins?"))
                 return;
 
             busy = true;
@@ -494,7 +497,7 @@ namespace H1Emu_Launcher
 
         private async System.Threading.Tasks.Task ClaimWipe(string grantId, long? itemId, string question)
         {
-            if (MessageBox.Show(this, question, "Wipe Rewards", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            if (!Confirm(question))
                 return;
 
             Dictionary<string, object> extra = new() { ["grantId"] = grantId };
@@ -591,7 +594,7 @@ namespace H1Emu_Launcher
                 return;
             }
 
-            if (MessageBox.Show(this, $"Scrap {Fmt(quantity)} item(s) for about {Fmt(quantity * perUnit)} coins? This cannot be undone.", "Scrap Yard", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            if (!Confirm($"Scrap {Fmt(quantity)} item(s) for about {Fmt(quantity * perUnit)} coins? This cannot be undone."))
                 return;
 
             busy = true;
