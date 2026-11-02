@@ -1073,6 +1073,9 @@ namespace H1Emu_Launcher
                     downloadPage.downloadProgress.Value = 37;
                     steamFramePanel.Navigate(downloadPage);
                     break;
+                case "hub":
+                    new HubWindow { Owner = this }.Show();
+                    break;
                 case "additem":
                     new AddItemWindow { Owner = this, itemType = 1 }.Show();
                     break;
