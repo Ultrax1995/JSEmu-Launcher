@@ -26,6 +26,10 @@ namespace H1Emu_Launcher.Classes
             // UI preview only (JSEMU_UI_PREVIEW=1, JSEMU_UI_DIALOG=hub): a made-up battle pass on day 5, nothing is sent
             if (action == "battlepass" && Environment.GetEnvironmentVariable("JSEMU_UI_PREVIEW") == "1" && Environment.GetEnvironmentVariable("JSEMU_UI_DIALOG") == "hub")
                 return SampleBattlepass();
+            // UI preview only: JSEMU_UI_STORE_SAMPLE=<json file> answers the store call from that file, nothing is sent
+            string? storeSample = Environment.GetEnvironmentVariable("JSEMU_UI_STORE_SAMPLE");
+            if (action == "store" && Environment.GetEnvironmentVariable("JSEMU_UI_PREVIEW") == "1" && !string.IsNullOrEmpty(storeSample))
+                return JsonDocument.Parse(System.IO.File.ReadAllText(storeSample)).RootElement.Clone();
 #endif
             string? hash = KeyHash();
             if (hash == null)

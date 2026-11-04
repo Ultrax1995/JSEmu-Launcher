@@ -152,7 +152,7 @@
                             <Button x:Name="tabStore" Click="TabClick" Tag="store" Style="{StaticResource HubNavButton}">
                                 <StackPanel Orientation="Horizontal">
                                     <Path Data="M3,8 L12,3.5 L21,8 L21,17 L12,21.5 L3,17 Z M3,8 L12,12.5 L21,8 M12,12.5 L12,21.5" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Width="19" Height="19" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,13,0"/>
-                                    <TextBlock Text="Crate Store" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Store" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button x:Name="tabBackpack" Click="TabClick" Tag="backpack" Style="{StaticResource HubNavButton}">

@@ -52,6 +52,14 @@ namespace H1Emu_Launcher
 
         private async void WindowLoaded(object sender, RoutedEventArgs e)
         {
+#if DEBUG
+            // UI preview only: open on a given tab / store category
+            if (Environment.GetEnvironmentVariable("JSEMU_UI_PREVIEW") == "1")
+            {
+                activeTab = Environment.GetEnvironmentVariable("JSEMU_UI_HUB_TAB") ?? activeTab;
+                storeCategory = Environment.GetEnvironmentVariable("JSEMU_UI_STORE_CATEGORY") ?? storeCategory;
+            }
+#endif
             await ShowTab(activeTab);
 #if DEBUG
             // UI preview only: JSEMU_UI_SNAPSHOT=<png> saves this window once the icons have loaded and closes the preview
@@ -535,9 +543,10 @@ namespace H1Emu_Launcher
             }
         }
 
-        // ---------- Crate Store ----------
+        // ---------- Store ----------
 
         private long storeDiscount;
+        private string storeCategory = "Crates";
 
         private async System.Threading.Tasks.Task LoadStore()
         {
@@ -549,22 +558,64 @@ namespace H1Emu_Launcher
                 SetCoins(coinsEl.GetInt64());
 
             storeDiscount = HubApi.Num(data, "discount");
-            BeginView("Crate Store", storeDiscount > 0
-                ? $"Buy crates with coins. Store discount: {storeDiscount}% off. Crates arrive in your account items in game."
-                : "Buy crates with coins. Crates arrive in your account items in game.");
+            BeginView("Store", storeDiscount > 0
+                ? $"Buy crates and skins with coins. Store discount: {storeDiscount}% off. Everything arrives in your account items in game."
+                : "Buy crates and skins with coins. Everything arrives in your account items in game.");
 
-            if (data.TryGetProperty("ticketCrate", out JsonElement ticketCrate) && ticketCrate.ValueKind == JsonValueKind.Object)
+            // Categories (Crates, Hoodies, Team T-Shirts, Storage Skins...). Older API answers only "crates".
+            List<(string Name, JsonElement Items)> categories = new();
+            if (data.TryGetProperty("categories", out JsonElement cats) && cats.ValueKind == JsonValueKind.Array)
+                foreach (JsonElement cat in cats.EnumerateArray())
+                    if (cat.TryGetProperty("items", out JsonElement catItems) && catItems.ValueKind == JsonValueKind.Array)
+                        categories.Add((HubApi.Str(cat, "name", "Other"), catItems));
+            if (categories.Count == 0 && data.TryGetProperty("crates", out JsonElement crates) && crates.ValueKind == JsonValueKind.Array)
+                categories.Add(("Crates", crates));
+            if (categories.Count == 0)
+                return;
+            if (!categories.Any(c => c.Name == storeCategory))
+                storeCategory = categories[0].Name;
+
+            if (categories.Count > 1)
+            {
+                WrapPanel chips = new() { Margin = new Thickness(0, 0, 0, 14) };
+                foreach (var cat in categories)
+                {
+                    bool active = cat.Name == storeCategory;
+                    Button chip = new()
+                    {
+                        Content = cat.Name,
+                        Height = 32,
+                        Margin = new Thickness(0, 0, 8, 8),
+                        Padding = new Thickness(16, 0, 16, 0),
+                        Style = ButtonStyle,
+                        Background = active ? RedBrush : PanelBrush,
+                        BorderBrush = active ? new SolidColorBrush(Color.FromRgb(0xF0, 0x2A, 0x36)) : EdgeBrush
+                    };
+                    string name = cat.Name;
+                    chip.Click += async (_, _) =>
+                    {
+                        if (busy || name == storeCategory) return;
+                        storeCategory = name;
+                        await ShowTab("store");
+                    };
+                    chips.Children.Add(chip);
+                }
+                content.Children.Add(chips);
+            }
+
+            if (storeCategory == "Crates" && data.TryGetProperty("ticketCrate", out JsonElement ticketCrate) && ticketCrate.ValueKind == JsonValueKind.Object)
                 content.Children.Add(CreateTicketExchange(ticketCrate, HubApi.Num(data, "eventTickets")));
 
             WrapPanel wrap = new();
-            if (data.TryGetProperty("crates", out JsonElement crates) && crates.ValueKind == JsonValueKind.Array)
-                foreach (JsonElement crate in crates.EnumerateArray())
-                    wrap.Children.Add(CreateCrateTile(crate));
+            foreach (JsonElement item in categories.First(c => c.Name == storeCategory).Items.EnumerateArray())
+                wrap.Children.Add(CreateCrateTile(item));
             content.Children.Add(wrap);
         }
 
         private Border CreateCrateTile(JsonElement crate)
         {
+            // Crates (and items flagged allowQuantity) can be bought in bulk; skins one at a time.
+            bool bulk = !crate.TryGetProperty("allowQuantity", out JsonElement aq) || aq.ValueKind != JsonValueKind.False;
             string itemid = HubApi.Str(crate, "itemid");
             string name = HubApi.Str(crate, "name", "Crate");
             long cost = HubApi.Num(crate, "cost");
@@ -601,7 +652,10 @@ namespace H1Emu_Launcher
             TextBox qty = new() { Text = "1", Width = 44, Height = 32, Padding = new Thickness(6, 0, 6, 0), VerticalContentAlignment = VerticalAlignment.Center, Background = PanelBrush, BorderBrush = EdgeBrush, Foreground = Brushes.White, CaretBrush = Brushes.White };
             Button buy = new() { Content = "Buy", Height = 32, Margin = new Thickness(8, 0, 0, 0), Style = ButtonStyle, Background = RedBrush, BorderBrush = new SolidColorBrush(Color.FromRgb(0xF0, 0x2A, 0x36)), Padding = new Thickness(18, 0, 18, 0) };
             buy.Click += async (_, _) => await BuyCrate(itemid, name, unit, qty.Text);
-            buyRow.Children.Add(qty);
+            if (bulk)
+                buyRow.Children.Add(qty);
+            else
+                buy.Margin = new Thickness(0);
             buyRow.Children.Add(buy);
             stack.Children.Add(buyRow);
 
