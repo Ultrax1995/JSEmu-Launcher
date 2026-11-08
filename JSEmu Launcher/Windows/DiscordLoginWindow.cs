@@ -1,23 +1,19 @@
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using H1Emu_Launcher.Classes;
-using Microsoft.Web.WebView2.Core;
-using Microsoft.Web.WebView2.Wpf;
 
 namespace H1Emu_Launcher
 {
-    // Discord login inside the launcher (8.11.2026): WebView2 on jsemu.eu/api/launcher/discord/start, the website sends
-    // the player to Discord and back; meanwhile the launcher polls for its session token with the nonce only it knows.
-    // Same WebView2 profile as WebsiteWindow, so Discord remembers the player next time.
-    // Without the WebView2 runtime the login runs in the default browser instead.
+    // Discord login (8.11.2026): the login runs in the player's DEFAULT BROWSER (user: there they are usually logged in
+    // to Discord already). jsemu.eu/api/launcher/discord/start sends them to Discord and back to "You are logged in";
+    // meanwhile this small window polls for the launcher's session token with the nonce only it knows, then closes.
     public sealed class DiscordLoginWindow : Window
     {
-        private readonly WebView2 web = new();
         private readonly string nonce = DiscordLogin.NewNonce();
         private readonly CancellationTokenSource cts = new();
         private bool loggedIn;
@@ -25,13 +21,38 @@ namespace H1Emu_Launcher
         private DiscordLoginWindow()
         {
             Title = "Login with Discord - JSEmu";
-            Width = 520;
-            Height = 760;
+            Width = 440;
+            SizeToContent = SizeToContent.Height;
+            ResizeMode = ResizeMode.NoResize;
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
             Background = new SolidColorBrush(Color.FromRgb(0x11, 0x15, 0x22));
-            Content = web;
-            Loaded += WindowLoaded;
-            Closed += (_, _) => { cts.Cancel(); web.Dispose(); };
+
+            StackPanel panel = new() { Margin = new Thickness(24) };
+            panel.Children.Add(new TextBlock
+            {
+                Text = "Finish the Discord login in your browser.",
+                Foreground = Brushes.White, FontSize = 16, FontWeight = FontWeights.SemiBold,
+                TextAlignment = TextAlignment.Center, TextWrapping = TextWrapping.Wrap
+            });
+            panel.Children.Add(new TextBlock
+            {
+                Text = "This window closes by itself when you are logged in.",
+                Foreground = new SolidColorBrush(Color.FromRgb(0xAE, 0xB4, 0xD7)), FontSize = 13, Margin = new Thickness(0, 8, 0, 16),
+                TextAlignment = TextAlignment.Center, TextWrapping = TextWrapping.Wrap
+            });
+            StackPanel buttons = new() { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center };
+            Button reopen = new() { Content = "OPEN AGAIN", Padding = new Thickness(16, 6, 16, 6), Margin = new Thickness(5, 0, 5, 0) };
+            reopen.Click += (_, _) => OpenBrowser();
+            Button cancel = new() { Content = "CANCEL", Padding = new Thickness(16, 6, 16, 6), Margin = new Thickness(5, 0, 5, 0) };
+            cancel.Click += (_, _) => Close();
+            if (Application.Current.TryFindResource("PrimaryButton") is Style style) { reopen.Style = style; cancel.Style = style; }
+            buttons.Children.Add(reopen);
+            buttons.Children.Add(cancel);
+            panel.Children.Add(buttons);
+            Content = panel;
+
+            Loaded += (_, _) => { OpenBrowser(); _ = PollLoop(); };
+            Closed += (_, _) => cts.Cancel();
         }
 
         /// <summary>Shows the login; true when the launcher got its session token.</summary>
@@ -44,53 +65,19 @@ namespace H1Emu_Launcher
             return await DiscordLogin.PollAsync(w.nonce, TimeSpan.FromSeconds(1), CancellationToken.None);
         }
 
-        private async void WindowLoaded(object sender, RoutedEventArgs e)
+        private void OpenBrowser()
         {
-            _ = PollLoop();
-            try
-            {
-                string dataFolder = Path.Combine(Info.APPLICATION_DATA_PATH, "JSEmu Launcher", "WebView2");
-                CoreWebView2Environment environment = await CoreWebView2Environment.CreateAsync(null, dataFolder);
-                await web.EnsureCoreWebView2Async(environment);
-            }
-            catch (Exception ex) when (ex is WebView2RuntimeNotFoundException || ex is System.Runtime.InteropServices.COMException)
-            {
-                // no WebView2: finish the login in the browser, this window waits (polls) and closes itself
-                try { Process.Start(new ProcessStartInfo(DiscordLogin.StartUrl(nonce)) { UseShellExecute = true }); } catch { }
-                Content = new System.Windows.Controls.TextBlock
-                {
-                    Text = "Finish the Discord login in your browser.\nThis window closes by itself.",
-                    Foreground = Brushes.White, FontSize = 16, TextAlignment = TextAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center
-                };
-                return;
-            }
-            CoreWebView2 core = web.CoreWebView2;
-            core.Settings.AreDevToolsEnabled = false;
-            core.Settings.IsStatusBarEnabled = false;
-            core.NewWindowRequested += (_, args) => { args.Handled = true; core.Navigate(args.Uri); };
-            core.SourceChanged += async (_, _) =>
-            {
-                // the website's "you are logged in" page -> pick the token up right away
-                if (Uri.TryCreate(core.Source, UriKind.Absolute, out Uri? u) && u.Host.EndsWith("jsemu.eu", StringComparison.OrdinalIgnoreCase)
-                    && u.AbsolutePath.StartsWith("/launcher/login-done", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (await DiscordLogin.PollAsync(nonce, TimeSpan.FromSeconds(6), cts.Token)) Finish();
-                }
-            };
-            core.Navigate(DiscordLogin.StartUrl(nonce));
+            try { Process.Start(new ProcessStartInfo(DiscordLogin.StartUrl(nonce)) { UseShellExecute = true }); }
+            catch { MessageBox.Show(this, "Could not open your browser.", "JSEmu", MessageBoxButton.OK, MessageBoxImage.Warning); }
         }
 
         private async Task PollLoop()
         {
-            if (await DiscordLogin.PollAsync(nonce, TimeSpan.FromMinutes(10), cts.Token)) Finish();
-        }
-
-        private void Finish()
-        {
-            if (loggedIn) return;
-            loggedIn = true;
-            Dispatcher.Invoke(() => { if (IsLoaded) Close(); });
+            if (await DiscordLogin.PollAsync(nonce, TimeSpan.FromMinutes(10), cts.Token))
+            {
+                loggedIn = true;
+                Dispatcher.Invoke(() => { if (IsLoaded) { Activate(); Close(); } });
+            }
         }
     }
 }
