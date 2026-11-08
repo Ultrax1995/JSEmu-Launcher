@@ -788,6 +788,9 @@ namespace H1Emu_Launcher
                     Info.ACCOUNT_KEY_CHECK_API = Info.JSEMU_ACCOUNT_KEY_CHECK_API;
                     // END_JSEMU_AUTH_ENDPOINT_CASE_0
 // JSEmu Servers
+                    // 8.11.2026: the AuthKey comes from Login with Discord (developer mode keeps the typed key)
+                    if (!Properties.Settings.Default.developerMode && !await EnsureDiscordAccountAsync())
+                        throw new Exception("accountBlocked");
                     if (string.IsNullOrEmpty(Properties.Settings.Default.sessionIdKey))
                     {
                         MessageBoxResult mbr = CustomMessageBox.Show(FindResource("item153").ToString(), this, false, true, true);
@@ -1015,6 +1018,8 @@ namespace H1Emu_Launcher
                 copyrightNotice.Text = $"Launcher Version: {launcherVersion.ToString(3)}";
 
             // 8.11.2026 Login with Discord: refresh the 90-day session and take the account's AuthKey (silent)
+            DiscordLogin.Refreshed += r => Dispatcher.Invoke(() => ShowDiscordAccount(r));
+            ShowDiscordAccount(new DiscordLogin.Result { LoggedOut = !DiscordLogin.IsLoggedIn, Ok = true, HasRole = true });
             if (DiscordLogin.IsLoggedIn) _ = DiscordLogin.RefreshAsync();
 
             DisplayVersionInformation();
@@ -1506,6 +1511,66 @@ namespace H1Emu_Launcher
                 FileName = Info.WEBSITE,
                 UseShellExecute = true
             });
+        }
+
+        // ---- 8.11.2026 Login with Discord on the main screen ----
+
+        private void ShowDiscordAccount(DiscordLogin.Result r)
+        {
+            bool loggedIn = !r.LoggedOut && DiscordLogin.IsLoggedIn;
+            discordLogoutMenuItem.Visibility = loggedIn ? Visibility.Visible : Visibility.Collapsed;
+            if (!loggedIn) { discordAccountText.Text = "LOGIN WITH DISCORD"; discordLink.ToolTip = "Log in with Discord - your AuthKey is set up automatically"; }
+            else if (r.Ok && !r.HasRole) { discordAccountText.Text = "VERIFY ON DISCORD"; discordLink.ToolTip = "Join our Discord and verify to get the Member role, then click here"; }
+            else { discordAccountText.Text = (r.Username ?? "DISCORD").ToUpperInvariant(); discordLink.ToolTip = r.Ok ? "Logged in with Discord (right click: log out)" : r.Error; }
+        }
+
+        private async void DiscordAccountClick(object sender, RoutedEventArgs e)
+        {
+            discordLink.IsEnabled = false;
+            try
+            {
+                if (!DiscordLogin.IsLoggedIn)
+                {
+                    if (await DiscordLoginWindow.LoginAsync(this)) await DiscordLogin.RefreshAsync();
+                    return;
+                }
+                DiscordLogin.Result r = await DiscordLogin.RefreshAsync();
+                if (r.Ok && !r.HasRole) OpenDiscord(sender, e);
+            }
+            finally { discordLink.IsEnabled = true; }
+        }
+
+        private async void DiscordLogoutClick(object sender, RoutedEventArgs e) => await DiscordLogin.LogoutAsync();
+
+        /// <summary>Before Play: logged in with Discord, Member role, AuthKey in place. False = do not launch (message shown).</summary>
+        private async Task<bool> EnsureDiscordAccountAsync()
+        {
+            if (!DiscordLogin.IsLoggedIn && !await DiscordLoginWindow.LoginAsync(this))
+                return false;
+            DiscordLogin.Result r = await DiscordLogin.RefreshAsync();
+            string key = Properties.Settings.Default.sessionIdKey ?? "";
+            if (r.Banned) { CustomMessageBox.Show("This account is banned.", this); return false; }
+            if (r.LoggedOut) { CustomMessageBox.Show("Your Discord login expired. Press Play to log in again.", this); return false; }
+            if (!r.Ok)
+            {
+                // the website is down: a key the launcher already has still works
+                if (key.Length > 0 && (r.Error ?? "").StartsWith("Could not reach")) return true;
+                CustomMessageBox.Show(r.Error ?? "Could not check your account. Try again in a moment.", this);
+                return false;
+            }
+            if (!r.HasRole)
+            {
+                CustomMessageBox.Show(r.InGuild
+                    ? "Verify on our Discord to get the Member role, then press Play again."
+                    : "Join our Discord and verify there to get the Member role, then press Play again.", this, true, false, false, false, true);
+                return false;
+            }
+            if (key.Length == 0)
+            {
+                CustomMessageBox.Show("Your account was registered before the Discord login existed and its AuthKey is not stored. Open a ticket on our Discord and we will fix it.", this, true, false, false, false, true);
+                return false;
+            }
+            return true;
         }
 
         private void OpenDiscord(object sender, RoutedEventArgs e)

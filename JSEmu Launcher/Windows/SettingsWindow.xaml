@@ -159,7 +159,8 @@
                 <TabItem Header="{DynamicResource item195}" Tag="{StaticResource NavGameFiles}" Style="{StaticResource SettingsTabItemStyle}">
                     <Frame Source="..\SettingsPages\GameFiles.xaml" NavigationUIVisibility="Hidden" Background="Transparent"/>
                 </TabItem>
-                <TabItem Header="{DynamicResource item196}" Tag="{StaticResource NavAccountKey}" Style="{StaticResource SettingsTabItemStyle}">
+                <!-- 8.11.2026: AuthKey comes from Login with Discord - this tab only in developer mode (SettingsWindow ctor) -->
+                <TabItem x:Name="accountKeyTab" Visibility="Collapsed" Header="{DynamicResource item196}" Tag="{StaticResource NavAccountKey}" Style="{StaticResource SettingsTabItemStyle}">
                     <Frame Source="..\SettingsPages\AccountKey.xaml" NavigationUIVisibility="Hidden" Background="Transparent"/>
                 </TabItem>
                 <TabItem Header="{DynamicResource itemVoice}" Tag="{StaticResource NavVoice}" Style="{StaticResource SettingsTabItemStyle}">
