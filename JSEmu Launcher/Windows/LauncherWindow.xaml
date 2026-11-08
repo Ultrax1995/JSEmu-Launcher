@@ -242,6 +242,12 @@
                         <Popup x:Name="profilePopup" PlacementTarget="{Binding ElementName=profileButton}" Placement="Bottom" VerticalOffset="6" StaysOpen="False" AllowsTransparency="True" PopupAnimation="Fade">
                             <Border Width="300" Padding="8" Background="#F20B0E12" BorderBrush="{StaticResource L.CardBorder}" BorderThickness="1" CornerRadius="8">
                                 <StackPanel ButtonBase.Click="ProfilePopupItemClick">
+                                    <!-- shown to players who use a typed AuthKey without the Discord login -->
+                                    <Button x:Name="profileLoginButton" Uid="LOGIN WITH DISCORD" Tag="Optional - your key stays the same" Click="ProfileLoginClick" Height="58" Margin="0,0,0,6" Visibility="Collapsed" Style="{StaticResource TileButton}">
+                                        <Border Width="34" Height="34" Background="#5865F2" CornerRadius="17">
+                                            <Path Data="M3,6 C5,2.5 19,2.5 21,6 L23,13 C23.8,15.8 20,17.5 18,14.7 L16.5,12.8 C13.5,13.8 10.5,13.8 7.5,12.8 L6,14.7 C4,17.5 0.2,15.8 1,13 Z" Fill="White" Stretch="Uniform" Width="18" Height="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </Button>
                                     <Button x:Name="hubButton" Uid="JSEMU HUB" Tag="Battle Pass, Crate Store, Scrap Yard" Click="OpenHub" Height="58" Style="{StaticResource TileButton}" ToolTip="Battle Pass, Pimp My Car, Scrap Yard and your coins">
                                         <Border Width="34" Height="34" Background="{DynamicResource Accent.GradientBrush}" CornerRadius="9">
                                             <Path Data="M12,2.5 L20.5,7.3 L20.5,16.7 L12,21.5 L3.5,16.7 L3.5,7.3 Z M12,7.5 L8,9.8 L8,14.2 L12,16.5 L16,14.2 L16,9.8 Z" Fill="{DynamicResource Accent.TextOnBrush}" Stretch="Uniform" Width="19" Height="19" HorizontalAlignment="Center" VerticalAlignment="Center"/>

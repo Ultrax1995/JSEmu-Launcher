@@ -1524,7 +1524,15 @@ namespace H1Emu_Launcher
         {
             bool loggedIn = !r.LoggedOut && DiscordLogin.IsLoggedIn;
             profileLogoutButton.Visibility = loggedIn ? Visibility.Visible : Visibility.Collapsed;
-            if (!loggedIn)
+            // a typed AuthKey without the Discord login: Hub and Dressing Room work on the key alone
+            profileLoginButton.Visibility = loggedIn ? Visibility.Collapsed : Visibility.Visible;
+            if (!loggedIn && HasTypedKey)
+            {
+                profileButton.Uid = "MY ACCOUNT";
+                profileButton.Tag = "JSEmu Hub · Dressing Room";
+                profileDiscordButton.Tag = "Join our Discord";
+            }
+            else if (!loggedIn)
             {
                 profileButton.Uid = "LOGIN WITH DISCORD";
                 profileButton.Tag = "Your AuthKey is set up automatically";
@@ -1561,9 +1569,24 @@ namespace H1Emu_Launcher
             }
         }
 
+        private static bool HasTypedKey => !string.IsNullOrWhiteSpace(Properties.Settings.Default.sessionIdKey);
+
         private async void ProfileButtonClick(object sender, RoutedEventArgs e)
         {
-            if (DiscordLogin.IsLoggedIn) { profilePopup.IsOpen = !profilePopup.IsOpen; return; }
+            // logged in, or a typed key (the key may have been typed in Settings since the last refresh): the menu
+            if (DiscordLogin.IsLoggedIn || HasTypedKey)
+            {
+                if (!DiscordLogin.IsLoggedIn) ShowDiscordAccount(new DiscordLogin.Result { LoggedOut = true });
+                profilePopup.IsOpen = !profilePopup.IsOpen;
+                return;
+            }
+            await LoginFromProfile();
+        }
+
+        private async void ProfileLoginClick(object sender, RoutedEventArgs e) => await LoginFromProfile();
+
+        private async Task LoginFromProfile()
+        {
             profileButton.IsEnabled = false;
             try
             {
