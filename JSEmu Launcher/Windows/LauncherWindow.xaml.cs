@@ -788,8 +788,11 @@ namespace H1Emu_Launcher
                     Info.ACCOUNT_KEY_CHECK_API = Info.JSEMU_ACCOUNT_KEY_CHECK_API;
                     // END_JSEMU_AUTH_ENDPOINT_CASE_0
 // JSEmu Servers
-                    // 8.11.2026: the AuthKey comes from Login with Discord (developer mode keeps the typed key)
-                    if (!Properties.Settings.Default.developerMode && !await EnsureDiscordAccountAsync())
+                    // 8.11.2026 Login with Discord: logged in -> refresh (role, key); no key at all -> offer the login first.
+                    // A key registered through the Discord bot keeps working without the login (old checks below).
+                    if (!Properties.Settings.Default.developerMode &&
+                        (DiscordLogin.IsLoggedIn || (string.IsNullOrEmpty(Properties.Settings.Default.sessionIdKey) && Properties.Settings.Default.language != 1)) && // Chinese: Discord is blocked there, the typed key flow
+                        !await EnsureDiscordAccountAsync())
                         throw new Exception("accountBlocked");
                     if (string.IsNullOrEmpty(Properties.Settings.Default.sessionIdKey))
                     {
@@ -1515,30 +1518,62 @@ namespace H1Emu_Launcher
 
         // ---- 8.11.2026 Login with Discord on the main screen ----
 
+        private string? shownAvatar;
+
         private void ShowDiscordAccount(DiscordLogin.Result r)
         {
             bool loggedIn = !r.LoggedOut && DiscordLogin.IsLoggedIn;
-            discordLogoutMenuItem.Visibility = loggedIn ? Visibility.Visible : Visibility.Collapsed;
-            if (!loggedIn) { discordAccountText.Text = "LOGIN WITH DISCORD"; discordLink.ToolTip = "Log in with Discord - your AuthKey is set up automatically"; }
-            else if (r.Ok && !r.HasRole) { discordAccountText.Text = "VERIFY ON DISCORD"; discordLink.ToolTip = "Join our Discord and verify to get the Member role, then click here"; }
-            else { discordAccountText.Text = (r.Username ?? "DISCORD").ToUpperInvariant(); discordLink.ToolTip = r.Ok ? "Logged in with Discord (right click: log out)" : r.Error; }
+            profileLogoutButton.Visibility = loggedIn ? Visibility.Visible : Visibility.Collapsed;
+            if (!loggedIn)
+            {
+                profileButton.Uid = "LOGIN WITH DISCORD";
+                profileButton.Tag = "Your AuthKey is set up automatically";
+                profileDiscordButton.Tag = "Join our Discord";
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(r.Username)) profileButton.Uid = r.Username.ToUpperInvariant();
+                profileButton.Tag = r.Ok && !r.HasRole ? "Verify on Discord to play" : !r.Ok && r.Error != null ? r.Error : "JSEmu Hub · Dressing Room";
+                profileDiscordButton.Tag = r.Ok && !r.HasRole ? "Verify there to get the Member role" : "Join our Discord";
+            }
+            // Discord avatar (cdn.discordapp.com); the Discord logo when there is none
+            string? avatar = loggedIn ? r.Avatar ?? shownAvatar : null;
+            if (avatar != shownAvatar || (avatar != null && profileAvatar.Visibility != Visibility.Visible))
+            {
+                shownAvatar = avatar;
+                if (avatar == null) { profileAvatar.Visibility = Visibility.Collapsed; profileIconFallback.Visibility = Visibility.Visible; }
+                else
+                {
+                    try
+                    {
+                        System.Windows.Media.Imaging.BitmapImage img = new();
+                        img.BeginInit();
+                        img.UriSource = new Uri(avatar + "?size=128");
+                        img.DecodePixelWidth = 68;
+                        img.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                        img.EndInit();
+                        profileAvatarBrush.ImageSource = img;
+                        profileAvatar.Visibility = Visibility.Visible;
+                        profileIconFallback.Visibility = Visibility.Collapsed;
+                    }
+                    catch { profileAvatar.Visibility = Visibility.Collapsed; profileIconFallback.Visibility = Visibility.Visible; }
+                }
+            }
         }
 
-        private async void DiscordAccountClick(object sender, RoutedEventArgs e)
+        private async void ProfileButtonClick(object sender, RoutedEventArgs e)
         {
-            discordLink.IsEnabled = false;
+            if (DiscordLogin.IsLoggedIn) { profilePopup.IsOpen = !profilePopup.IsOpen; return; }
+            profileButton.IsEnabled = false;
             try
             {
-                if (!DiscordLogin.IsLoggedIn)
-                {
-                    if (await DiscordLoginWindow.LoginAsync(this)) await DiscordLogin.RefreshAsync();
-                    return;
-                }
-                DiscordLogin.Result r = await DiscordLogin.RefreshAsync();
-                if (r.Ok && !r.HasRole) OpenDiscord(sender, e);
+                if (await DiscordLoginWindow.LoginAsync(this)) await DiscordLogin.RefreshAsync();
             }
-            finally { discordLink.IsEnabled = true; }
+            finally { profileButton.IsEnabled = true; }
         }
+
+        // a click on any tile in the profile menu closes it (after the tile's own handler)
+        private void ProfilePopupItemClick(object sender, RoutedEventArgs e) => profilePopup.IsOpen = false;
 
         private async void DiscordLogoutClick(object sender, RoutedEventArgs e) => await DiscordLogin.LogoutAsync();
 
@@ -1546,7 +1581,7 @@ namespace H1Emu_Launcher
         private async Task<bool> EnsureDiscordAccountAsync()
         {
             if (!DiscordLogin.IsLoggedIn && !await DiscordLoginWindow.LoginAsync(this))
-                return false;
+                return true; // login cancelled: the old flow below offers to create a key (Settings > Account Key, register it on Discord)
             DiscordLogin.Result r = await DiscordLogin.RefreshAsync();
             string key = Properties.Settings.Default.sessionIdKey ?? "";
             if (r.Banned) { CustomMessageBox.Show("This account is banned.", this); return false; }

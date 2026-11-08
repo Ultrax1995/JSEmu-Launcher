@@ -24,6 +24,7 @@ namespace H1Emu_Launcher.Classes
             public bool LoggedOut;
             public bool Banned;
             public string? Username;
+            public string? Avatar;
             public bool InGuild;
             public bool HasRole;
             public string? AuthKey;
@@ -110,6 +111,7 @@ namespace H1Emu_Launcher.Classes
                 r.LoggedOut = Bool(j, "loggedOut") || status == HttpStatusCode.Unauthorized;
                 r.Banned = Bool(j, "banned");
                 r.Username = Str(j, "username");
+                r.Avatar = Str(j, "avatar");
                 r.InGuild = Bool(j, "inGuild");
                 r.HasRole = Bool(j, "hasRole");
                 r.AuthKey = Str(j, "authKey");

@@ -22,10 +22,6 @@ namespace H1Emu_Launcher
             Resources.MergedDictionaries.Clear();
             Resources.MergedDictionaries.Add(SetLanguageFile.LoadFile());
 
-            // 8.11.2026: players get the AuthKey from Login with Discord (main screen); the manual tab stays for developer mode
-            if (Properties.Settings.Default.developerMode)
-                accountKeyTab.Visibility = Visibility.Visible;
-
         }
 
         public void MoveSettingsWindow(object sender, MouseButtonEventArgs e)

@@ -226,18 +226,46 @@
 
 
                     <!-- quick actions -->
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="68,0,0,0">
-                        <Button x:Name="hubButton" Uid="JSEMU HUB" Tag="Battle Pass, Crate Store, Scrap Yard" Click="OpenHub" Width="244" Height="58" Style="{StaticResource TileButton}" ToolTip="Battle Pass, Pimp My Car, Scrap Yard and your coins">
-                            <Border Width="34" Height="34" Background="{DynamicResource Accent.GradientBrush}" CornerRadius="9">
-                                <Path Data="M12,2.5 L20.5,7.3 L20.5,16.7 L12,21.5 L3.5,16.7 L3.5,7.3 Z M12,7.5 L8,9.8 L8,14.2 L12,16.5 L16,14.2 L16,9.8 Z" Fill="{DynamicResource Accent.TextOnBrush}" Stretch="Uniform" Width="19" Height="19" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
+                    <!-- 8.11.2026 profile tile: Discord avatar + name; click = menu with JSEmu Hub, Dressing Room, Discord, Log out
+                         (logged out: LOGIN WITH DISCORD) -->
+                    <Grid HorizontalAlignment="Left" VerticalAlignment="Center" Margin="68,0,0,0">
+                        <Button x:Name="profileButton" Uid="LOGIN WITH DISCORD" Tag="Your AuthKey is set up automatically" Click="ProfileButtonClick" Width="300" Height="58" Style="{StaticResource TileButton}" ToolTip="Your JSEmu profile">
+                            <Grid Width="34" Height="34">
+                                <Border x:Name="profileIconFallback" Background="#5865F2" CornerRadius="17">
+                                    <Path Data="M3,6 C5,2.5 19,2.5 21,6 L23,13 C23.8,15.8 20,17.5 18,14.7 L16.5,12.8 C13.5,13.8 10.5,13.8 7.5,12.8 L6,14.7 C4,17.5 0.2,15.8 1,13 Z" Fill="White" Stretch="Uniform" Width="18" Height="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Ellipse x:Name="profileAvatar" Visibility="Collapsed" Stroke="{DynamicResource Accent.Brush}" StrokeThickness="1.5">
+                                    <Ellipse.Fill><ImageBrush x:Name="profileAvatarBrush" Stretch="UniformToFill"/></Ellipse.Fill>
+                                </Ellipse>
+                            </Grid>
                         </Button>
-                        <Button x:Name="dressingRoomButton" Uid="DRESSING ROOM" Tag="Change your skins and outfit" Click="OpenDressingRoom" Width="244" Height="58" Margin="10,0,0,0" Style="{StaticResource TileButton}" ToolTip="Change your skins and outfit">
-                            <Border Width="34" Height="34" Background="{DynamicResource Accent.GradientBrush}" CornerRadius="9">
-                                <Path Data="M4,7 L9,4 C9.5,6 14.5,6 15,4 L20,7 L18,11 L16,10 L16,20 L8,20 L8,10 L6,11 Z" Fill="{DynamicResource Accent.TextOnBrush}" Stretch="Uniform" Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Popup x:Name="profilePopup" PlacementTarget="{Binding ElementName=profileButton}" Placement="Bottom" VerticalOffset="6" StaysOpen="False" AllowsTransparency="True" PopupAnimation="Fade">
+                            <Border Width="300" Padding="8" Background="#F20B0E12" BorderBrush="{StaticResource L.CardBorder}" BorderThickness="1" CornerRadius="8">
+                                <StackPanel ButtonBase.Click="ProfilePopupItemClick">
+                                    <Button x:Name="hubButton" Uid="JSEMU HUB" Tag="Battle Pass, Crate Store, Scrap Yard" Click="OpenHub" Height="58" Style="{StaticResource TileButton}" ToolTip="Battle Pass, Pimp My Car, Scrap Yard and your coins">
+                                        <Border Width="34" Height="34" Background="{DynamicResource Accent.GradientBrush}" CornerRadius="9">
+                                            <Path Data="M12,2.5 L20.5,7.3 L20.5,16.7 L12,21.5 L3.5,16.7 L3.5,7.3 Z M12,7.5 L8,9.8 L8,14.2 L12,16.5 L16,14.2 L16,9.8 Z" Fill="{DynamicResource Accent.TextOnBrush}" Stretch="Uniform" Width="19" Height="19" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </Button>
+                                    <Button x:Name="dressingRoomButton" Uid="DRESSING ROOM" Tag="Change your skins and outfit" Click="OpenDressingRoom" Height="58" Margin="0,6,0,0" Style="{StaticResource TileButton}" ToolTip="Change your skins and outfit">
+                                        <Border Width="34" Height="34" Background="{DynamicResource Accent.GradientBrush}" CornerRadius="9">
+                                            <Path Data="M4,7 L9,4 C9.5,6 14.5,6 15,4 L20,7 L18,11 L16,10 L16,20 L8,20 L8,10 L6,11 Z" Fill="{DynamicResource Accent.TextOnBrush}" Stretch="Uniform" Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </Button>
+                                    <Button x:Name="profileDiscordButton" Uid="DISCORD" Tag="Join our Discord" Click="OpenDiscord" Height="58" Margin="0,6,0,0" Style="{StaticResource TileButton}">
+                                        <Border Width="34" Height="34" Background="#5865F2" CornerRadius="9">
+                                            <Path Data="M3,6 C5,2.5 19,2.5 21,6 L23,13 C23.8,15.8 20,17.5 18,14.7 L16.5,12.8 C13.5,13.8 10.5,13.8 7.5,12.8 L6,14.7 C4,17.5 0.2,15.8 1,13 Z" Fill="White" Stretch="Uniform" Width="18" Height="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </Button>
+                                    <Button x:Name="profileLogoutButton" Uid="LOG OUT" Tag="Log out of Discord in the launcher" Click="DiscordLogoutClick" Height="58" Margin="0,6,0,0" Style="{StaticResource TileButton}">
+                                        <Border Width="34" Height="34" Background="#3A2226" CornerRadius="9">
+                                            <Path Data="M10,4 L4,4 L4,20 L10,20 M15,8 L19,12 L15,16 M9,12 L19,12" Stroke="#FF9AA2" StrokeThickness="2" Stretch="Uniform" Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </Button>
+                                </StackPanel>
                             </Border>
-                        </Button>
-                    </StackPanel>
+                        </Popup>
+                    </Grid>
 
                     <!-- centre wordmark -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
@@ -247,18 +275,12 @@
                         <TextBlock FontFamily="{StaticResource Signika}" FontSize="15" FontWeight="SemiBold" Foreground="#C9CCD0" VerticalAlignment="Center"><Run Text="JSEMU  ·  "/><Run Text="JUST SURVIVE: AFTERLIFE" Foreground="{DynamicResource Accent.LightBrush}"/></TextBlock>
                     </StackPanel>
 
-                    <!-- 8.11.2026 Discord account (Login with Discord replaces the AuthKey settings): LOGIN WITH DISCORD /
-                         VERIFY ON DISCORD / the player's name; right click: Join Discord, copy link, Log out -->
-                    <Button x:Name="discordLink" Click="DiscordAccountClick" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,244,0" Height="42" Padding="16,0" Style="{StaticResource GhostButton}" ToolTip="Your Discord account">
+                    <Button x:Name="discordLink" Click="OpenDiscord" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,244,0" Height="42" Padding="16,0" Style="{StaticResource GhostButton}" ToolTip="Join the JSEmu Discord">
                         <StackPanel Orientation="Horizontal">
                             <Path Data="M3,6 C5,2.5 19,2.5 21,6 L23,13 C23.8,15.8 20,17.5 18,14.7 L16.5,12.8 C13.5,13.8 10.5,13.8 7.5,12.8 L6,14.7 C4,17.5 0.2,15.8 1,13 Z" Fill="#8C95FF" Width="20" Height="15" Stretch="Uniform" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="discordAccountText" Text="LOGIN WITH DISCORD" VerticalAlignment="Center"/>
+                            <TextBlock Text="JOIN DISCORD" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <Button.ContextMenu><ContextMenu Style="{DynamicResource ContextMenuStyle}">
-                            <MenuItem Click="OpenDiscord" Header="Join Discord" Style="{DynamicResource CustomMenuItem}"/>
-                            <MenuItem x:Name="discordLinkCopyMenuItem" Click="DiscordLinkCopyClick" Header="{DynamicResource item193}" Style="{DynamicResource CustomMenuItem}"/>
-                            <MenuItem x:Name="discordLogoutMenuItem" Click="DiscordLogoutClick" Header="Log out" Visibility="Collapsed" Style="{DynamicResource CustomMenuItem}"/>
-                        </ContextMenu></Button.ContextMenu>
+                        <Button.ContextMenu><ContextMenu Style="{DynamicResource ContextMenuStyle}"><MenuItem x:Name="discordLinkCopyMenuItem" Click="DiscordLinkCopyClick" Header="{DynamicResource item193}" Style="{DynamicResource CustomMenuItem}"/></ContextMenu></Button.ContextMenu>
                     </Button>
 
                     <Border HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,16,0" Background="#DC070A0D" BorderBrush="#2C3237" BorderThickness="1" CornerRadius="7">
