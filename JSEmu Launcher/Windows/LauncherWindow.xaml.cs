@@ -1014,6 +1014,9 @@ namespace H1Emu_Launcher
             if (launcherVersion != null)
                 copyrightNotice.Text = $"Launcher Version: {launcherVersion.ToString(3)}";
 
+            // 8.11.2026 Login with Discord: refresh the 90-day session and take the account's AuthKey (silent)
+            if (DiscordLogin.IsLoggedIn) _ = DiscordLogin.RefreshAsync();
+
             DisplayVersionInformation();
             LoadServers();
             CheckGameVersionAndPath(this, false, false);

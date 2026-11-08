@@ -185,6 +185,18 @@ namespace H1Emu_Launcher.Properties {
                 this["sessionIdKey"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string discordSession {
+            get {
+                return ((string)(this["discordSession"]));
+            }
+            set {
+                this["discordSession"] = value;
+            }
+        }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

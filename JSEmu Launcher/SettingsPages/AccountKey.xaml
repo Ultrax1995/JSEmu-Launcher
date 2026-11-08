@@ -54,9 +54,28 @@
                        Text="{DynamicResource item156}"
                        Style="{DynamicResource TextBlockStyle}"/>
 
+            <!-- 8.11.2026 Login with Discord: status + buttons, then the Join Discord button -->
+            <StackPanel Grid.Row="2" Margin="20,0,20,0">
+            <TextBlock x:Name="discordStatusText"
+                       Margin="0,0,0,10"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"
+                       FontSize="14"
+                       Foreground="#C9CDE4"
+                       Text="Log in with Discord and your AuthKey is set up automatically."/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,14">
+                <Button x:Name="discordLoginButton" Click="DiscordLoginClick" Content="LOGIN WITH DISCORD"
+                        Margin="5,0" Padding="18,7" Style="{DynamicResource PrimaryButton}"/>
+                <Button x:Name="discordCheckButton" Click="DiscordCheckClick" Content="CHECK AGAIN" Visibility="Collapsed"
+                        Margin="5,0" Padding="18,7" Style="{DynamicResource PrimaryButton}"/>
+                <Button x:Name="discordLogoutButton" Click="DiscordLogoutClick" Content="LOG OUT" Visibility="Collapsed"
+                        Margin="5,0" Padding="18,7" Style="{DynamicResource PrimaryButton}"/>
+            </StackPanel>
+
             <!-- Discord account-link button -->
-            <Button Grid.Row="2" Click="DiscordInviteLinkClick"
-                    Width="220" Height="48" Margin="20,0,20,20"
+            <Button Click="DiscordInviteLinkClick"
+                    Width="220" Height="48" Margin="0,0,0,20"
                     HorizontalAlignment="Center" Cursor="Hand"
                     Background="#111522" BorderBrush="#3B435C" BorderThickness="1"
                     Foreground="White" ToolTip="Join the JSEmu Discord">
@@ -117,6 +136,7 @@
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>
+            </StackPanel>
 
             <!-- Divider -->
             <Rectangle Grid.Row="3"
