@@ -94,15 +94,18 @@ namespace H1Emu_Launcher.Classes
             else if (!status.Registered)
             {
                 message = Text(owner, "item238",
-                    "Your AuthKey is not registered yet.\n\n1. Join our Discord: discord.gg/yeDTjJHrQV\n2. Get the Member role.\n3. Go to the #support channel, click the Auth Key button and paste the AuthKey generated in the launcher.\n\nAfter that you can join the game.\n\nAlready registered? Then the AuthKey in your launcher is not the one you registered. Go to #support, click the Auth Key button and paste the correct AuthKey from the launcher.");
+                    "Your AuthKey is not registered yet.\n\nEasiest way: click LOGIN WITH DISCORD below (or the profile tile in the top left) and log in with Discord in your browser. Your AuthKey is then registered automatically. You need the Member role on our Discord (discord.gg/yeDTjJHrQV) - verify there first.\n\nOr the old way: go to #support on our Discord, click the Auth Key button and paste the AuthKey from Settings > Account Key.");
             }
             else
             {
                 return false;
             }
 
-            if (CustomMessageBox.ShowWithJoinDiscord(message, Text(owner, "item237", "JOIN DISCORD"), owner) == MessageBoxResult.Yes)
+            // 8.11.2026: not registered and not logged in -> the button logs in with Discord (the key gets registered then)
+            bool offerLogin = !status.Banned && !DiscordLogin.IsLoggedIn;
+            if (CustomMessageBox.ShowWithJoinDiscord(message, offerLogin ? "LOGIN WITH DISCORD" : Text(owner, "item237", "JOIN DISCORD"), owner) == MessageBoxResult.Yes)
             {
+                if (offerLogin) { _ = LoginAfterBlocked(owner); return true; }
                 try
                 {
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = DiscordInvite, UseShellExecute = true });
@@ -111,6 +114,18 @@ namespace H1Emu_Launcher.Classes
             }
 
             return true;
+        }
+
+        private static async Task LoginAfterBlocked(Window owner)
+        {
+            if (!await DiscordLoginWindow.LoginAsync(owner)) return;
+            DiscordLogin.Result r = await DiscordLogin.RefreshAsync();
+            if (r.Ok && !string.IsNullOrEmpty(r.AuthKey))
+                CustomMessageBox.Show("You are logged in and your AuthKey is registered. Press Play.", owner);
+            else if (r.Ok && !r.HasRole)
+                CustomMessageBox.Show("You are logged in. Now verify on our Discord to get the Member role, then press Play again.", owner, true, false, false, false, true);
+            else if (!r.Ok && r.Error != null)
+                CustomMessageBox.Show(r.Error, owner);
         }
 
         // Language files other than en/pl may not have these keys yet - fall back to English.
