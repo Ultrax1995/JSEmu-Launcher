@@ -86,16 +86,22 @@ namespace H1Emu_Launcher.SettingsPages
                             settingsProgressText.Text = FindResource("item54").ToString();
                         }));
 
+                        string fileCounter = "";
                         await InstallPatchClass.DownloadAssetPack(Info.OFFICIAL_ASSET_PACK, (filename, percentage) =>
                         {
                             Dispatcher.Invoke(new Action(delegate
                             {
                                 settingsProgressBar.IsIndeterminate = false;
                                 settingsProgressBar.Value = percentage;
-                                settingsProgressText.Text = $"{FindResource("item54").ToString().Replace("...", "")} \"{filename}\"... {percentage:0.00}%";
+                                settingsProgressText.Text = $"{fileCounter}{FindResource("item54").ToString().Replace("...", "")} \"{filename}\"... {percentage:0.00}%";
                                 LauncherWindow.launcherInstance.taskbarIcon.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
                                 LauncherWindow.launcherInstance.taskbarIcon.ProgressValue = percentage / 100;
                             }));
+                        }, (index, total, filename, stage) =>
+                        {
+                            // 8.11.2026: which file of how many, and what is happening to it
+                            fileCounter = $"[{index}/{total}] ";
+                            Dispatcher.Invoke(new Action(delegate { settingsProgressText.Text = $"{fileCounter}{stage} \"{filename}\"..."; }));
                         });
 
                         Dispatcher.Invoke(new Action(delegate

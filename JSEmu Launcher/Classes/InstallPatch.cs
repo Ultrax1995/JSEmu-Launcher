@@ -29,12 +29,26 @@ namespace H1Emu_Launcher.Classes
                     Bitmap fairPlayLogo = new Bitmap(Properties.Resources.logo);
                     fairPlayLogo.Save($"{Properties.Settings.Default.activeDirectory}\\logo.bmp", ImageFormat.Bmp);
 
+                    // 8.11.2026 (players thought it froze at 0-100 0-100): "RE-PATCHING 12/40" + what is happening to which file
+                    string fileLine = "";
+                    int fileNo = 0, fileCount = 0;
+                    void Show(string line)
+                    {
+                        LauncherWindow.launcherInstance.playButton.FontSize = 15;
+                        LauncherWindow.launcherInstance.playButton.Content =
+                            $"{LauncherWindow.launcherInstance.FindResource("item188").ToString()?.TrimEnd('.')} {fileNo}/{fileCount}\n{line}";
+                    }
                     await DownloadAssetPack(Info.OFFICIAL_ASSET_PACK, (filename, percentage) =>
                     {
-                        LauncherWindow.launcherInstance.playButton.FontSize = 18;
                         LauncherWindow.launcherInstance.taskbarIcon.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
-                        LauncherWindow.launcherInstance.playButton.Content = LauncherWindow.launcherInstance.FindResource("item188") + $" {percentage:0.00}%";
-                        LauncherWindow.launcherInstance.taskbarIcon.ProgressValue = percentage / 100;
+                        Show($"{fileLine} {percentage:0}%");
+                        LauncherWindow.launcherInstance.taskbarIcon.ProgressValue = fileCount > 0 ? (fileNo - 1 + percentage / 100) / fileCount : percentage / 100;
+                    }, (index, total, filename, stage) =>
+                    {
+                        fileNo = index; fileCount = total; fileLine = $"{stage} {filename}";
+                        Show(fileLine);
+                        LauncherWindow.launcherInstance.taskbarIcon.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
+                        LauncherWindow.launcherInstance.taskbarIcon.ProgressValue = total > 0 ? (double)(index - 1) / total : 0;
                     });
 
                     LauncherWindow.launcherInstance.playButton.FontSize = 28;
@@ -152,7 +166,7 @@ namespace H1Emu_Launcher.Classes
             throw primaryError;
         }
 
-        public static async Task DownloadAssetPack(string assetPackJsonURL, Action<string, double> onProgress)
+        public static async Task DownloadAssetPack(string assetPackJsonURL, Action<string, double> onProgress, Action<int, int, string, string> onFile = null)
         {
             // Query the asset pack JSON URL
             HttpResponseMessage response = await GetWithFallbackAsync(assetPackJsonURL, FallbackFor(assetPackJsonURL));
@@ -174,8 +188,12 @@ namespace H1Emu_Launcher.Classes
             Directory.CreateDirectory(assetCacheDirectory);
 
             // For each asset in the JSON, download the asset file
+            // 8.11.2026: onFile reports "n/total" and the stage per file; hashing and unzipping run off the UI thread
+            // (big packs froze the window, which looked like a hang)
+            int fileTotal = jsonAssetPackDes.assets.Count, fileIndex = 0;
             foreach (JsonEndPoints.AssetPackJson.Asset item in jsonAssetPackDes.assets)
             {
+                fileIndex++;
                 string expectedHash = item.hash?.Replace("sha256:", "").Trim() ?? string.Empty;
 
                 // Never install a file that the manifest cannot vouch for
@@ -203,8 +221,10 @@ namespace H1Emu_Launcher.Classes
                     ? Path.Combine(assetCacheDirectory, item.filename)
                     : targetFile;
 
-                if (!FileMatchesHash(downloadedFile, expectedHash))
+                onFile?.Invoke(fileIndex, fileTotal, item.filename, "Checking");
+                if (!await Task.Run(() => FileMatchesHash(downloadedFile, expectedHash)))
                 {
+                    onFile?.Invoke(fileIndex, fileTotal, item.filename, "Downloading");
                     HttpResponseMessage responseDownloadURL = await GetWithFallbackAsync(item.url, FallbackForItemUrl(item.url));
 
                     long totalBytes = responseDownloadURL.Content.Headers.ContentLength ?? -1L;
@@ -229,7 +249,8 @@ namespace H1Emu_Launcher.Classes
                     }
 
                     // Check what actually arrived before it is installed or extracted
-                    if (!FileMatchesHash(downloadedFile, expectedHash))
+                    onFile?.Invoke(fileIndex, fileTotal, item.filename, "Verifying");
+                    if (!await Task.Run(() => FileMatchesHash(downloadedFile, expectedHash)))
                     {
                         File.Delete(downloadedFile);
                         throw new Exception($"Downloaded file \"{item.filename}\" does not match the hash in the asset pack manifest.");
@@ -239,8 +260,11 @@ namespace H1Emu_Launcher.Classes
                 // Archives are unpacked when a file of theirs is missing or has another size in the game
                 // folder (a new archive, removed game files) - not on every run: big archives (2018 trees,
                 // ~1900 files) made every Play wait for the same files to be written again
-                if (item.extract && !ArchiveIsInstalled(downloadedFile, targetDirectory))
-                    ZipFile.ExtractToDirectory(downloadedFile, targetDirectory, true);
+                if (item.extract && !await Task.Run(() => ArchiveIsInstalled(downloadedFile, targetDirectory)))
+                {
+                    onFile?.Invoke(fileIndex, fileTotal, item.filename, "Extracting");
+                    await Task.Run(() => ZipFile.ExtractToDirectory(downloadedFile, targetDirectory, true));
+                }
 
                 if (usesDefaultDirectory)
                     verifiedAssets.Add(item.filename);
