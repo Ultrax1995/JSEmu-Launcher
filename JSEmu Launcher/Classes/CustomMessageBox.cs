@@ -7,6 +7,29 @@ namespace H1Emu_Launcher.Classes
     {
         public static MessageBoxResult buttonPressed = MessageBoxResult.OK;
 
+        // 8.11.2026: same window as ShowWithJoinDiscord, but the caller fills the text with formatted runs
+        public static MessageBoxResult ShowWithJoinDiscord(System.Action<System.Windows.Controls.TextBlock> fill, string joinButtonText, Window owner = null)
+        {
+            buttonPressed = MessageBoxResult.OK;
+            MessageBoxWindow messageBox = new();
+            fill(messageBox.text);
+            messageBox.confirmYesButton.Content = joinButtonText;
+            messageBox.confirmYesButton.Visibility = Visibility.Visible;
+
+            if (owner != null && owner.IsVisible)
+                messageBox.Owner = owner;
+            else
+                messageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+
+            SystemSounds.Beep.Play();
+            messageBox.ShowDialog();
+
+            if (owner != null)
+                owner.Activate();
+
+            return buttonPressed;
+        }
+
         public static MessageBoxResult Show(string text, Window owner = null, bool okButtonVisibility = true, bool yesButtonVisibility = false, bool noButtonVisibility = false, bool terminateH1Z1ButtonVisibility = false, bool discordLinkVisibility = false)
         {
             buttonPressed = MessageBoxResult.OK;

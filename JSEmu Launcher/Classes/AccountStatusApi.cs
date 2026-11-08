@@ -101,9 +101,13 @@ namespace H1Emu_Launcher.Classes
                 return false;
             }
 
-            // 8.11.2026: not registered and not logged in -> the button logs in with Discord (the key gets registered then)
+            // 8.11.2026: not registered and not logged in -> the button logs in with Discord (the key gets registered then),
+            // the text is laid out as two options (formatted, not one block of text)
             bool offerLogin = !status.Banned && !DiscordLogin.IsLoggedIn;
-            if (CustomMessageBox.ShowWithJoinDiscord(message, offerLogin ? "LOGIN WITH DISCORD" : Text(owner, "item237", "JOIN DISCORD"), owner) == MessageBoxResult.Yes)
+            MessageBoxResult pressed = offerLogin
+                ? CustomMessageBox.ShowWithJoinDiscord(FillUnregistered, "LOGIN WITH DISCORD", owner)
+                : CustomMessageBox.ShowWithJoinDiscord(message, Text(owner, "item237", "JOIN DISCORD"), owner);
+            if (pressed == MessageBoxResult.Yes)
             {
                 if (offerLogin) { _ = LoginAfterBlocked(owner); return true; }
                 try
@@ -114,6 +118,39 @@ namespace H1Emu_Launcher.Classes
             }
 
             return true;
+        }
+
+        // "Not registered" as two clear options: log in with Discord (recommended), or register the key in #support
+        private static void FillUnregistered(System.Windows.Controls.TextBlock t)
+        {
+            var dim = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x9A, 0xA0, 0xA8));
+            var blurple = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x8C, 0x95, 0xFF));
+            System.Windows.Documents.Run R(string s, double size = 15, bool bold = false, System.Windows.Media.Brush? brush = null)
+            {
+                var r = new System.Windows.Documents.Run(s) { FontSize = size };
+                if (bold) r.FontWeight = FontWeights.SemiBold;
+                if (brush != null) r.Foreground = brush;
+                return r;
+            }
+            t.Inlines.Clear();
+            t.Inlines.Add(R("Your AuthKey isn't registered yet", 20, true));
+            t.Inlines.Add(new System.Windows.Documents.LineBreak());
+            t.Inlines.Add(R("You need it once to play on our servers.", 13, false, dim));
+            t.Inlines.Add(new System.Windows.Documents.LineBreak());
+            t.Inlines.Add(new System.Windows.Documents.LineBreak());
+            t.Inlines.Add(R("1.  Log in with Discord", 16, true, blurple));
+            t.Inlines.Add(R("   recommended", 12, false, dim));
+            t.Inlines.Add(new System.Windows.Documents.LineBreak());
+            t.Inlines.Add(R("Click LOGIN WITH DISCORD below. Your key is registered automatically."));
+            t.Inlines.Add(new System.Windows.Documents.LineBreak());
+            t.Inlines.Add(R("Requires the Member role on our Discord (verify there first).", 13, false, dim));
+            t.Inlines.Add(new System.Windows.Documents.LineBreak());
+            t.Inlines.Add(new System.Windows.Documents.LineBreak());
+            t.Inlines.Add(R("2.  Or register it yourself", 16, true));
+            t.Inlines.Add(new System.Windows.Documents.LineBreak());
+            t.Inlines.Add(R("Copy your key in Settings > Account Key and paste it with the"));
+            t.Inlines.Add(new System.Windows.Documents.LineBreak());
+            t.Inlines.Add(R("Auth Key button in #support on our Discord."));
         }
 
         private static async Task LoginAfterBlocked(Window owner)
