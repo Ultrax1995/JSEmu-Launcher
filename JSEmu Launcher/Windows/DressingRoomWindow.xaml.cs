@@ -21,6 +21,7 @@ namespace H1Emu_Launcher
             ("hands", "Hands", "Gloves", false),
             ("legs", "Pants", "Pants", false),
             ("feet", "Feet", "Boots and shoes", false),
+            ("hair", "Hair", "Hairstyles (free for everyone)", false),
             ("conveys", "Conveys", "Conveys / Zeds / Gators skins", true),
             ("armor", "Body Armor", "Body armor skins", true),
             ("helmet", "Helmet", "Helmet skins", true),
