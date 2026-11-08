@@ -1578,12 +1578,40 @@ namespace H1Emu_Launcher
             {
                 if (!DiscordLogin.IsLoggedIn) ShowDiscordAccount(new DiscordLogin.Result { LoggedOut = true });
                 profilePopup.IsOpen = !profilePopup.IsOpen;
+                if (profilePopup.IsOpen) _ = LoadZoneId();
                 return;
             }
             await LoginFromProfile();
         }
 
         private async void ProfileLoginClick(object sender, RoutedEventArgs e) => await LoginFromProfile();
+
+        // 8.11.2026: the hub profile answers with the Zone ID only when the key is linked to a game/store account
+        private string? zoneId;
+
+        private async Task LoadZoneId()
+        {
+            profileZoneButton.Tag = "Loading...";
+            System.Text.Json.JsonElement p = await HubApi.CallAsync("profile");
+            if (p.TryGetProperty("zoneId", out System.Text.Json.JsonElement z) && z.ValueKind == System.Text.Json.JsonValueKind.String && z.GetString() is string id && id.Length > 0)
+            {
+                zoneId = id;
+                profileZoneButton.Tag = id;
+            }
+            else
+            {
+                zoneId = null;
+                profileZoneButton.Tag = p.TryGetProperty("success", out System.Text.Json.JsonElement ok) && ok.ValueKind == System.Text.Json.JsonValueKind.True
+                    ? "Update pending - try again in a minute"
+                    : "Not linked yet - join the game once, then wait 10 min";
+            }
+        }
+
+        private void CopyZoneIdClick(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(zoneId)) return;
+            try { Clipboard.SetText(zoneId); CustomMessageBox.Show($"Zone ID copied:\n{zoneId}", this); } catch { /* clipboard busy */ }
+        }
 
         private async Task LoginFromProfile()
         {

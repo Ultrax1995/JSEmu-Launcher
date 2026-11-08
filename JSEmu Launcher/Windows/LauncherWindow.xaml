@@ -258,6 +258,12 @@
                                             <Path Data="M4,7 L9,4 C9.5,6 14.5,6 15,4 L20,7 L18,11 L16,10 L16,20 L8,20 L8,10 L6,11 Z" Fill="{DynamicResource Accent.TextOnBrush}" Stretch="Uniform" Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
                                     </Button>
+                                    <!-- 8.11.2026: Zone ID from the hub profile (= the key is linked to the store account) -->
+                                    <Button x:Name="profileZoneButton" Uid="COPY ZONE ID" Tag="Loading..." Click="CopyZoneIdClick" Height="58" Margin="0,6,0,0" Style="{StaticResource TileButton}" ToolTip="Copy your Zone ID (for tickets, the store, admins)">
+                                        <Border Width="34" Height="34" Background="#24303A" CornerRadius="9">
+                                            <Path Data="M8,4 L18,4 L18,16 M5,7 L15,7 L15,20 L5,20 Z" Stroke="#9FD3FF" StrokeThickness="1.8" Stretch="Uniform" Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </Button>
                                     <Button x:Name="profileDiscordButton" Uid="DISCORD" Tag="Join our Discord" Click="OpenDiscord" Height="58" Margin="0,6,0,0" Style="{StaticResource TileButton}">
                                         <Border Width="34" Height="34" Background="#5865F2" CornerRadius="9">
                                             <Path Data="M3,6 C5,2.5 19,2.5 21,6 L23,13 C23.8,15.8 20,17.5 18,14.7 L16.5,12.8 C13.5,13.8 10.5,13.8 7.5,12.8 L6,14.7 C4,17.5 0.2,15.8 1,13 Z" Fill="White" Stretch="Uniform" Width="18" Height="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
