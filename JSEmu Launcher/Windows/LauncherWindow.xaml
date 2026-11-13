@@ -344,7 +344,7 @@
                         </StackPanel>
 
                         <!-- public servers with their player counts, filled by UpdateServerList -->
-                        <UniformGrid x:Name="serverList" Grid.Row="1" Rows="1" Width="694" Height="66" HorizontalAlignment="Left" Margin="0,0,0,16"/>
+                        <UniformGrid x:Name="serverList" Grid.Row="1" Rows="1" Height="66" HorizontalAlignment="Stretch" Margin="0,0,0,16"/>
 
                         <!-- game card: status, folder, server, Play -->
                         <Border Grid.Row="2" Style="{StaticResource CardStyle}" Padding="24,18,24,22">
