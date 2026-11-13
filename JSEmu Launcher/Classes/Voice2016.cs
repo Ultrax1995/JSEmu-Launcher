@@ -30,6 +30,7 @@ namespace H1Emu_Launcher.Classes
             // a domain, not an IP: the game host moved (22.10.2026) and will move again; the certificate is pinned by SHA-256,
             // so the host name is not checked
             new("Krakow", "https://loginserver.jsemu.eu:8890/"),
+            new("Kraken", "https://loginserver.jsemu.eu:8892/"),
             new("TestServer", "https://loginserver.jsemu.eu:8891/"),
         };
 

@@ -16,6 +16,7 @@ namespace H1Emu_Launcher.Classes
         public static readonly Server[] Servers =
         {
             new(21, "Krakow", "PVP"),
+            new(23, "Kraken", "Solo/Duo/Trio PVP"),
             new(69, "Wasteland", "PVE"),
             new(57, "Training", "Deathmatch")
         };
